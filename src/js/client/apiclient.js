@@ -36,6 +36,15 @@ Client.prototype.getCampaigns = function(username){
     });
 };
 
+Client.prototype.getCampaign = function(campaignid){
+    return this._GET({
+        endpoint: '/campaign/' + campaignid,
+        wrap: function(data){
+            return new model.Campaign(data);
+        }
+    });
+};
+
 Client.prototype.createCampaign = function(campaign, username){
     return this._POST({
         endpoint: '/campaigns/' + username,

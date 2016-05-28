@@ -8,10 +8,13 @@ var jqueryui = require('jqueryui');
 var Mustache = require('mustache');
 
 
-// ----------------------------------------------------------------------------
+// Signals --------------------------------------------------------------------
 
-var EVT_USER_UPDATED = 'xwing:user-updated';
-var EVT_CAMPAIGNS_UPDATED = 'xwing:campaigns-updated';
+
+var EVT_USER_UPDATED        = 'xwing:user-updated';
+var EVT_CAMPAIGNS_UPDATED   = 'xwing:campaigns-updated';
+var EVT_CAMPAIGN_UPDATED    = 'xwing:campaign-updated';
+
 
 var signal = function(eventName){
     console.log('Signal ' + eventName);
@@ -23,13 +26,14 @@ var onSignal = function(eventName, callback){
 };
 
 
+// Session --------------------------------------------------------------------
 
 
 Session = function(props){
+    this._views = {};
     this.username = props.username;
     this.client = new apiclient.Client();
     this.user = null;
-
     this.campaigns = null;
 };
 
@@ -39,6 +43,25 @@ Session.prototype.setup = function(){
         signal(EVT_USER_UPDATED);
         this.refreshCampaigns();
     }.bind(this));
+
+    this._views = {
+        start: new StartView(this),
+        campaign: new CampaignView(this)
+    };
+};
+
+
+Session.prototype.show = function(viewName){
+    view = this._views[viewName];
+    if(view){
+        view.load('#view-main');
+    }
+};
+
+Session.prototype.showCampaign = function(campaignid){
+    console.log('show campaign ' + campaignid);
+    this.show('campaign');
+    this.loadCampaign(campaignid);
 };
 
 Session.prototype.refreshCampaigns = function(){
@@ -56,6 +79,16 @@ Session.prototype.createCampaign = function(displayName){
         this.refreshCampaigns();
     }.bind(this));
 };
+
+Session.prototype.loadCampaign = function(campaignid){
+    this.client.getCampaign(campaignid).then(function(campaign){
+        this.campaign = campaign;
+        signal(EVT_CAMPAIGN_UPDATED);
+    });
+};
+
+
+// Views ----------------------------------------------------------------------
 
 
 _BaseView = function(name, selector, session){
@@ -141,6 +174,16 @@ CampaignsView.prototype.bindSignals = function(){
     onSignal(EVT_CAMPAIGNS_UPDATED, this.refresh.bind(this));
 };
 
+CampaignsView.prototype.bindEvents = function(){
+    $(this.selector + ' ul li a').each(function(index, a){
+        $(a).off('click');
+        $(a).on('click', function(evt){
+            var campaignid = $(evt.target).data("id");
+            this.session.showCampaign(campaignid);
+        }.bind(this));
+    }.bind(this));
+};
+
 CampaignsView.prototype.getRenderContext = function(){
     return {
         campaigns: this.session.campaigns
@@ -164,15 +207,12 @@ _BaseView.prototype.bindEvents = function(){
 };
 
 
-var setMainView = function(viewName, session){
-    var view = new StartView(session);
-    view.load('#view-main');
+CampaignView = function(session){
+    _BaseView.call(this, 'campaign', '#view-campaign', session);
 };
 
+CampaignView.prototype = new _BaseView();
 
-var showCampaign = function(campaignid, session){
-
-};
 
 var fetchView = function(viewName){
     var promise = new prom.Promise();
@@ -194,8 +234,8 @@ var login = function(){
 
 var main = function(){
     var session = login();
-    setMainView('start', session);
     session.setup();
+    session.show('start');
 };
 
 $(main);

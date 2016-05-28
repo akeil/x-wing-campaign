@@ -1,0 +1,11 @@
+div(id="view-campaign")
+    h1 Campaign {{displayName}}
+    div(id="campaign-tabs")
+        ol
+            li
+                a(href="#campaign-home") Home
+            | {{#pilots}}
+            li
+                a(href="#pilot-{{_id}}") {{callsign}}
+
+            | {{/pilots}}
