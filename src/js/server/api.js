@@ -231,6 +231,30 @@ api.delete('/pilot/:pilotid', function(req, res){
 });
 
 
+// Ships ----------------------------------------------------------------------
+
+
+/*
+ * Get a list of all available ships
+ */
+api.get('/ships', function(req, res){
+    var fields = ['name', 'displayName', 'requiredSkill'];
+    store.ships.select(null, fields).then(function(ships){
+        res.json(ships);
+    }).except(function(err){
+        res.json(err);
+    });
+});
+
+api.get('/ship/:shipname', function(req, res){
+    var shipname = req.params.shipname;
+    console.log('GET ship ' + shipname);
+    store.ships.findOne({name: shipname}).then(function(ship){
+        res.json(ship);
+    }).except(function(err){
+        res.json(err);
+    });
+});
 
 
 // Exports --------------------------------------------------------------------

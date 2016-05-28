@@ -29,7 +29,20 @@ var setup = function(dbURL, callback){
 
             db.createCollection('campaigns', function(err, collection){});
             db.createCollection('pilots', function(err, collection){});
-            db.createCollection('shiptypes', function(err, collection){});
+            db.createCollection('ships', function(err, collection){
+                if(!err){
+                    console.log('create index for ship.name');
+                    collection.createIndex(
+                        {'name': INDEX_TYPE_ASC},
+                        {unique: true, name: 'ships_name_unique'},
+                        function(err){
+                            console.log(err);
+                        }
+                    );
+                }else{
+                    console.log(err);
+                }
+            });
         }
         callback(err);
     });
@@ -223,5 +236,6 @@ Collection.prototype.select = function(predicate, fields){
 module.exports.users = new Collection('users');
 module.exports.campaigns = new Collection('campaigns');
 module.exports.pilots = new Collection('pilots');
+module.exports.ships = new Collection('ships');
 
 module.exports.setup = setup;

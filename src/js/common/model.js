@@ -232,3 +232,49 @@ Pilot.prototype.addAbility = function(mission, upgradeCard){
 
 
 module.exports.Pilot = Pilot;
+
+
+// Ship -----------------------------------------------------------------------
+
+
+var SLOT_ASTROMECH          = 'Astromech';
+var SLOT_BOMB               = 'Bomb';
+var SLOT_CANNON             = 'Cannon';
+var SLOT_CARGO              = 'Cargo';
+var SLOT_CREW               = 'Crew';
+var SLOT_ELITE              = 'Elite';
+var SLOT_HARDPOINT          = 'Hardpoint';
+var SLOT_ILLICIT            = 'Illicit';
+var SLOT_MODIFICATION       = 'Modification';
+var SLOT_MISSILE            = 'Missile';
+var SLOT_SALVAGED_ASTROMECH = 'Salvaged Astromech';
+var SLOT_SYSTEM             = 'System';
+var SLOT_TEAM               = 'Team';
+var SLOT_TECH               = 'Tech';
+var SLOT_TITLE              = 'Title';
+var SLOT_TORPEDO            = 'Torpedo';
+var SLOT_TURRET             = 'Turret';
+
+/*
+ * slots:
+ * a map of requiredSkill => ArrayOfSlots
+ *
+ * e.g.
+ * {
+ *  1: ['Bomb', 'Turret'],
+ *  3: ['Elite'],
+ *  4: ['Torpedo']
+ * }
+ */
+Ship = function(props) {
+    props = props || {};
+    this.id = props.id || null;
+    this.name = props.name || null;
+    this.displayName = props.displayName || null;
+    this.requiredSkill = props.requiredSkill || null;
+
+    this.slots = props.slots || {};
+};
+
+
+module.exports.Ship = Ship;

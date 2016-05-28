@@ -51,10 +51,27 @@ app.use('/img', serveStatic(__dirname + '/../www/img'));
 // remove if you do not use api.js
 app.use('/api', api());
 
+
+var _initShips = function(){
+    var fs = require('fs'),
+        model = require('../common/model');
+    var path = './data/ships.json';
+    fs.readFile(path, function(err, contents){
+        if(!err){
+            var ships = JSON.parse(contents);
+            for(var i=0; i < ships.length; i++){
+                console.log('insert default ship ' + ships[i].name);
+                store.ships.put(new model.Ship(ships[i]));
+            }
+        }
+    });
+};
+
 store.setup(dburl, function(err){
     if(err){
         console.log(err);
     }else{
+        _initShips();
         app.listen(port);
     }
 });
