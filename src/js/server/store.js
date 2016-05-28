@@ -156,20 +156,32 @@ Collection.prototype.put = function(doc){
 };
 
 
-Collection.prototype.iter = function(predicate){
+/*
+ * Find multiple documents that match the given predicate
+ */
+//TODO limit + offset
+Collection.prototype.select = function(predicate, fields){
     var promise = new prom.Promise();
+
+    optFields = {};
+    for(var i=0; i < fields.length; i++){
+        optFields[fields[i]] = true;
+    }
 
     _db(function(err, db){
         if(err){
             promise.fail(err);
         }else{
-            var stream = db.collection(this.name).find(predicate).stream();
-            stream.on('data', function(doc){
-                promise.push(doc);
-            });
-            stream.on('end', function(){
-                promise.complete();
-            });
+            var cursor = db.collection(this.name).find(predicate, optFields);
+            cursor.toArray(
+                function(lookupErr, results){
+                    if(lookupErr){
+                        promise.fail(lookupErr);
+                    }else{
+                        promise.resolve(results);
+                    }
+                }
+            );
         }
     }.bind(this));
 

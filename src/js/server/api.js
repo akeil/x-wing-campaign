@@ -47,11 +47,16 @@ api.use(function(err, req, res, next){
 
 
 /*
- * List users
+ * List user names
  */
 api.get('/users', function(req, res){
-    console.log('foo');
-    res.json({foo: 'bar'});
+    fields = ['name', 'displayName'];
+    store.users.select({}, fields).then(function(usernames){
+        res.json(usernames);
+    }).except(function(err){
+        res.status(500);
+        res.json({error: err});
+    });
 });
 
 
