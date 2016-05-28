@@ -14,8 +14,10 @@ var Mustache = require('mustache');
 var EVT_USER_UPDATED        = 'xwing:user-updated';
 var EVT_CAMPAIGNS_UPDATED   = 'xwing:campaigns-updated';
 var EVT_CAMPAIGN_UPDATED    = 'xwing:campaign-updated';
+var EVT_PILOT_UPDATED       = 'xwing:pilot-updated';
 var EVT_PILOTS_UPDATED      = 'xwing:pilots-updated';
 var EVT_USERS_UPDATED       = 'xwing:users-updated';
+var EVT_SHIPS_UPDATED       = 'xwing:ships-updated';
 
 var signal = function(eventName){
     console.log('Signal ' + eventName);
@@ -36,9 +38,11 @@ Session = function(props){
     this.client = new apiclient.Client();
     this.user = null;
     this.users = null;
-    this.campaigns = null;
     this.campaign = null;
+    this.campaigns = null;
+    this.pilot = null;
     this.pilots = null;
+    this.ships = null;
 };
 
 Session.prototype.setup = function(){
@@ -47,6 +51,8 @@ Session.prototype.setup = function(){
         signal(EVT_USER_UPDATED);
         this.refreshCampaigns();
     }.bind(this));
+
+    this.refreshShips();
 
     this._views = {
         start: new StartView(this),
@@ -90,6 +96,14 @@ Session.prototype.refreshPilots = function(){
     }.bind(this));
 };
 
+Session.prototype.refreshShips = function(){
+    this.client.getShips().then(function(ships){
+        this.ships = ships;
+        signal(EVT_SHIPS_UPDATED);
+
+    }.bind(this));
+};
+
 Session.prototype.createCampaign = function(displayName){
     campaign = new model.Campaign({
         displayName: displayName
@@ -118,6 +132,14 @@ Session.prototype.loadCampaign = function(campaignid){
 
     }.bind(this));
 };
+
+Session.prototype.loadPilot = function(pilotid){
+    this.client.getPilot(pilotid).then(function(pilot){
+        this.pilot = pilot;
+        signal(EVT_PILOT_UPDATED);
+    }.bind(this));
+};
+
 
 
 // Views ----------------------------------------------------------------------
@@ -214,7 +236,7 @@ CampaignsView.prototype.bindEvents = function(){
     $(this.selector + ' ul li a').each(function(index, a){
         $(a).off('click');
         $(a).on('click', function(evt){
-            var campaignid = $(evt.target).data("id");
+            var campaignid = $(evt.delegateTarget).data("id");
             this.session.showCampaign(campaignid);
         }.bind(this));
     }.bind(this));
@@ -250,6 +272,7 @@ CampaignView = function(session){
     _BaseView.call(this, 'campaign', '#view-campaign', session);
     this._children.push(new PilotsView(session));
     this._children.push(new AddPilotView(session));
+    this._children.push(new PilotDetailsView(session));
 };
 
 CampaignView.prototype = new _BaseView();
@@ -286,7 +309,15 @@ PilotsView.prototype.bindSignals = function(){
 };
 
 PilotsView.prototype.bindEvents = function(){
+    $(this.selector + ' li a').each(function(index, a){
+        $(a).off('click');
+        $(a).on('click', function(evt){
+            evt.preventDefault();
+            var pilotid = $(evt.delegateTarget).data('id');
+            this.session.loadPilot(pilotid);
 
+        }.bind(this));
+    }.bind(this));
 };
 
 PilotsView.prototype.getRenderContext = function(){
@@ -322,6 +353,32 @@ AddPilotView.prototype.bindEvents = function(){
 AddPilotView.prototype.getRenderContext = function(){
     return {
         users: this.session.users
+    };
+};
+
+
+// Pilot Details --------------------------------------------------------------
+
+
+PilotDetailsView = function(session){
+    _BaseView.call(this, 'pilot-details', '#view-pilot-details', session);
+};
+
+PilotDetailsView.prototype = new _BaseView();
+
+PilotDetailsView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
+};
+
+PilotDetailsView.prototype.bindEvents = function(){
+
+};
+
+PilotDetailsView.prototype.getRenderContext = function(){
+    return {
+        pilot: this.session.pilot,
+        ships: this.session.ships
     };
 };
 

@@ -81,10 +81,43 @@ Client.prototype.getPilots = function(campaignid){
     });
 };
 
+Client.prototype.getPilot = function(pilotid){
+    return this._GET({
+        endpoint: '/pilot/' + pilotid,
+        wrap: function(data){
+            return new model.Pilot(data);
+        }
+    });
+};
+
 Client.prototype.createPilot = function(campaignid, pilot){
     return this._POST({
         endpoint: '/campaign/' + campaignid + '/pilot',
         payload: pilot
+    });
+};
+
+// Ship -----------------------------------------------------------------------
+
+Client.prototype.getShips = function(campaignid){
+    return this._GET({
+        endpoint: '/ships',
+        wrap: function(items){
+            results = [];
+            for(var i=0; i < items.length; i++){
+                results.push(new model.Ship(items[i]));
+            }
+            return results;
+        }
+    });
+};
+
+Client.prototype.getShip = function(name){
+    return this._GET({
+        endpoint: '/ship/' + name,
+        wrap: function(data){
+            return new model.Ship(data);
+        }
     });
 };
 
