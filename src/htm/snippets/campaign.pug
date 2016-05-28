@@ -1,23 +1,9 @@
 div(id="view-campaign")
-    h1 Campaign
-    div(id="campaign-tabs")
-        ol
-            li
-                a(href="#campaign-home") Home
-            | {{#pilots}}
-            li
-                a(href="#pilot-{{_id}}") {{callsign}}
-
-            | {{/pilots}}
-
-        div(id="campaign-home")
-            h2 {{campaign.displayName}}
-            p campaign details here
-            div(id="child-view-pilots")
-            div(id="child-view-add-pilot")
-            div(id="child-view-pilot-details")
-        | {{#pilots}}
-        div(id="pilot-{{_id}}")
-            h2 {{callsign}} -- {{owner}}
-            p pilot details go here
-        | {{/pilots}}
+    div(class="row")
+        div(class="col-md-4")
+            h1 Campaign
+    div(class="row")
+        div(id="child-view-pilots")
+        div(id="child-view-add-pilot")
+    div(class="row")
+        div(id="child-view-pilot-details")

@@ -1,4 +1,4 @@
-div(id="view-pilot-details")
+div(id="view-pilot-details" class="col-md-6")
     h3 Pilot Details ({{pilot.callsign}})
     |{{^pilot}}
     p no pilot
@@ -26,13 +26,14 @@ div(id="view-pilot-details")
     | {{/pilot.ship}}
 
     form(id="change-ship")
-        label(for="change-ship-name") Change to
-        select(id="change-ship-name" name="change-ship-name")
-            | {{#ships}}
-            option(value="{{name}}") {{displayName}}
-            | {{/ships}}
-        input(type="submit")
-
-    
+        div(class="form-group")
+            label(for="change-ship-name") Change to
+            div(class="input-group")
+                select(id="change-ship-name" name="change-ship-name" class="form-control")
+                    | {{#ships}}
+                    option(value="{{name}}") {{displayName}}
+                    | {{/ships}}
+                span(class="input-group-btn")
+                    button(type="submit" class="btn btn-default") Change
 
     | {{/pilot}}
