@@ -52,6 +52,21 @@ Client.prototype.createCampaign = function(campaign, username){
     });
 };
 
+// Pilot ----------------------------------------------------------------------
+
+Client.prototype.getPilots = function(campaignid){
+    return this._GET({
+        endpoint: '/campaign/' + campaignid + '/pilots',
+        wrap: function(pilots){
+            results = [];
+            for(var i=0; i < pilots.length; i++){
+                results.push(new model.Pilot(pilots[i]));
+            }
+            return results;
+        }
+    });
+};
+
 // Helpers --------------------------------------------------------------------
 
 Client.prototype._GET = function(p){

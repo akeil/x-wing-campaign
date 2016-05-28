@@ -14,6 +14,7 @@ var Mustache = require('mustache');
 var EVT_USER_UPDATED        = 'xwing:user-updated';
 var EVT_CAMPAIGNS_UPDATED   = 'xwing:campaigns-updated';
 var EVT_CAMPAIGN_UPDATED    = 'xwing:campaign-updated';
+var EVT_PILOTS_UPDATED      = 'xwing:pilots-updated';
 
 
 var signal = function(eventName){
@@ -35,6 +36,8 @@ Session = function(props){
     this.client = new apiclient.Client();
     this.user = null;
     this.campaigns = null;
+    this.campaign = null;
+    this.pilots = null;
 };
 
 Session.prototype.setup = function(){
@@ -84,7 +87,14 @@ Session.prototype.loadCampaign = function(campaignid){
     this.client.getCampaign(campaignid).then(function(campaign){
         this.campaign = campaign;
         signal(EVT_CAMPAIGN_UPDATED);
-    });
+
+        this.client.getPilots(campaignid).then(function(pilots){
+            this.pilots = pilots;
+            signal(EVT_PILOTS_UPDATED);
+
+        }.bind(this));
+
+    }.bind(this));
 };
 
 
@@ -212,6 +222,47 @@ CampaignView = function(session){
 };
 
 CampaignView.prototype = new _BaseView();
+
+CampaignView.prototype.bindSignals = function(){
+    onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
+};
+
+CampaignView.prototype.bindEvents = function(){
+    //$('#campaign-tabs').tabs('destroy');
+    $('#campaign-tabs').tabs();
+};
+
+CampaignView.prototype.getRenderContext = function(){
+    return {
+        campaign: this.session.campaign,
+        pilots: this.session.pilots
+    };
+};
+
+
+// Pilots View ----------------------------------------------------------------
+
+
+PilotsView = function(){
+    _BaseView.call(this, 'pilots', '#view-pilots', session);
+};
+
+PilotsView.prototype = new _BaseView();
+
+PilotsView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
+};
+
+PilotsView.prototype.bindEvents = function(){
+
+};
+
+PilotsView.prototype.getRenderContext = function(){
+    return {
+        pilots: this.session.pilots
+    };
+};
 
 
 var fetchView = function(viewName){

@@ -1,5 +1,5 @@
 div(id="view-campaign")
-    h1 Campaign {{displayName}}
+    h1 Campaign
     div(id="campaign-tabs")
         ol
             li
@@ -9,3 +9,12 @@ div(id="view-campaign")
                 a(href="#pilot-{{_id}}") {{callsign}}
 
             | {{/pilots}}
+
+        div(id="campaign-home")
+            h2 {{campaign.displayName}}
+            p campaign details here
+        | {{#pilots}}
+        div(id="pilot-{{_id}}")
+            h2 {{callsign}} -- {{owner}}
+            p pilot details go here
+        | {{/pilots}}
