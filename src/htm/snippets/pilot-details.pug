@@ -1,6 +1,8 @@
 div(id="view-pilot-details")
     h3 Pilot Details ({{pilot.callsign}})
-
+    |{{^pilot}}
+    p no pilot
+    | {{/pilot}}
     table
         tbody
             tr
@@ -12,3 +14,25 @@ div(id="view-pilot-details")
             tr
                 th Current XP
                 td currentXP() does not work
+
+    | {{#pilot}}
+    h4 Ship
+    | {{#pilot.ship}}
+    p Current ship is {{pilot.ship}}
+    | {{/pilot.ship}}
+
+    | {{#pilot.ship}}
+    p Select a ship.
+    | {{/pilot.ship}}
+
+    form(id="change-ship")
+        label(for="change-ship-name") Change to
+        select(id="change-ship-name" name="change-ship-name")
+            | {{#ships}}
+            option(value="{{name}}") {{displayName}}
+            | {{/ships}}
+        input(type="submit")
+
+    
+
+    | {{/pilot}}

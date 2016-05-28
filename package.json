@@ -9,6 +9,7 @@
   },
   "homepage": "http://akeil.net/code/",
   "devDependencies": {
+    "bootstrap-less": "^3.3.8",
     "browserify": "*",
     "del": "*",
     "globby": "*",

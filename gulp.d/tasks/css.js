@@ -5,7 +5,10 @@ var gulp = require('gulp'),
 
 gulp.task('css', function(){
     return gulp.src(config.src)
-        .pipe(less())
+        .pipe(less({paths: [
+            '.',
+            './node_modules/bootstrap-less',
+        ]}))
         .pipe(cleanCSS())
         .pipe(gulp.dest(config.dst));
 });

@@ -18,13 +18,6 @@ gulp.task('client-scripts', function(){
         });
         return b.bundle();
     });
-//    return gulp.src(config.src)
-//        .pipe(jshint())
-//        .pipe(jshint.reporter('default'))
-//        .pipe(browserified)
-//        .pipe(sourcemaps.init({loadMaps: true}))
-//        .pipe(uglify())
-//        .pipe(gulp.dest(config.dst));
 
     return gulp.src(config.src, {read: false})
         .pipe(jshint())
