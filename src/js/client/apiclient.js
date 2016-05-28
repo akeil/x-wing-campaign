@@ -21,6 +21,20 @@ Client.prototype.getUser = function(username){
     });
 };
 
+Client.prototype.getUsers = function(){
+    return this._GET({
+        endpoint: '/users',
+        wrap: function(items){
+            results = [];
+            for(var i=0; i < items.length; i++){
+                results.push(new model.User(items[i]));
+            }
+            return results;
+        }
+    });
+};
+
+
 // Campaign -------------------------------------------------------------------
 
 Client.prototype.getCampaigns = function(username){
@@ -45,7 +59,7 @@ Client.prototype.getCampaign = function(campaignid){
     });
 };
 
-Client.prototype.createCampaign = function(campaign, username){
+Client.prototype.createCampaign = function(username, campaign){
     return this._POST({
         endpoint: '/campaigns/' + username,
         payload: campaign
@@ -64,6 +78,13 @@ Client.prototype.getPilots = function(campaignid){
             }
             return results;
         }
+    });
+};
+
+Client.prototype.createPilot = function(campaignid, pilot){
+    return this._POST({
+        endpoint: '/campaign/' + campaignid + '/pilot',
+        payload: pilot
     });
 };
 

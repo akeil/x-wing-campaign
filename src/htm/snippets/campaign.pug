@@ -13,6 +13,8 @@ div(id="view-campaign")
         div(id="campaign-home")
             h2 {{campaign.displayName}}
             p campaign details here
+            div(id="child-view-pilots")
+            div(id="child-view-add-pilot")
         | {{#pilots}}
         div(id="pilot-{{_id}}")
             h2 {{callsign}} -- {{owner}}

@@ -1,0 +1,12 @@
+div(id="view-add-pilot")
+    h3 Add Pilot
+    form(id="add-pilot")
+        label(for="pilot-callsign") Callsign:
+        input(id="pilot-callsign" name="pilot-callsign")
+        label(for="pilot-owner") Player:
+        select(id="pilot-owner" name="pilot-owner")
+            option(value="") ---
+            | {{#users}}
+            option(value="{{name}}") {{displayName}}
+            | {{/users}}
+        input(type="submit")

@@ -58,7 +58,7 @@ Pilot = function(props) {
     this._id = props._id || null;
     this.campaignid = props.campaignid || null;
     this.owner = props.owner || null;
-    this.ship = ship || null;
+    this.ship = props.ship || null;
     this.callsign = props.callsign || null;
 
     this.kills = props.kills || [];

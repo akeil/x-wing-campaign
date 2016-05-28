@@ -1,0 +1,9 @@
+div(id="view-pilots")
+    h3 Pilots
+    ol
+        | {{#pilots}}
+        li
+            strong {{callsign}}
+            small played by
+            em {{owner}}
+        | {{/pilots}}

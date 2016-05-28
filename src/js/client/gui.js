@@ -15,7 +15,7 @@ var EVT_USER_UPDATED        = 'xwing:user-updated';
 var EVT_CAMPAIGNS_UPDATED   = 'xwing:campaigns-updated';
 var EVT_CAMPAIGN_UPDATED    = 'xwing:campaign-updated';
 var EVT_PILOTS_UPDATED      = 'xwing:pilots-updated';
-
+var EVT_USERS_UPDATED       = 'xwing:users-updated';
 
 var signal = function(eventName){
     console.log('Signal ' + eventName);
@@ -35,6 +35,7 @@ Session = function(props){
     this.username = props.username;
     this.client = new apiclient.Client();
     this.user = null;
+    this.users = null;
     this.campaigns = null;
     this.campaign = null;
     this.pilots = null;
@@ -67,6 +68,13 @@ Session.prototype.showCampaign = function(campaignid){
     this.loadCampaign(campaignid);
 };
 
+Session.prototype.refreshUsers = function(){
+    this.client.getUsers().then(function(users){
+        this.users = users;
+        signal(EVT_USERS_UPDATED);
+    }.bind(this));
+};
+
 Session.prototype.refreshCampaigns = function(){
     this.client.getCampaigns(this.user.name).then(function(campaigns){
         this.campaigns = campaigns;
@@ -74,25 +82,39 @@ Session.prototype.refreshCampaigns = function(){
     }.bind(this));
 };
 
+Session.prototype.refreshPilots = function(){
+    this.client.getPilots(this.campaign._id).then(function(pilots){
+        this.pilots = pilots;
+        signal(EVT_PILOTS_UPDATED);
+
+    }.bind(this));
+};
+
 Session.prototype.createCampaign = function(displayName){
     campaign = new model.Campaign({
         displayName: displayName
     });
-    this.client.createCampaign(campaign, this.user.name).then(function(){
+    this.client.createCampaign(this.user.name, campaign).then(function(){
         this.refreshCampaigns();
     }.bind(this));
+};
+
+Session.prototype.createPilot = function(owner, callsign){
+        var pilot = new model.Pilot({
+            owner: owner,
+            callsign: callsign
+        });
+        this.client.createPilot(this.campaign._id, pilot).then(function(){
+            this.refreshPilots();
+        }.bind(this));
 };
 
 Session.prototype.loadCampaign = function(campaignid){
     this.client.getCampaign(campaignid).then(function(campaign){
         this.campaign = campaign;
         signal(EVT_CAMPAIGN_UPDATED);
-
-        this.client.getPilots(campaignid).then(function(pilots){
-            this.pilots = pilots;
-            signal(EVT_PILOTS_UPDATED);
-
-        }.bind(this));
+        this.refreshPilots();
+        this.refreshUsers();
 
     }.bind(this));
 };
@@ -163,6 +185,8 @@ _BaseView.prototype.refresh = function(){
 };
 
 
+// Start View -----------------------------------------------------------------
+
 
 StartView = function(session){
     _BaseView.call(this, 'start', '#view-start', session);
@@ -172,6 +196,8 @@ StartView = function(session){
 
 StartView.prototype = new _BaseView();
 
+
+// Campaigns View -------------------------------------------------------------
 
 
 CampaignsView = function(session){
@@ -217,15 +243,20 @@ _BaseView.prototype.bindEvents = function(){
 };
 
 
+// Campaign View --------------------------------------------------------------
+
+
 CampaignView = function(session){
     _BaseView.call(this, 'campaign', '#view-campaign', session);
+    this._children.push(new PilotsView(session));
+    this._children.push(new AddPilotView(session));
 };
 
 CampaignView.prototype = new _BaseView();
 
 CampaignView.prototype.bindSignals = function(){
-    onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
-    onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
+    //onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
+    //onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
 };
 
 CampaignView.prototype.bindEvents = function(){
@@ -244,7 +275,7 @@ CampaignView.prototype.getRenderContext = function(){
 // Pilots View ----------------------------------------------------------------
 
 
-PilotsView = function(){
+PilotsView = function(session){
     _BaseView.call(this, 'pilots', '#view-pilots', session);
 };
 
@@ -264,6 +295,38 @@ PilotsView.prototype.getRenderContext = function(){
     };
 };
 
+
+// Add Pilot ------------------------------------------------------------------
+
+
+AddPilotView = function(session){
+    _BaseView.call(this, 'add-pilot', '#view-add-pilot', session);
+};
+
+AddPilotView.prototype = new _BaseView();
+
+AddPilotView.prototype.bindSignals = function(){
+    onSignal(EVT_USERS_UPDATED, this.refresh.bind(this));
+};
+
+AddPilotView.prototype.bindEvents = function(){
+    $('#add-pilot').off('submit');
+    $('#add-pilot').on('submit', function(evt){
+        evt.preventDefault();
+        var owner = $('#pilot-owner').val();
+        var callsign = $('#pilot-callsign').val();
+        this.session.createPilot(owner, callsign);
+    }.bind(this));
+};
+
+AddPilotView.prototype.getRenderContext = function(){
+    return {
+        users: this.session.users
+    };
+};
+
+
+// ----------------------------------------------------------------------------
 
 var fetchView = function(viewName){
     var promise = new prom.Promise();
