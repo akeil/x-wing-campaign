@@ -56,17 +56,33 @@ api.get('/users', function(req, res){
 
 
 /*
- * GET a single user by ID
+ * GET a single user by user name
  */
-api.get('/user/:userid', function(req, res){
-    var userid = req.params.userid;
-    store.users.get(userid).then(function(user){
+api.get('/user/:username', function(req, res){
+    var username = req.params.username;
+    store.users.findOne({name: username}).then(function(user){
         res.json(user);
     }).except(function(err){
         throw err;
     });
 });
 
+/*
+ * Create a user with the given username
+ */
+api.put('/user/:username', function(req, res){
+    var username = req.params.username;
+    var user = new model.User(req.body);
+    user.name = username;
+    //TODO validate
+    store.users.put(user).then(function(insertedIds){
+        res.json({id: insertedIds[0]});
+    }).except(function(err){
+        // throw err;
+        res.status(500);
+        res.json({error: err});
+    });
+});
 
 api.post('/user', function(req, res){
     var user = new model.User(req.body);

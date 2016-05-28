@@ -70,6 +70,9 @@ Collection = function(name, wrapper, unwrapper){
     this._unwrap = unwrapper || identity;
 };
 
+/*
+ * Get a single document by ID
+ */
 Collection.prototype.get = function(docid){
     var promise = new prom.Promise();
 
@@ -79,6 +82,30 @@ Collection.prototype.get = function(docid){
         }else{
             db.collection(this.name).findOne(
                 {_id: new ObjectID(docid)},
+                function(lookupErr, doc){
+                    if(lookupErr){
+                        promise.fail(lookupErr);
+                    }else{
+                        promise.resolve(this._wrap(doc));
+                    }
+                }.bind(this)
+            );
+        }
+    }.bind(this));
+
+    return promise;
+};
+
+
+Collection.prototype.findOne = function(predicate){
+    var promise = new prom.Promise();
+
+    _db(function(err, db){
+        if(err){
+            promise.fail(err);
+        }else{
+            db.collection(this.name).findOne(
+                predicate,
                 function(lookupErr, doc){
                     if(lookupErr){
                         promise.fail(lookupErr);
