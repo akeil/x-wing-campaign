@@ -23,7 +23,7 @@ var SHIP_CHANGE_COST = 5;
 User = function(props) {
     props = props || {};
     this.name = props.name || null;
-
+    this.displayName = props.displayName || null;
 };
 
 

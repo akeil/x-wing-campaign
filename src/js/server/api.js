@@ -74,7 +74,9 @@ api.post('/user', function(req, res){
     store.users.put(user).then(function(insertedIds){
         res.json({id: insertedIds[0]});
     }).except(function(err){
-        throw err;
+        // throw err;
+        res.status(500);
+        res.json({error: err});
     });
 });
 

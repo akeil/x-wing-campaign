@@ -6,6 +6,7 @@ var ObjectID = mongodb.ObjectID;
 var _dbURL;
 var _conn;
 
+var INDEX_TYPE_ASC = 1;
 
 var setup = function(dbURL, callback){
     console.log('Setup database');
@@ -14,7 +15,20 @@ var setup = function(dbURL, callback){
     _db(function(err, db){
         if(!err){
             console.log('create collections');
-            db.createCollection('users', function(err, collection){});
+            db.createCollection('users', function(err, collection){
+                if(!err){
+                    console.log('create index for user.name');
+                    collection.createIndex(
+                        {'name': INDEX_TYPE_ASC},
+                        {unique: true, name: 'users_name_unique'},
+                        function(err){
+                            console.log(err);
+                        });
+                }else{
+                    console.log(err);
+                }
+            });
+
             db.createCollection('campaigns', function(err, collection){});
             db.createCollection('pilots', function(err, collection){});
             db.createCollection('shiptypes', function(err, collection){});
@@ -99,6 +113,9 @@ Collection.prototype.put = function(doc){
             }else{
                 db.collection(this.name).insert(docToStore, function(err, status){
                     if(err){
+                        if(err.code === 11000){
+                            // TODO: duplicate key error
+                        }
                         promise.fail(err);
                     }else{
                         promise.resolve(status.insertedIds);
@@ -112,7 +129,7 @@ Collection.prototype.put = function(doc){
 };
 
 
-Collections.prototype.iter = function(predicate){
+Collection.prototype.iter = function(predicate){
     var promise = new prom.Promise();
 
     _db(function(err, db){
