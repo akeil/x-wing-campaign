@@ -97,7 +97,7 @@ api.put('/user/:username', function(req, res){
  */
 api.get('/campaigns/:username', function(req, res){
     var username = req.params.username;
-    fields = ['displayName'];
+    var fields = ['displayName'];
     store.campaigns.select({owner: username}, fields).then(function(campaigns){
         res.json(campaigns);
     }).except(function(err){
@@ -136,11 +136,7 @@ api.get('/campaign/:campaignid', function(req, res){
 
     console.log('GET campaign ' + campaignid);
     store.campaigns.get(campaignid).then(function(campaign){
-        if(campaign === null){
-            res.json("NotFound");
-        }else{
-            res.json(campaign);
-        }
+        res.json(campaign);
     }).except(function(err){
         res.json(err);
     });
@@ -168,7 +164,13 @@ api.delete('/campaign/:campaignid', function(req, res){
  */
 api.get('/campaign/:campaignid/pilots', function(req, res){
     var campaignid = req.params.campaignid;
-    res.json({foo: 'bar'});
+    // check current user is campaign member
+    var fields = ['owner', 'callsign'];
+    store.pilots.select({campaignid: campaignid}, fields).then(function(pilots){
+        res.json(pilots);
+    }).except(function(err){
+        res.json(err);
+    });
 });
 
 
@@ -176,20 +178,42 @@ api.get('/campaign/:campaignid/pilots', function(req, res){
 
 
 /*
- * Get a pilot by id
+ * Create a new pilot for a campaign.
+ * The request body must contain:
+ * {
+ *  "owner": <username-of-owner>
+ *  "callsign": <callsign-for-pilot>
+ + }
  */
-api.get('/pilot/:pilotid', function(req, res){
-    var pilotid = req.params.pilotid;
-    res.json({foo: 'bar'});
+api.post('/campaign/:campaignid/pilot', function(req, res){
+    var campaignid = req.params.campaignid;
+    console.log('Create pilot for campaign ' + campaignid);
+    var pilot = new model.Pilot(req.body);
+    pilot.campaignid = campaignid;
+    // TODO validate callsign + owner is set
+    // TODO validate current user is campaign owner
+    // TODO validate pilot.owner is not already in the campaign?
+    // TODO validate that pilot's campaign props are reset?
+    store.pilots.put(pilot).then(function(insertedIds){
+        res.json({id: insertedIds[0]});
+    }).except(function(err){
+        res.json(err);
+    });
 });
 
 
 /*
- * Create a new pilot
+ * Get a pilot by id
  */
-api.put('/pilot/:pilotid', function(req, res){
+api.get('/pilot/:pilotid', function(req, res){
     var pilotid = req.params.pilotid;
-    res.json({foo: 'bar'});
+    console.log('GET pilot ' + pilotid);
+    // TODO check that current user is campaign member
+    store.pilots.get(pilotid).then(function(pilot){
+        res.json(pilot);
+    }).except(function(err){
+        res.json(err);
+    });
 });
 
 
@@ -198,7 +222,12 @@ api.put('/pilot/:pilotid', function(req, res){
  */
 api.delete('/pilot/:pilotid', function(req, res){
     var pilotid = req.params.pilotid;
-    res.json({foo: 'bar'});
+    console.log('DELETE pilot ' + pilotid);
+    store.pilots.delete(pilotid).then(function(result){
+        res.json({});  // no result
+    }).except(function(err){
+        res.json(err);
+    });
 });
 
 

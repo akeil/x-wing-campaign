@@ -84,7 +84,11 @@ Collection.prototype.get = function(docid){
                     if(lookupErr){
                         promise.fail(lookupErr);
                     }else{
-                        promise.resolve(this._wrap(doc));
+                        if(doc === null){
+                            promise.fail('NotFound');
+                        }else{
+                            promise.resolve(this._wrap(doc));
+                        }
                     }
                 }.bind(this)
             );
@@ -218,5 +222,6 @@ Collection.prototype.select = function(predicate, fields){
 
 module.exports.users = new Collection('users');
 module.exports.campaigns = new Collection('campaigns');
+module.exports.pilots = new Collection('pilots');
 
 module.exports.setup = setup;

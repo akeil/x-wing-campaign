@@ -52,7 +52,7 @@ module.exports.Campaign = Campaign;
 Pilot = function(props) {
     props = props || {};
     this.id = props.id || null;
-    this.campaign = props.campaign || null;
+    this.campaignid = props.campaignid || null;
     this.owner = props.owner || null;
     this.callsign = props.callsign || null;
 
@@ -229,3 +229,6 @@ Pilot.prototype.addAbility = function(mission, upgradeCard){
     // TODO: store which ability we have added
     this.spendXP(mission, KIND_ABILITY, cost);
 };
+
+
+module.exports.Pilot = Pilot;
