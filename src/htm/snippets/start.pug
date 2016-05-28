@@ -1,0 +1,14 @@
+div(id="view-start")
+    h1 Start
+    p Welcome, {{user.displayName}}. You are logged in as {{user.name}}
+    h2 Campaigns
+    ul
+        | {{#campaigns}}
+        li {{displayName}}
+        | {{/campaigns}}
+
+    h2 start new campaign
+    form(id="campaign-start" action="")
+        label(for="campaign-displayName") Name:
+        input(id="campaign-displayName" name="campaign-displayName")
+        input(type="submit")

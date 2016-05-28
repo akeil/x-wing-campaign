@@ -4,8 +4,8 @@
   "author": "Alexander Keil <alex@akeil.net>",
   "description": "Campaign tracker for the X-Wing boardgame",
   "repository": {
-      "type" : "git",
-      "url" : "https://github.com/akeil/x-wing-campaign.git"
+    "type": "git",
+    "url": "https://github.com/akeil/x-wing-campaign.git"
   },
   "homepage": "http://akeil.net/code/",
   "devDependencies": {
@@ -13,11 +13,11 @@
     "del": "*",
     "globby": "*",
     "gulp": "*",
-    "gulp-pug": "*",
+    "gulp-clean-css": "*",
     "gulp-jasmine": "*",
     "gulp-jshint": "*",
     "gulp-less": "*",
-    "gulp-clean-css": "*",
+    "gulp-pug": "*",
     "gulp-sourcemaps": "*",
     "gulp-uglify": "*",
     "jasmine": "*",
@@ -29,13 +29,16 @@
     "vinyl-source-stream": "*"
   },
   "dependencies": {
-      "express": "*",
-      "mongodb": "*",
-      "jquery": "*",
-      "serve-static": "*"
+    "dojo": "^1.11.1",
+    "express": "*",
+    "jquery": "*",
+    "jqueryui": "^1.11.1",
+    "mongodb": "*",
+    "mustache": "^2.2.1",
+    "serve-static": "*"
   },
   "scripts": {
-      "start": "node app.js"
+    "start": "node app.js"
   },
   "main": "app.js"
 }

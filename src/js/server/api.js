@@ -246,6 +246,8 @@ api.get('/ships', function(req, res){
     });
 });
 
+//TODO ships by skill level?
+
 api.get('/ship/:shipname', function(req, res){
     var shipname = req.params.shipname;
     console.log('GET ship ' + shipname);
