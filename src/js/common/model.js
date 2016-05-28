@@ -32,13 +32,18 @@ module.exports.User = User;
 
 // Campaign -------------------------------------------------------------------
 
-
+/*
+ *  owner: the username of the campaign master
+ */
 Campaign = function(props) {
     props = props || {};
-    this.id = props.id || null;
-    this.name = props.name || null;
+    this._id = props.id || null;
     this.owner = props.owner || null;
+    this.displayName = props.displayName || null;
 };
+
+
+module.exports.Campaign = Campaign;
 
 
 // Pilot ----------------------------------------------------------------------

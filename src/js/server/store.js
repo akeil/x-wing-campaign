@@ -20,10 +20,8 @@ var setup = function(dbURL, callback){
                     console.log('create index for user.name');
                     collection.createIndex(
                         {'name': INDEX_TYPE_ASC},
-                        {unique: true, name: 'users_name_unique'},
-                        function(err){
-                            console.log(err);
-                        });
+                        {unique: true, name: 'users_name_unique'}
+                    );
                 }else{
                     console.log(err);
                 }
@@ -95,6 +93,35 @@ Collection.prototype.get = function(docid){
 
     return promise;
 };
+
+
+/*
+ * Delete a single document by id.
+ */
+Collection.prototype.delete = function(docid){
+    var promise = new prom.Promise();
+
+    _db(function(err, db){
+        if(err){
+            promise.fail(err);
+        }else{
+            db.collection(this.name).remove(
+                {_id: new ObjectID(docid)},
+                {},  // no options
+                function(opErr, docsRemoved){
+                    if(opErr){
+                        promise.fail(opErr);
+                    }else{
+                        promise.resolve(null);
+                    }
+                }
+            );
+        }
+    }.bind(this));
+
+    return promise;
+};
+
 
 
 Collection.prototype.findOne = function(predicate){
@@ -190,5 +217,6 @@ Collection.prototype.select = function(predicate, fields){
 
 
 module.exports.users = new Collection('users');
+module.exports.campaigns = new Collection('campaigns');
 
 module.exports.setup = setup;

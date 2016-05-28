@@ -83,19 +83,6 @@ api.put('/user/:username', function(req, res){
     store.users.put(user).then(function(insertedIds){
         res.json({id: insertedIds[0]});
     }).except(function(err){
-        // throw err;
-        res.status(500);
-        res.json({error: err});
-    });
-});
-
-api.post('/user', function(req, res){
-    var user = new model.User(req.body);
-    // TODO: validate
-    store.users.put(user).then(function(insertedIds){
-        res.json({id: insertedIds[0]});
-    }).except(function(err){
-        // throw err;
         res.status(500);
         res.json({error: err});
     });
@@ -106,11 +93,37 @@ api.post('/user', function(req, res){
 
 
 /*
- * List campaigns for as user
+ * List campaigns for a user (by username)
  */
-api.get('/campaigns/:userid', function(req, res){
-    var userid = req.params.userid;
-    res.json({foo: 'bar'});
+api.get('/campaigns/:username', function(req, res){
+    var username = req.params.username;
+    fields = ['displayName'];
+    store.campaigns.select({owner: username}, fields).then(function(campaigns){
+        res.json(campaigns);
+    }).except(function(err){
+        res.status(500);
+        res.json({error: err});
+    });
+});
+
+
+/*
+ * Create a new campaign with the given username as the owner
+ */
+api.post('/campaigns/:username', function(req, res){
+    var username = req.params.username;
+
+    store.users.findOne({name: username}).then(function(user){
+        var campaign = new model.Campaign(req.body);
+        campaign.owner = user.name;
+        store.campaigns.put(campaign).then(function(insertedIds){
+            res.json({id: insertedIds[0]});
+        }).except(function(err){
+            res.json(err);
+        });
+    }).except(function(err){
+        res.json(err);
+    });
 });
 
 
@@ -119,16 +132,18 @@ api.get('/campaigns/:userid', function(req, res){
  */
 api.get('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
-    res.json({foo: 'bar'});
-});
+    // TODO check current user is owner or member
 
-
-/*
- * Create a new campaign
- */
-api.put('/campaign/:campaignid', function(req, res){
-    var campaignid = req.params.campaignid;
-    res.json({foo: 'bar'});
+    console.log('GET campaign ' + campaignid);
+    store.campaigns.get(campaignid).then(function(campaign){
+        if(campaign === null){
+            res.json("NotFound");
+        }else{
+            res.json(campaign);
+        }
+    }).except(function(err){
+        res.json(err);
+    });
 });
 
 
@@ -137,7 +152,14 @@ api.put('/campaign/:campaignid', function(req, res){
  */
 api.delete('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
-    res.json({foo: 'bar'});
+    // TODO check current user is owner
+    console.log('DELETE campaign ' + campaignid);
+    store.campaigns.delete(campaignid).then(function(result){
+        // no result
+        res.json({});
+    }).except(function(err){
+        res.json(err);
+    });
 });
 
 
