@@ -1,4 +1,6 @@
-var promise = require('../common/promise');
+var prom = require('../common/promise'),
+    model = require('../common/model');
+var $ = require('jquery');
 
 
 /*
@@ -8,66 +10,84 @@ Client = function(){
     this.baseurl = '/api';
 };
 
-/*
- * TODO replace with something useful
- */
-Client.prototype.foo = function(){
-    return this._promise(
-        'GET',
-        '/foo'
-    );
+// User -----------------------------------------------------------------------
+
+Client.prototype.getUser = function(username){
+    return this._GET({
+        endpoint: '/user/' + username,
+        wrap: function(data){
+            return new model.User(data);
+        }
+    });
 };
 
+// Campaign -------------------------------------------------------------------
 
-// more API calls here
-
-
-Client.prototype._promise = function(method, endpoint, payload){
-    var url = this.baseurl + endpoint;
-    var prom = new promise.Promise();
-    var req = new XMLHttpRequest();
-
-    req.open(method, url, true);
-
-    req.addEventListener(
-        'error',
-        function(){
-            console.log('HTTP ' + req.status + ' for ' + url);
-            console.log(req.response);
-            var result;
-            if(req.responseText){
-                result = JSON.parse(req.responseText);
+Client.prototype.getCampaigns = function(username){
+    return this._GET({
+        endpoint: '/campaigns/' + username,
+        wrap: function(campaigns){
+            results = [];
+            for(var i=0; i < campaigns.length; i++){
+                results.push(new model.Campaign(campaigns[i]));
             }
-            prom.fail(result);
-        },
-        false
-    );
+            return results;
+        }
+    });
+};
 
-    req.addEventListener(
-        'load',
-        function(){
-            console.log('HTTP ' + req.status + ' for ' + url);
-            console.log(req.responseText);
-            var result;
-            if(req.responseText){
-                result = JSON.parse(req.responseText);
-            }
-            prom.resolve(result);
-        }, false
-    );
+Client.prototype.createCampaign = function(campaign, username){
+    return this._POST({
+        endpoint: '/campaigns/' + username,
+        payload: campaign
+    });
+};
 
-    console.log(method + ' ' + url);
+// Helpers --------------------------------------------------------------------
+
+Client.prototype._GET = function(p){
+    p.method = 'GET';
+    return this._promise(p);
+};
+
+Client.prototype._POST = function(p){
+    p.method = 'POST';
+    return this._promise(p);
+};
+
+Client.prototype._promise = function(p){
+    var url = this.baseurl + p.endpoint;
+    var method = p.method;
+    var payload = p.payload || null;
+    var wrap = p.wrap || identity;
+
+    var promise = new prom.Promise();
 
     if(payload){
         payload = JSON.stringify(payload);
-        req.setRequestHeader('Content-Type', 'application/json');
-        console.log('payload: ' + payload);
-        req.send(payload);
-    }else{
-        req.send();
     }
 
-    return prom;
+    $.ajax({
+        url: url,
+        type: method,
+        dataType: 'json',  // for response
+        data: payload,
+        contentType: 'application/json'
+    }).done(function(jsonResponse){
+        console.log(jsonResponse);
+        promise.resolve(wrap(jsonResponse));
+    }).fail(function(xhr, status, err){
+        promise.fail({status: status, error: err});
+    }).always(function(xhr, status){
+        console.log('Got HTTP ' + status + ' for ' + url);
+    });
+
+    return promise;
+};
+
+
+var identity = function(arg){
+    return arg;
 };
 
 

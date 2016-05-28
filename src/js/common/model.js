@@ -22,6 +22,7 @@ var SHIP_CHANGE_COST = 5;
 
 User = function(props) {
     props = props || {};
+    this._id = props._id || null;
     this.name = props.name || null;
     this.displayName = props.displayName || null;
 };
@@ -37,7 +38,7 @@ module.exports.User = User;
  */
 Campaign = function(props) {
     props = props || {};
-    this._id = props.id || null;
+    this._id = props._id || null;
     this.owner = props.owner || null;
     this.displayName = props.displayName || null;
 };
@@ -54,7 +55,7 @@ module.exports.Campaign = Campaign;
  */
 Pilot = function(props) {
     props = props || {};
-    this.id = props.id || null;
+    this._id = props._id || null;
     this.campaignid = props.campaignid || null;
     this.owner = props.owner || null;
     this.ship = ship || null;
@@ -272,7 +273,7 @@ var SLOT_TURRET             = 'Turret';
  */
 Ship = function(props) {
     props = props || {};
-    this.id = props.id || null;
+    this._id = props._id || null;
     this.name = props.name || null;
     this.displayName = props.displayName || null;
     this.requiredSkill = props.requiredSkill || null;

@@ -1,0 +1,7 @@
+div(id="view-campaigns")
+    h2 Campaigns
+    ul
+        | {{#campaigns}}
+        li
+            a(href="#{{_id}}" data-item-id"{{_id}}") {{displayName}} ({{owner}})
+        | {{/campaigns}}

@@ -10,64 +10,169 @@ var Mustache = require('mustache');
 
 // ----------------------------------------------------------------------------
 
+var EVT_USER_UPDATED = 'xwing:user-updated';
+var EVT_CAMPAIGNS_UPDATED = 'xwing:campaigns-updated';
+
+var signal = function(eventName){
+    console.log('Signal ' + eventName);
+    $(document).trigger(eventName);
+};
+
+var onSignal = function(eventName, callback){
+    $(document).on(eventName, callback);
+};
+
+
+
+
 Session = function(props){
     this.username = props.username;
-    this.setup();
+    this.client = new apiclient.Client();
+    this.user = null;
+
+    this.campaigns = null;
 };
 
 Session.prototype.setup = function(){
-    this.user = new model.User({name: this.username, displayName: "Foo User"});
+    this.client.getUser(this.username).then(function(user){
+        this.user = user;
+        signal(EVT_USER_UPDATED);
+        this.refreshCampaigns();
+    }.bind(this));
+};
+
+Session.prototype.refreshCampaigns = function(){
+    this.client.getCampaigns(this.user.name).then(function(campaigns){
+        this.campaigns = campaigns;
+        signal(EVT_CAMPAIGNS_UPDATED);
+    }.bind(this));
+};
+
+Session.prototype.createCampaign = function(displayName){
+    campaign = new model.Campaign({
+        displayName: displayName
+    });
+    this.client.createCampaign(campaign, this.user.name).then(function(){
+        this.refreshCampaigns();
+    }.bind(this));
+};
+
+
+_BaseView = function(name, selector, session){
+     this.name = name;
+     this.selector = selector;
+     this.session = session;
+     this._template = '';
+     this._children = [];
+
+     this.bindSignals();
+};
+
+_BaseView.prototype.bindSignals = function(){};
+
+_BaseView.prototype._loadTemplate = function(){
+    var promise = new prom.Promise();
+
+    if(this._template !== ''){
+        promise.resolve(this._template);
+    }else{
+        fetchView(this.name).then(function(template){
+            this._template = template;
+            promise.resolve();
+        }.bind(this));
+    }
+    return promise;
+};
+
+_BaseView.prototype.load = function(selector){
+    this._loadTemplate().then(function(template){
+        console.log('add ' + this.name + ' to ' + selector);
+        $(selector).html(this.render());
+        this.bindEvents();
+        this._loadChildren();
+    }.bind(this));
+};
+
+_BaseView.prototype._loadChildren = function(){
+    for(var i=0; i < this._children.length; i++){
+        var selector = '#child-view-' + this._children[i].name;
+        this._children[i].load(selector);
+    }
+};
+
+_BaseView.prototype.getRenderContext = function(){
+    return {};
+};
+
+_BaseView.prototype.bindEvents = function(){};
+
+_BaseView.prototype.render = function(){
+    return Mustache.render(this._template, this.getRenderContext());
+};
+
+_BaseView.prototype.refresh = function(){
+    console.log('Refresh ' + this.name);
+    this._loadTemplate().then(function(template){
+        // unbind events?
+        $(this.selector).replaceWith(this.render());
+        this.bindEvents();
+    }.bind(this));
+};
+
+
+
+StartView = function(session){
+    _BaseView.call(this, 'start', '#view-start', session);
+    this._children.push(new CampaignsView(session));
+    this._children.push(new NewCampaignView(session));
+};
+
+StartView.prototype = new _BaseView();
+
+
+
+CampaignsView = function(session){
+    _BaseView.call(this, 'campaigns', '#view-campaigns', session);
+};
+
+CampaignsView.prototype = new _BaseView();
+
+CampaignsView.prototype.bindSignals = function(){
+    onSignal(EVT_CAMPAIGNS_UPDATED, this.refresh.bind(this));
+};
+
+CampaignsView.prototype.getRenderContext = function(){
+    return {
+        campaigns: this.session.campaigns
+    };
+};
+
+
+NewCampaignView = function(session){
+    _BaseView.call(this, 'new-campaign', '#view-new-campaign', session);
+};
+
+NewCampaignView.prototype = new _BaseView();
+
+_BaseView.prototype.bindEvents = function(){
+    $('#campaign-start').off('submit');
+    $('#campaign-start').on('submit', function(evt){
+        evt.preventDefault();
+        var displayName = $('#campaign-displayName').val();
+        this.session.createCampaign(displayName);
+    }.bind(this));
 };
 
 
 var setMainView = function(viewName, session){
     var view = new StartView(session);
-    view.load().then(function(){
-        $('#mainView').html(view.render());
-        view.setup();
-    });
+    view.load('#view-main');
 };
 
 
-StartView = function(session){
-    this.name = 'start';
-    this.selector = '#view-start';
-    this.template = '';
-    this.session = session;
+var showCampaign = function(campaignid, session){
+
 };
-
-StartView.prototype.setup = function(){
-    console.log('setup view');
-    console.log($('#campaign-start'));
-    $('#campaign-start').submit(function(evt){
-        evt.preventDefault();
-        var displayName = $('#campaign-displayName').val();
-        console.log('name: ' + displayName);
-        campaign = new model.Campaign({
-            displayName: displayName
-        });
-    });
-};
-
-StartView.prototype.load = function(){
-    var promise = new prom.Promise();
-    // TODO cache snippets
-    fetchView(this.name).then(function(template){
-        this.template = template;
-        promise.resolve();
-    }.bind(this));
-
-    return promise;
-};
-
-StartView.prototype.render = function(){
-    var ctx = {
-        user: this.session.user,
-        campaigns: [{displayName: 'Foo'}, {displayName: 'Bar'}]
-    };
-    return Mustache.render(this.template, ctx);
-};
-
 
 var fetchView = function(viewName){
     var promise = new prom.Promise();
@@ -90,6 +195,7 @@ var login = function(){
 var main = function(){
     var session = login();
     setMainView('start', session);
+    session.setup();
 };
 
 $(main);

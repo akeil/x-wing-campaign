@@ -65,10 +65,11 @@ api.get('/users', function(req, res){
  */
 api.get('/user/:username', function(req, res){
     var username = req.params.username;
+    console.log('GET user ' + username);
     store.users.findOne({name: username}).then(function(user){
         res.json(user);
     }).except(function(err){
-        throw err;
+        res.json(err);
     });
 });
 
@@ -88,6 +89,19 @@ api.put('/user/:username', function(req, res){
     });
 });
 
+api.delete('/user/:username', function(req, res){
+    var username = req.params.username;
+    console.log('DELETE user ' + username);
+    store.users.findOne({name: username}).then(function(user){
+        store.users.delete(user._id).then(function(result){
+            res.json({});
+        }).except(function(err){
+            res.json(err);
+        });
+    }).except(function(err){
+        res.json(err);
+    });
+});
 
 // Campaign -------------------------------------------------------------------
 
@@ -97,7 +111,8 @@ api.put('/user/:username', function(req, res){
  */
 api.get('/campaigns/:username', function(req, res){
     var username = req.params.username;
-    var fields = ['displayName'];
+    console.log('GET campaigns for ' + username);
+    var fields = ['displayName', 'owner'];
     store.campaigns.select({owner: username}, fields).then(function(campaigns){
         res.json(campaigns);
     }).except(function(err){
@@ -115,7 +130,7 @@ api.post('/campaigns/:username', function(req, res){
 
     store.users.findOne({name: username}).then(function(user){
         var campaign = new model.Campaign(req.body);
-        campaign.owner = user.name;
+        campaign.owner = username;
         store.campaigns.put(campaign).then(function(insertedIds){
             res.json({id: insertedIds[0]});
         }).except(function(err){
