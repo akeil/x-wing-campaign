@@ -1,0 +1,19 @@
+div(id="view-mission-deck" class="col-md-4")
+    h3 Mission Deck
+    table(class="table table-striped")
+        thead
+            tr
+                th Mission
+                th Territory
+                th VP
+                th Info
+        tbody
+            | {{#missions}}
+            tr
+                td
+                    strong {{displayName}}
+                td(class="{{territory}}") {{territory}}
+                td {{rebelVP}} / {{rebelVP}}
+                td
+                    small {{info}}
+            | {{/missions}}

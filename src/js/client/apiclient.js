@@ -135,6 +135,30 @@ Client.prototype.getShip = function(name){
     });
 };
 
+// Mission -----------------------------------------------------------------------
+
+Client.prototype.getMissions = function(campaignid){
+    return this._GET({
+        endpoint: '/mission',
+        wrap: function(items){
+            results = [];
+            for(var i=0; i < items.length; i++){
+                results.push(new model.Mission(items[i]));
+            }
+            return results;
+        }
+    });
+};
+
+Client.prototype.getMission = function(name){
+    return this._GET({
+        endpoint: '/mission/' + name,
+        wrap: function(data){
+            return new model.Mission(data);
+        }
+    });
+};
+
 // Helpers --------------------------------------------------------------------
 
 Client.prototype._GET = function(p){

@@ -18,11 +18,15 @@ var EVT_PILOT_UPDATED       = 'xwing:pilot-updated';
 var EVT_PILOTS_UPDATED      = 'xwing:pilots-updated';
 var EVT_USERS_UPDATED       = 'xwing:users-updated';
 var EVT_SHIPS_UPDATED       = 'xwing:ships-updated';
+var EVT_MISSIONS_UPDATED    = 'xwing:missions-updated';
+var EVT_MISSION_DETAILS_UPDATED = 'xwing:mission-details-updated';
+
 
 var signal = function(eventName){
     console.log('Signal ' + eventName);
     $(document).trigger(eventName);
 };
+
 
 var onSignal = function(eventName, callback){
     $(document).on(eventName, callback);
@@ -43,6 +47,8 @@ Session = function(props){
     this.pilot = null;
     this.pilots = null;
     this.ships = null;
+    this.missions = null;
+    this.missionDetails = {};
 };
 
 Session.prototype.setup = function(){
@@ -53,6 +59,7 @@ Session.prototype.setup = function(){
     }.bind(this));
 
     this.refreshShips();
+    this.refreshMissions();
 
     this._views = {
         start: new StartView(this),
@@ -110,6 +117,14 @@ Session.prototype.refreshShips = function(){
     }.bind(this));
 };
 
+Session.prototype.refreshMissions = function(){
+    this.client.getMissions().then(function(missions){
+        this.missions = missions;
+        signal(EVT_MISSIONS_UPDATED);
+
+    }.bind(this));
+};
+
 Session.prototype.createCampaign = function(displayName){
     campaign = new model.Campaign({
         displayName: displayName
@@ -154,6 +169,16 @@ Session.prototype.loadPilot = function(pilotid){
     }.bind(this));
 };
 
+Session.prototype.loadMission = function(missionName){
+    if(!this.missionDetails[missionName]){  // prevent duplicate requests
+        this.client.getMission(missionName).then(function(mission){
+            if(!this.missionDetails[mission.name]){  // prevent duplicate signal
+                this.missionDetails[mission.name] = mission;
+                signal(EVT_MISSION_DETAILS_UPDATED);
+            }
+        }.bind(this));
+    }
+};
 
 
 // Views ----------------------------------------------------------------------
@@ -298,6 +323,7 @@ CampaignView = function(session){
     this._children.push(new AddPilotView(session));
     this._children.push(new PilotDetailsView(session));
     this._children.push(new MissionsView(session));
+    this._children.push(new MissionDeckView(session));
 };
 
 CampaignView.prototype = new _BaseView();
@@ -437,9 +463,48 @@ MissionsView.prototype.bindEvents = function(){
 
 MissionsView.prototype.getRenderContext = function(){
     return {
-
+        campaign: this.session.campaign
     };
 };
+
+
+// Mission Deck ---------------------------------------------------------------
+
+
+MissionDeckView = function(session){
+    _BaseView.call(this, 'mission-deck', session);
+};
+
+MissionDeckView.prototype = new _BaseView();
+
+MissionDeckView.prototype.bindSignals = function(){
+    onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_MISSION_DETAILS_UPDATED, this.refresh.bind(this));
+};
+
+MissionDeckView.prototype.bindEvents = function(){
+
+};
+
+MissionDeckView.prototype.getRenderContext = function(){
+    var names = [];
+    if(this.session.campaign){
+        names = this.session.campaign.missionDeck || [];
+    }
+    var missions = [];
+    for(var i = 0; i < names.length; i++) {
+        var m = this.session.missionDetails[names[i]];
+        if(m){
+            missions.push(m);
+        }else{
+            this.session.loadMission(names[i]);
+        }
+    }
+    return {
+        missions: missions
+    };
+};
+
 
 // ----------------------------------------------------------------------------
 
