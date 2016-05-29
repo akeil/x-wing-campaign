@@ -15,6 +15,7 @@
  * Ship     | `/api/ships`                | GET
  * Ship     | `/api/ship/<name>`          | GET
  * Mission  | `/api/missions`             | GET
+ * Mission  | `/api/missions/initial`     | GET
  * Mission  | `/api/mission/<name>`       | GET
  * Upgrade  | `/api/upgrades`             | GET
  * Upgrade  | `/api/upgrade/<id>`         | GET, PUT, DELETE
@@ -158,11 +159,24 @@ api.post('/campaigns/:username', function(req, res){
             return;
         }
 
-        store.campaigns.put(campaign).then(function(insertedId){
-            res.json({id: insertedId});
+        // setup campaign
+        var fields = ['name'];
+        var predicate = {startingMission: true};
+        store.missions.select(predicate, fields).then(function(items){
+            for(var i = 0; i < items.length; i++) {
+                campaign.unlockMission(items[i].name);
+            }
+
+            store.campaigns.put(campaign).then(function(insertedId){
+                res.json({id: insertedId});
+            }).except(function(err){
+                sendError(res, err);
+            });
+
         }).except(function(err){
             sendError(res, err);
         });
+
     }).except(function(err){
         sendError(res, err);
     });
@@ -325,9 +339,21 @@ api.get('/missions', function(req, res){
     });
 });
 
+/*
+ * Get a list of all starting missions
+ */
+api.get('/missions/initial', function(req, res){
+    var fields = ['name', 'displayName'];
+    var predicate = {startingMission: true};
+    store.missions.select(predicate, fields).then(function(items){
+        res.json(items);
+    }).except(function(err){
+        sendError(res, err);
+    });
+});
 
 /*
- * Get detals for a single mission by name
+ * Get details for a single mission by name
  */
 api.get('/mission/:missionname', function(req, res){
     var missionname = req.params.missionname;

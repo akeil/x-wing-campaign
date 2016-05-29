@@ -158,6 +158,7 @@ Mission = function(props){
     this.name = props.name || null;
     this.displayName = props.displayName || null;
     this.storyArc = props.storyArc || null;
+    this.startingMission = props.startingMission || false;
     this.warmup = props.warmup || false;
     this.territory = props.territory || null;
     this.replayOnDefeat = props.replayOnDefeat || false;
