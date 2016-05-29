@@ -110,6 +110,8 @@ Session.prototype.createCampaign = function(displayName){
     });
     this.client.createCampaign(this.user.name, campaign).then(function(){
         this.refreshCampaigns();
+    }.bind(this)).except(function(err){
+        console.log(err);
     }.bind(this));
 };
 

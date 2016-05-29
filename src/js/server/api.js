@@ -47,7 +47,7 @@ var sendError = function(res, err){
     console.log(err);
     res.status(err.code || 500);
     res.json({
-        error: err.name || 'ServiceError',
+        name: err.name || 'ServiceError',
         message: err.message || 'Error handling request'
     });
 };

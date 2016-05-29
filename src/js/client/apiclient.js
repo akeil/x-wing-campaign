@@ -1,5 +1,6 @@
 var prom = require('../common/promise'),
-    model = require('../common/model');
+    model = require('../common/model'),
+    errors = require('../common/errors');
 var $ = require('jquery');
 
 
@@ -125,15 +126,15 @@ Client.prototype.getShip = function(name){
 
 Client.prototype._GET = function(p){
     p.method = 'GET';
-    return this._promise(p);
+    return this._request(p);
 };
 
 Client.prototype._POST = function(p){
     p.method = 'POST';
-    return this._promise(p);
+    return this._request(p);
 };
 
-Client.prototype._promise = function(p){
+Client.prototype._request = function(p){
     var url = this.baseurl + p.endpoint;
     var method = p.method;
     var payload = p.payload || null;
@@ -155,9 +156,17 @@ Client.prototype._promise = function(p){
         console.log(jsonResponse);
         promise.resolve(wrap(jsonResponse));
     }).fail(function(xhr, status, err){
-        promise.fail({status: status, error: err});
+        var name, message;
+        if(xhr.responseJSON){
+            name = xhr.responseJSON.name;
+            message = xhr.responseJSON.message;
+        }
+        var code = xhr.status;
+        name = name || 'ServiceError';
+        message = message || status;
+        promise.fail(new errors.Exception(code, name, message));
     }).always(function(xhr, status){
-        console.log('Got HTTP ' + status + ' for ' + url);
+        console.log('Got HTTP ' + xhr.status + ' for ' + method + ' ' + url);
     });
 
     return promise;
