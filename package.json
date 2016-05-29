@@ -39,6 +39,7 @@
     "serve-static": "*"
   },
   "scripts": {
+    "postintall": "gulp build",
     "start": "node app.js"
   },
   "main": "app.js"

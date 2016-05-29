@@ -1,12 +1,19 @@
+/*
+ * Client for the REST+JSON webservice.
+ *
+ * The `Client` class provides methods that wrap the calls to the individual
+ * service enpoints.
+ * The service methods will generally work with instances of the `model.*`
+ * classes.
+ *
+ * Calls are made asynchronously and a `Promise` is returned for each call.
+ */
 var prom = require('../common/promise'),
     model = require('../common/model'),
     errors = require('../common/errors');
 var $ = require('jquery');
 
 
-/*
- * API client
- */
 Client = function(){
     this.baseurl = '/api';
 };
@@ -34,7 +41,6 @@ Client.prototype.getUsers = function(){
         }
     });
 };
-
 
 // Campaign -------------------------------------------------------------------
 
@@ -116,7 +122,6 @@ Client.prototype.deletePilot = function(pilotid){
         endpoint: '/pilot/' + pilotid
     });
 };
-
 
 // Ship -----------------------------------------------------------------------
 

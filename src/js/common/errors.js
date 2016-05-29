@@ -1,5 +1,11 @@
 /*
- * Definition of Error codes
+ * Definition of Error codes.
+ * Preferred usage is through factory functions for predefined error types:
+ * ```
+ * return errors.databaseError('Connection error');
+ * // OR
+ * throw errors.invalid('Missing required field foo');
+ * ```
  */
 
 /*

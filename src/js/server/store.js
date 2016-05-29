@@ -1,6 +1,20 @@
+/*
+ * Interaction with the MongDB.
+ *
+ * This module establishes and holds the DB connection.
+ *
+ * The store must be initialized by calling `store.setup()`.
+ *
+ * After that, collections can be accessed through `Collection`
+ * objects which are set up per collection, i.e.:
+ * ```
+ * store.campaigns.get(id);
+ *```
+ */
 var mongodb = require('mongodb'),
     prom = require('../common/promise'),
     errors = require('../common/errors');
+
 
 var client = mongodb.MongoClient;
 var ObjectID = mongodb.ObjectID;
@@ -8,6 +22,7 @@ var _dbURL;
 var _conn;
 
 var INDEX_TYPE_ASC = 1;
+
 
 var setup = function(dbURL, callback){
     console.log('Setup database');
@@ -131,7 +146,6 @@ Collection.prototype.get = function(docid){
     return promise;
 };
 
-
 /*
  * Delete a single document by id.
  */
@@ -159,7 +173,6 @@ Collection.prototype.delete = function(docid){
 
     return promise;
 };
-
 
 /*
  * Find a single document by the given predicats.
@@ -190,7 +203,6 @@ Collection.prototype.findOne = function(predicate){
 
     return promise;
 };
-
 
 /*
  * Save a single document.
@@ -246,7 +258,6 @@ Collection.prototype.put = function(doc){
     return promise;
 };
 
-
 /*
  * Find multiple documents that match the given predicate
  */
@@ -278,6 +289,9 @@ Collection.prototype.select = function(predicate, fields){
 
     return promise;
 };
+
+
+// Exports --------------------------------------------------------------------
 
 
 module.exports.users = new Collection('users');

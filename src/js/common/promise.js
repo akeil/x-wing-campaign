@@ -1,10 +1,10 @@
 /*
  * Promise
  */
-
 var PENDING = 0;
 var SUCCESS = 1;
 var FAILED = -1;
+
 
 Promise = function(){
     this._status = PENDING;

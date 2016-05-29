@@ -1,22 +1,66 @@
+/*
+ * Model classes used on server and client side.
+ *
+ * - User
+ * - Campaign
+ * - Mission (static data)
+ * - Pilot
+ * - Ship (static data)
+ *
+ * Each model can be created by passing a dictionary of properties
+ * to the constructor:
+ * ```
+ * var instance = new Model({
+ *        foo: "some-value",
+ *        bar: "some-other-value"
+ *    });
+ * ```
+ * The idea is to create model instances from the result of a database query
+ * or REST+JSON Webservice call.
+ *
+ * Model classes should have a `validate()` method which raises an error if
+ * any property is invalid.
+ */
 var errors = require('../common/errors');
+
 
 // Constants ------------------------------------------------------------------
 
 
-var KIND_DAMAGE = "damage";
-var KIND_KILL = "kill";
-var KIND_ASSIST = "assist";
-var KIND_GUARD = "guard";
-var KIND_MISSION = "mission";
+// reasons for earning XP
+var KIND_DAMAGE     = "damage";
+var KIND_KILL       = "kill";
+var KIND_ASSIST     = "assist";
+var KIND_GUARD      = "guard";
+var KIND_MISSION    = "mission";
 
+// reasons for spending XP
 var KIND_SKILL_INCREASE = "skillIncrease";
-var KIND_UPGRADE = "upgrade";
-var KIND_SHIP_CHANGE = "shipChange";
-var KIND_TALENT_CHANGE = "talent";
+var KIND_UPGRADE        = "upgrade";
+var KIND_SHIP_CHANGE    = "shipChange";
+var KIND_TALENT_CHANGE  = "talent";
 var KIND_ABILITY_CHANGE = "ability";
 
 var BASE_SKILL = 2;
 var SHIP_CHANGE_COST = 5;
+
+var SLOT_ASTROMECH          = 'Astromech';
+var SLOT_BOMB               = 'Bomb';
+var SLOT_CANNON             = 'Cannon';
+var SLOT_CARGO              = 'Cargo';
+var SLOT_CREW               = 'Crew';
+var SLOT_ELITE              = 'Elite';
+var SLOT_HARDPOINT          = 'Hardpoint';
+var SLOT_ILLICIT            = 'Illicit';
+var SLOT_MODIFICATION       = 'Modification';
+var SLOT_MISSILE            = 'Missile';
+var SLOT_SALVAGED_ASTROMECH = 'Salvaged Astromech';
+var SLOT_SYSTEM             = 'System';
+var SLOT_TEAM               = 'Team';
+var SLOT_TECH               = 'Tech';
+var SLOT_TITLE              = 'Title';
+var SLOT_TORPEDO            = 'Torpedo';
+var SLOT_TURRET             = 'Turret';
 
 
 // User -----------------------------------------------------------------------
@@ -44,8 +88,12 @@ module.exports.User = User;
 
 // Campaign -------------------------------------------------------------------
 
+
 /*
- *  owner: the username of the campaign master
+ * The campaign object tracks the state of an individual campaign,
+ * e.g. which missions were played and their results.
+ *
+ * owner: the username of the campaign master
  *
  * playedMissions: [
  *   {
@@ -79,11 +127,17 @@ Campaign.prototype.validate = function(){
     }
 };
 
+/*
+ * Add the given `missionName` to the `missionDeck`.
+ */
 Campaign.prototype.unlockMission = function(missionName){
     // TODO: check if not already in deck
     this.missionDeck.push(missionName);
 };
 
+/*
+ * Remove the given `missionName` from the `missionDeck`.
+ */
 Campaign.prototype.removeMission = function(missionName){
     var indexToRemove = -1;
     for (var i = 0; i < this.missionDeck.length; i++) {
@@ -98,7 +152,16 @@ Campaign.prototype.removeMission = function(missionName){
 };
 
 /*
- * mission: a Mission object
+ * Calculate and apply the effects of a played mission.
+ * This means:
+ *
+ * - determine victory points for both sides
+ * - determine if a new mission becomes unlocked
+ *   and add it to the mission deck.
+ * - remove the played mission from the mission deck
+ * - add the given mission to the list of `playedMssions`
+ *
+ * mission: a `Mission` object
  * victory: true | false
  */
 Campaign.prototype.missionAftermath = function(mission, victory){
@@ -131,6 +194,10 @@ Campaign.prototype.missionAftermath = function(mission, victory){
 
 };
 
+/*
+ * Calculate the toal victory points for the rebel side
+ * from the results of played missions.
+ */
 Campaign.prototype.totalRebelVP = function(){
     var result = 0;
     for (var i = 0; i < this.playedMissions.length; i++) {
@@ -141,6 +208,10 @@ Campaign.prototype.totalRebelVP = function(){
     return result;
 };
 
+/*
+ * Calculate the toal victory points for the imperial side
+ * from the results of played missions.
+ */
 Campaign.prototype.totalImperialVP = function(){
     var result = 0;
     for (var i = 0; i < this.playedMissions.length; i++) {
@@ -151,6 +222,10 @@ Campaign.prototype.totalImperialVP = function(){
     return result;
 };
 
+/*
+ * Determine the victory status for the rebel side
+ * from the victory point totals.
+ */
 Campaign.prototype.victoryStatus = function(){
     var score = this.totalRebelVP() - this.totalImperialVP();
     if(score < 0){
@@ -168,6 +243,10 @@ module.exports.Campaign = Campaign;
 // Mission --------------------------------------------------------------------
 
 
+/*
+ * A Mission object contains information about a single mission
+ * from static data.
+ */
 Mission = function(props){
     props = props || {};
     this.name = props.name || null;
@@ -189,6 +268,17 @@ module.exports.Mission = Mission;
 // Pilot ----------------------------------------------------------------------
 
 /*
+ * A pilot represents a single play (=`User`) in a campaign (although it is
+ * possible for a user to own multiple pilots in the same campaign).
+ *
+ * The pilot object is used to track the development of the pilot during
+ * the campaign such as:
+ *
+ * - XP earned
+ * - XP spent
+ * - current ship
+ * - upgrade cars (TBD)
+ *
  * owner: name of owning user
  * ship: name of current ship
  */
@@ -380,24 +470,6 @@ module.exports.Pilot = Pilot;
 
 // Ship -----------------------------------------------------------------------
 
-
-var SLOT_ASTROMECH          = 'Astromech';
-var SLOT_BOMB               = 'Bomb';
-var SLOT_CANNON             = 'Cannon';
-var SLOT_CARGO              = 'Cargo';
-var SLOT_CREW               = 'Crew';
-var SLOT_ELITE              = 'Elite';
-var SLOT_HARDPOINT          = 'Hardpoint';
-var SLOT_ILLICIT            = 'Illicit';
-var SLOT_MODIFICATION       = 'Modification';
-var SLOT_MISSILE            = 'Missile';
-var SLOT_SALVAGED_ASTROMECH = 'Salvaged Astromech';
-var SLOT_SYSTEM             = 'System';
-var SLOT_TEAM               = 'Team';
-var SLOT_TECH               = 'Tech';
-var SLOT_TITLE              = 'Title';
-var SLOT_TORPEDO            = 'Torpedo';
-var SLOT_TURRET             = 'Turret';
 
 /*
  * slots:

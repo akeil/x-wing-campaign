@@ -1,9 +1,16 @@
+/*
+ * Start script for the application.
+ * - Reads configurration
+ * - Initializes the database and API,
+ * - Starts listening for requests
+ */
 var express = require('express'),
     serveStatic = require('serve-static'),
     api = require('./api'),
     store = require('./store');
 
-// for openshift
+
+// for openshift or local installation
 var port, host, dbname, dburl;
 port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 host = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
@@ -37,7 +44,7 @@ var app = express();
 app.locals.title = 'X-Wing Campaign';
 app.locals.email = 'alex@akeil.net';
 
-// serve static content from '/' (webroot)
+// serve static content on '/' from 'www/*'
 console.log('Static dir is ' + __dirname + '/../www');
 app.use(serveStatic(__dirname + '/../www', {
     index: ['index.htm', 'index.html'],
@@ -48,10 +55,11 @@ app.use('/css', serveStatic(__dirname + '/../www/css'));
 app.use('/img', serveStatic(__dirname + '/../www/img'));
 
 // mount sub-apps
-// remove if you do not use api.js
 app.use('/api', api());
 
 
+// insert some constant data into the db
+// TODO does not belong here ...
 var _initShips = function(){
     var fs = require('fs'),
         model = require('../common/model');

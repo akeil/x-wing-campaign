@@ -20,8 +20,19 @@
  * Mission  | `/api/mission/<name>`       | GET
  * Upgrade  | `/api/upgrades`             | GET
  * Upgrade  | `/api/upgrade/<id>`         | GET, PUT, DELETE
+ *
+ * All request are expected to contain a body in JSON format (or none).
+ * All responses will be JSON (or empty).
+ *
+ * Errors are returned as an HTTP status code and with an error object
+ * in the response body:
+ * ```
+ * {
+ *    "name": "NameOfError",
+ *    "message": "An error message"
+ * }
+ * ```
  */
-
 var express = require('express'),
     bodyParser = require('body-parser'),
     store = require('./store'),
@@ -47,6 +58,15 @@ api.use(function(err, req, res, next){
 });
 
 
+/*
+ * Create an error object from the given error
+ * and write it as a JSON object to the response.
+ *
+ * Also, set the appropriate HTTP code.
+ *
+ * The `err` argument is ideally an instance of `errors.Exception`
+ * but other error types can also be passed in.
+ */
 var sendError = function(res, err){
     console.log(err);
     res.status(err.code || 500);
@@ -63,6 +83,7 @@ var sendError = function(res, err){
 /*
  * List user names
  */
+// TODO pagination
 api.get('/users', function(req, res){
     fields = ['name', 'displayName'];
     store.users.select({}, fields).then(function(usernames){
@@ -71,7 +92,6 @@ api.get('/users', function(req, res){
         sendError(res, err);
     });
 });
-
 
 /*
  * GET a single user by user name
@@ -87,7 +107,8 @@ api.get('/user/:username', function(req, res){
 });
 
 /*
- * Create a user with the given username
+ * Create a new user with the given username.
+ * Expects a `model.User` in the request body.
  */
 api.put('/user/:username', function(req, res){
     var username = req.params.username;
@@ -109,6 +130,9 @@ api.put('/user/:username', function(req, res){
     });
 });
 
+/*
+ * Delete the user with the given username.
+ */
 api.delete('/user/:username', function(req, res){
     var username = req.params.username;
     // TODO check permission "admin"
@@ -123,6 +147,7 @@ api.delete('/user/:username', function(req, res){
         sendError(res, err);
     });
 });
+
 
 // Campaign -------------------------------------------------------------------
 
@@ -142,9 +167,9 @@ api.get('/campaigns/:username', function(req, res){
     });
 });
 
-
 /*
- * Create a new campaign with the given username as the owner
+ * Create a new campaign with the given username as the owner.
+ * Expects a `model.Campaign` in the request body.
  */
 api.post('/campaigns/:username', function(req, res){
     var username = req.params.username;
@@ -182,7 +207,6 @@ api.post('/campaigns/:username', function(req, res){
         sendError(res, err);
     });
 });
-
 
 /*
  * GET a single campaign by id
@@ -227,7 +251,8 @@ api.put('/campaign/:campaignid', function(req, res){
 
 
 /*
- * Delete a campaign
+ * Delete a campaign.
+ * Expects a `model.Campaign` in the request body.
  */
 api.delete('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
@@ -240,7 +265,6 @@ api.delete('/campaign/:campaignid', function(req, res){
         sendError(res, err);
     });
 });
-
 
 /*
  * List pilots for a campaign
@@ -292,7 +316,6 @@ api.post('/campaign/:campaignid/pilot', function(req, res){
     });
 });
 
-
 /*
  * Get a pilot by id
  */
@@ -306,7 +329,6 @@ api.get('/pilot/:pilotid', function(req, res){
         sendError(res, err);
     });
 });
-
 
 /*
  * Delete a pilot by id
@@ -338,8 +360,9 @@ api.get('/ships', function(req, res){
     });
 });
 
-//TODO ships by skill level?
-
+/*
+ * Get details for a single ship by name
+ */
 api.get('/ship/:shipname', function(req, res){
     var shipname = req.params.shipname;
     console.log('GET ship ' + shipname);
@@ -367,7 +390,7 @@ api.get('/missions', function(req, res){
 });
 
 /*
- * Get a list of all starting missions
+ * Get a list of all *starting* missions
  */
 api.get('/missions/initial', function(req, res){
     var fields = ['name', 'displayName'];
