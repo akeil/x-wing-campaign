@@ -7,13 +7,15 @@
  * Object   | URL                         | Methods
  * ---------|-----------------------------|-------------------
  * User     | `/api/users                 | GET
- * User     | `/api/user/<id>             | GET, PUT, DELETE
+ * User     | `/api/user/<name>           | GET, PUT, DELETE
  * Campaign | `/api/campaigns/<user>`     | GET
  * Campaign | `/api/campaign/<id>`        | GET, PUT, DELETE
  * Pilot    | `/api/campaign/<id>/pilots` | GET
  * Pilot    | `/api/pilot/<id>`           | GET, PUT, DELETE
- * ShipType | `/api/shiptypes`            | GET
- * ShipType | `/api/shiptype/<id>`        | GET, PUT, DELETE
+ * Ship     | `/api/ships`                | GET
+ * Ship     | `/api/ship/<name>`          | GET
+ * Mission  | `/api/missions`             | GET
+ * Mission  | `/api/mission/<name>`       | GET
  * Upgrade  | `/api/upgrades`             | GET
  * Upgrade  | `/api/upgrade/<id>`         | GET, PUT, DELETE
  */
@@ -280,7 +282,7 @@ api.delete('/pilot/:pilotid', function(req, res){
 });
 
 
-// Ships ----------------------------------------------------------------------
+// Ship -----------------------------------------------------------------------
 
 
 /*
@@ -302,6 +304,36 @@ api.get('/ship/:shipname', function(req, res){
     console.log('GET ship ' + shipname);
     store.ships.findOne({name: shipname}).then(function(ship){
         res.json(ship);
+    }).except(function(err){
+        sendError(res, err);
+    });
+});
+
+
+// Mission --------------------------------------------------------------------
+
+
+/*
+ * Get a list of all available missions
+ */
+api.get('/missions', function(req, res){
+    var fields = ['name', 'displayName'];
+    store.missions.select(null, fields).then(function(items){
+        res.json(items);
+    }).except(function(err){
+        sendError(res, err);
+    });
+});
+
+
+/*
+ * Get detals for a single mission by name
+ */
+api.get('/mission/:missionname', function(req, res){
+    var missionname = req.params.missionname;
+    console.log('GET mission ' + missionname);
+    store.missions.findOne({name: missionname}).then(function(item){
+        res.json(item);
     }).except(function(err){
         sendError(res, err);
     });

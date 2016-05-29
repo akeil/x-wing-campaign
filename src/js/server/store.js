@@ -44,6 +44,21 @@ var setup = function(dbURL, callback){
                     console.log(err);
                 }
             });
+
+            db.createCollection('missions', function(err, collection){
+                if(!err){
+                    console.log('create index for mission.name');
+                    collection.createIndex(
+                        {'name': INDEX_TYPE_ASC},
+                        {unique: true, name: 'missions_name_unique'},
+                        function(err){
+                            console.log(err);
+                        }
+                    );
+                }else{
+                    console.log(err);
+                }
+            });
         }
         callback(err);
     });
@@ -264,5 +279,6 @@ module.exports.users = new Collection('users');
 module.exports.campaigns = new Collection('campaigns');
 module.exports.pilots = new Collection('pilots');
 module.exports.ships = new Collection('ships');
+module.exports.missions = new Collection('missions');
 
 module.exports.setup = setup;

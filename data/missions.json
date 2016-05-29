@@ -1,0 +1,77 @@
+[
+    {
+        "name": "local-trouble",
+        "displayName": "Local Trouble",
+        "storyArc": "initial",
+        "warmup": true,
+        "territory": "friendly",
+        "replayOnDefeat": true,
+        "rebelVP": 0,
+        "imperialVP": 0,
+        "info": "Rulebook, p. 46"
+    },
+    {
+        "name": "rescue-rebel-operatives",
+        "displayName": "Rescue Rebel Operatives",
+        "storyArc": "the-refueling-station",
+        "territory": "neutral",
+        "replayOnDefeat": true,
+        "unlockOnVictory": "disable-sensor-net",
+        "rebelVP": 0,
+        "imperialVP": 0,
+        "info": "Rulebook, p. 48"
+    },
+    {
+        "name": "disable-sensor-net",
+        "displayName": "Disable Sensor Net",
+        "storyArc": "the-refueling-station",
+        "territory": "neutral",
+        "replayOnDefeat": true,
+        "unlockOnVictory": "capture-refueling-station",
+        "rebelVP": 0,
+        "imperialVP": 0,
+        "info": "Rulebook, p. 50"
+    },
+    {
+        "name": "capture-refueling-station",
+        "displayName": "Capture Refueling Station",
+        "storyArc": "the-refueling-station",
+        "territory": "hostile",
+        "replayOnDefeat": false,
+        "rebelVP": 1,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 52"
+    },
+    {
+        "name": "tread-softly",
+        "displayName": "Tread Softly",
+        "storyArc": "minefields",
+        "territory": "friendly",
+        "replayOnDefeat": true,
+        "unlockOnVictory": "imperial-entanglement",
+        "rebelVP": 0,
+        "imperialVP": 0,
+        "info": "Rulebook, p. 54"
+    },
+    {
+        "name": "imperial-entanglement",
+        "displayName": "Imperial Entanglement",
+        "storyArc": "minefields",
+        "territory": "neutral",
+        "replayOnDefeat": false,
+        "unlockOnVictory": "care-package",
+        "rebelVP": 0,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 56"
+    },
+    {
+        "name": "care-package",
+        "displayName": "Care Package",
+        "storyArc": "minefields",
+        "territory": "hostile",
+        "replayOnDefeat": false,
+        "rebelVP": 1,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 58"
+    }
+]

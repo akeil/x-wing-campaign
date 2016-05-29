@@ -58,20 +58,38 @@ var _initShips = function(){
     var path = './data/ships.json';
     fs.readFile(path, function(err, contents){
         if(!err){
-            var ships = JSON.parse(contents);
-            for(var i=0; i < ships.length; i++){
-                console.log('insert default ship ' + ships[i].name);
-                store.ships.put(new model.Ship(ships[i]));
+            var items = JSON.parse(contents);
+            for(var i=0; i < items.length; i++){
+                console.log('insert ship ' + items[i].name);
+                store.ships.put(new model.Ship(items[i]));
             }
         }
     });
 };
+
+
+var _initMissions = function(){
+    var fs = require('fs'),
+        model = require('../common/model');
+    var path = './data/missions.json';
+    fs.readFile(path, function(err, contents){
+        if(!err){
+            var items = JSON.parse(contents);
+            for(var i=0; i < items.length; i++){
+                console.log('insert mission ' + items[i].name);
+                store.missions.put(new model.Mission(items[i]));
+            }
+        }
+    });
+};
+
 
 store.setup(dburl, function(err){
     if(err){
         console.log(err);
     }else{
         _initShips();
+        _initMissions();
         app.listen(port);
     }
 });

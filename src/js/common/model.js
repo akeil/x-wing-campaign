@@ -46,12 +46,27 @@ module.exports.User = User;
 
 /*
  *  owner: the username of the campaign master
+ *
+ * playedMissions: [
+ *   {
+       name: <name>,
+       status: VICTORY, DEFEAT
+       rebelVP: <n>,
+       imperialVP: <n>
+     }
+ * ]
+ *
+ * missionDeck: [
+ *   <name>, <name>, <name>
+ * ]
  */
 Campaign = function(props) {
     props = props || {};
     this._id = props._id || null;
     this.owner = props.owner || null;
     this.displayName = props.displayName || null;
+    this.missionDeck = props.missionDeck || [];
+    this.playedMissions = props.playedMissions || [];
 };
 
 Campaign.prototype.validate = function(){
@@ -64,7 +79,95 @@ Campaign.prototype.validate = function(){
     }
 };
 
+Campaign.prototype.unlockMission = function(missionName){
+    // TODO: check if not already in deck
+    this.missionDeck.push(missionName);
+};
+
+Campaign.prototype.removeMission = function(missionName){
+    var indexToRemove = -1;
+    for (var i = 0; i < this.missionDeck.length; i++) {
+        if(this.missionDeck[i] === missionName){
+            indexToRemove = i;
+            break;
+        }
+    }
+    if(indexToRemove >= 0){
+        this.missionDeck.splice(indexToRemove, 1);
+    }
+};
+
+/*
+ * mission: a Mission object
+ // * victory: true | false
+ */
+Campaign.prototype.missionAftermath = function(mission, victory){
+    // TODO: check if actually in missionDeck
+    var status = victory ? 'Victory' : 'Defeat';
+    var rebelVP, imperialVP;
+    if(victory){
+        rebelVP = mission.rebelVP;
+        imperialVP = 0;
+        this.removeMission(mission.name);
+
+        if(mission.unlockOnVictory){
+            this.unlockMission(mission.unlockOnVictory);
+        }
+
+    }else{
+        rebelVP = 0;
+        imperialVP = mission.imperialVP;
+        if(!mission.replayOnDefeat){
+            this.removeMission(mission.name);
+        }
+    }
+
+    this.playedMissions.push({
+        name: mission.name,
+        status: status,
+        rebelVP: rebelVP,
+        imperialVP: imperialVP
+    });
+
+};
+
+Campaign.prototype.totalRebelVP = function(){
+    var result = 0;
+    for (var i = 0; i < this.playedMissions.length; i++) {
+        result += this.playedMissions[i].rebelVP;
+    }
+    return result;
+};
+
+Campaign.prototype.totalImperialVP = function(){
+    var result = 0;
+    for (var i = 0; i < this.playedMissions.length; i++) {
+        result += this.playedMissions[i].imperialVP;
+    }
+    return result;
+};
+
 module.exports.Campaign = Campaign;
+
+
+// Mission --------------------------------------------------------------------
+
+
+Mission = function(props){
+    props = props || {};
+    this.name = props.name || null;
+    this.displayName = props.displayName || null;
+    this.storyArc = props.storyArc || null;
+    this.warmup = props.warmup || false;
+    this.territory = props.territory || null;
+    this.replayOnDefeat = props.replayOnDefeat || false;
+    this.unlockOnVictory = props.unlockOnVictory || null;
+    this.rebelVP = props.rebelVP || 0;
+    this.imperialVP = props.imperialVP || 0;
+    this.info = props.info || null;
+};
+
+module.exports.Mission = Mission;
 
 
 // Pilot ----------------------------------------------------------------------
