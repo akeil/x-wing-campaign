@@ -134,7 +134,9 @@ Campaign.prototype.missionAftermath = function(mission, victory){
 Campaign.prototype.totalRebelVP = function(){
     var result = 0;
     for (var i = 0; i < this.playedMissions.length; i++) {
-        result += this.playedMissions[i].rebelVP;
+        if(this.playedMissions[i].rebelVP){
+            result += this.playedMissions[i].rebelVP;
+        }
     }
     return result;
 };
@@ -142,9 +144,22 @@ Campaign.prototype.totalRebelVP = function(){
 Campaign.prototype.totalImperialVP = function(){
     var result = 0;
     for (var i = 0; i < this.playedMissions.length; i++) {
-        result += this.playedMissions[i].imperialVP;
+        if(this.playedMissions[i].imperialVP){
+            result += this.playedMissions[i].imperialVP;
+        }
     }
     return result;
+};
+
+Campaign.prototype.victoryStatus = function(){
+    var score = this.totalRebelVP() - this.totalImperialVP();
+    if(score < 0){
+        return 'Defeat';
+    }else if(score > 0){
+        return 'Victory';
+    }else{
+        return 'Draw';
+    }
 };
 
 module.exports.Campaign = Campaign;

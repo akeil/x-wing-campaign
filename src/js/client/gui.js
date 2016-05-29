@@ -481,6 +481,7 @@ MissionsView.prototype = new _BaseView();
 
 MissionsView.prototype.bindSignals = function(){
     onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_MISSION_DETAILS_UPDATED, this.refresh.bind(this));
 };
 
 MissionsView.prototype.bindEvents = function(){
@@ -488,8 +489,38 @@ MissionsView.prototype.bindEvents = function(){
 };
 
 MissionsView.prototype.getRenderContext = function(){
+    var items = [];
+    var totalRebelVP, totalImperialVP, victoryStatus;
+    var campaign = this.session.campaign;
+    if(campaign){
+        items = campaign.playedMissions || [];
+        totalRebelVP = campaign.totalRebelVP();
+        totalImperialVP = campaign.totalImperialVP();
+        victoryStatus = campaign.victoryStatus();
+    }
+
+    var playedMissions = [];
+    for(var i = 0; i < items.length; i++) {
+
+        var m = this.session.missionDetails[items[i].name];
+        if(m){
+            playedMissions.push({
+                name: m.name,
+                displayName: m.displayName,
+                status: items[i].status,
+                rebelVP: items[i].rebelVP,
+                imperialVP: items[i].imperialVP
+            });
+        }else{
+            this.session.loadMission(items[i].name);
+        }
+    }
+
     return {
-        campaign: this.session.campaign
+        playedMissions: playedMissions,
+        totalRebelVP: totalRebelVP,
+        totalImperialVP: totalImperialVP,
+        victoryStatus: victoryStatus
     };
 };
 
@@ -523,6 +554,7 @@ MissionDeckView.prototype.getRenderContext = function(){
     if(this.session.campaign){
         names = this.session.campaign.missionDeck || [];
     }
+
     var missions = [];
     for(var i = 0; i < names.length; i++) {
         var m = this.session.missionDetails[names[i]];
@@ -532,6 +564,7 @@ MissionDeckView.prototype.getRenderContext = function(){
             this.session.loadMission(names[i]);
         }
     }
+
     return {
         missions: missions
     };

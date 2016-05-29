@@ -1,3 +1,27 @@
 div(id="view-missions" class="col-md-4")
-    h3 Missions
-    
+    h3 Played Missions
+    table(class="table table-striped")
+        thead
+            tr
+                th Mission
+                th Status
+                th Rebel VP
+                th Imperial VP
+        tfoot
+            tr
+                td
+                    strong Total
+                td
+                    strong {{victoryStatus}}
+                td
+                    strong {{totalRebelVP}}
+                td
+                    strong {{totalImperialVP}}
+        tbody
+            | {{#playedMissions}}
+            tr
+                td {{displayName}}
+                td {{status}}
+                td {{rebelVP}}
+                td {{imperialVP}}
+            | {{/playedMissions}}
