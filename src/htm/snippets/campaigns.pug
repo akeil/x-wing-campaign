@@ -4,4 +4,5 @@ div(id="view-campaigns" class="col-md-4")
         | {{#campaigns}}
         li
             a(href="#{{_id}}" data-id="{{_id}}") {{displayName}} ({{owner}})
+            button(class="btn btn-danger btn-xs" data-id="{{_id}}") Delete
         | {{/campaigns}}

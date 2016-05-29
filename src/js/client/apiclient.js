@@ -67,6 +67,12 @@ Client.prototype.createCampaign = function(username, campaign){
     });
 };
 
+Client.prototype.deleteCampaign = function(campaignid){
+    return this._DELETE({
+        endpoint: '/campaign/' + campaignid
+    });
+};
+
 // Pilot ----------------------------------------------------------------------
 
 Client.prototype.getPilots = function(campaignid){
@@ -134,6 +140,11 @@ Client.prototype._POST = function(p){
     return this._request(p);
 };
 
+Client.prototype._DELETE = function(p){
+    p.method = 'DELETE';
+    return this._request(p);
+};
+
 Client.prototype._request = function(p){
     var url = this.baseurl + p.endpoint;
     var method = p.method;
@@ -152,9 +163,10 @@ Client.prototype._request = function(p){
         dataType: 'json',  // for response
         data: payload,
         contentType: 'application/json'
+
     }).done(function(jsonResponse){
-        console.log(jsonResponse);
         promise.resolve(wrap(jsonResponse));
+
     }).fail(function(xhr, status, err){
         var name, message;
         if(xhr.responseJSON){
@@ -165,6 +177,7 @@ Client.prototype._request = function(p){
         name = name || 'ServiceError';
         message = message || status;
         promise.fail(new errors.Exception(code, name, message));
+
     }).always(function(xhr, status){
         console.log('Got HTTP ' + xhr.status + ' for ' + method + ' ' + url);
     });

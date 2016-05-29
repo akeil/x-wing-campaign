@@ -74,6 +74,12 @@ Session.prototype.showCampaign = function(campaignid){
     this.loadCampaign(campaignid);
 };
 
+Session.prototype.deleteCampaign = function(campaignid){
+    this.client.deleteCampaign(campaignid).then(function(){
+        this.refreshCampaigns();
+    }.bind(this));
+};
+
 Session.prototype.refreshUsers = function(){
     this.client.getUsers().then(function(users){
         this.users = users;
@@ -235,11 +241,21 @@ CampaignsView.prototype.bindSignals = function(){
 };
 
 CampaignsView.prototype.bindEvents = function(){
+    // navigation link to open campaign view
     $(this.selector + ' ul li a').each(function(index, a){
         $(a).off('click');
         $(a).on('click', function(evt){
             var campaignid = $(evt.delegateTarget).data("id");
             this.session.showCampaign(campaignid);
+        }.bind(this));
+    }.bind(this));
+
+    // delete buttons
+    $(this.selector + ' li button').each(function(index, button){
+        $(button).off('click');
+        $(button).on('click', function(evt){
+            var campaignid = $(evt.delegateTarget).data("id");
+            this.session.deleteCampaign(campaignid);
         }.bind(this));
     }.bind(this));
 };
