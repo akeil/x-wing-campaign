@@ -297,6 +297,7 @@ CampaignView = function(session){
     this._children.push(new PilotsView(session));
     this._children.push(new AddPilotView(session));
     this._children.push(new PilotDetailsView(session));
+    this._children.push(new MissionsView(session));
 };
 
 CampaignView.prototype = new _BaseView();
@@ -416,6 +417,26 @@ PilotDetailsView.prototype.getRenderContext = function(){
     };
 };
 
+
+MissionsView = function(session){
+    _BaseView.call(this, 'missions', '#view-missions', session);
+};
+
+MissionsView.prototype = new _BaseView();
+
+MissionsView.prototype.bindSignals = function(){
+    onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
+};
+
+MissionsView.prototype.bindEvents = function(){
+
+};
+
+MissionsView.prototype.getRenderContext = function(){
+    return {
+
+    };
+};
 
 // ----------------------------------------------------------------------------
 
