@@ -183,6 +183,10 @@ Campaign.prototype.missionAftermath = function(mission, victory){
         if(!mission.replayOnDefeat){
             this.removeMission(mission.name);
         }
+
+        if(mission.unlockOnDefeat){
+            this.unlockMission(mission.unlockOnDefeat);
+        }
     }
 
     this.playedMissions.push({
@@ -257,6 +261,7 @@ Mission = function(props){
     this.territory = props.territory || null;
     this.replayOnDefeat = props.replayOnDefeat || false;
     this.unlockOnVictory = props.unlockOnVictory || null;
+    this.unlockOnDefeat = props.unlockOnDefeat || null;
     this.rebelVP = props.rebelVP || 0;
     this.imperialVP = props.imperialVP || 0;
     this.info = props.info || null;

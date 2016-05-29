@@ -75,5 +75,40 @@
         "rebelVP": 1,
         "imperialVP": 1,
         "info": "Rulebook, p. 58"
+    },
+    {
+        "name": "needle-in-a-haystack",
+        "displayName": "Needle in a Haystack",
+        "storyArc": "chasing-phantoms",
+        "startingMission": true,
+        "territory": "neutral",
+        "replayOnDefeat": false,
+        "unlockOnVictory": "bait",
+        "unlockOnDefeat": "bait",
+        "rebelVP": 0,
+        "imperialVP": 0,
+        "info": "Rulebook, p. 60"
+    },
+    {
+        "name": "bait",
+        "displayName": "Bait",
+        "storyArc": "chasing-phantoms",
+        "territory": "neutral",
+        "replayOnDefeat": false,
+        "unlockOnVictory": "cloak-and-dagger",
+        "rebelVP": 0,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 62"
+    },
+    {
+        "name": "cloak-and-dagger",
+        "displayName": "Cloak and Dagger",
+        "storyArc": "chasing-phantoms",
+        "territory": "hostile",
+        "replayOnDefeat": false,
+        "unlockOnVictory": "revenge",
+        "rebelVP": 1,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 64"
     }
 ]
