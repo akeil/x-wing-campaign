@@ -54,6 +54,15 @@ Campaign = function(props) {
     this.displayName = props.displayName || null;
 };
 
+Campaign.prototype.validate = function(){
+    if(!this.owner){
+        throw errors.invalid('Owner must be set');
+    }
+
+    if(!this.displayName){
+        throw errors.invalid('Display name must be set');
+    }
+};
 
 module.exports.Campaign = Campaign;
 
@@ -90,14 +99,14 @@ Pilot = function(props) {
 };
 
 Pilot.prototype.validate = function(){
-    if(this.campaign === null){
-        throw "ValidationError";
+    if(!this.campaignid){
+        throw errors.invalid('Campaign must be set');
     }
-    if(this.owner === null){
-        throw "ValidationError";
+    if(!this.owner){
+        throw errors.invalid('Owner must be set');
     }
-    if(this.callsign === null){
-        throw "ValidationError";
+    if(!this.callsign){
+        throw errors.invalid('Callsign must be set');
     }
 
 };

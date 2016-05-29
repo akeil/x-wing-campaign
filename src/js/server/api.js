@@ -89,7 +89,14 @@ api.put('/user/:username', function(req, res){
     var username = req.params.username;
     var user = new model.User(req.body);
     user.name = username;
-    //TODO validate
+
+    try{
+        user.validate();
+    }catch(err){
+        sendError(res, err);
+        return;
+    }
+
     // TODO check permission "admin"
     store.users.put(user).then(function(insertedId){
         res.json({id: insertedId});
@@ -141,6 +148,14 @@ api.post('/campaigns/:username', function(req, res){
     store.users.findOne({name: username}).then(function(user){
         var campaign = new model.Campaign(req.body);
         campaign.owner = username;
+
+        try{
+            campaign.validate();
+        }catch(err){
+            sendError(res, err);
+            return;
+        }
+
         store.campaigns.put(campaign).then(function(insertedId){
             res.json({id: insertedId});
         }).except(function(err){
@@ -215,7 +230,15 @@ api.post('/campaign/:campaignid/pilot', function(req, res){
     console.log('Create pilot for campaign ' + campaignid);
     var pilot = new model.Pilot(req.body);
     pilot.campaignid = campaignid;
-    // TODO validate callsign + owner is set
+
+    try{
+        pilot.validate();
+    }catch(err){
+        sendError(res, err);
+        return;
+    }
+
+    // TODO validate that the campaign exists
     // TODO validate current user is campaign owner
     // TODO validate pilot.owner is not already in the campaign?
     // TODO validate that pilot's campaign props are reset?
