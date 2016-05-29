@@ -110,5 +110,80 @@
         "rebelVP": 1,
         "imperialVP": 1,
         "info": "Rulebook, p. 64"
+    },
+    {
+        "name": "capture-officer",
+        "displayName": "Capture Officer",
+        "storyArc": "capture-officer",
+        "territory": "friendly",
+        "replayOnDefeat": true,
+        "unlockOnVictory": "nobody-home",
+        "rebelVP": 0,
+        "imperialVP": 0,
+        "info": "Rulebook, p. 68"
+    },
+    {
+        "name": "nobody-home",
+        "displayName": "Nobody Home",
+        "storyArc": "capture-officer",
+        "territory": "friendly",
+        "replayOnDefeat": false,
+        "unlockOnVictory": "miners-strike",
+        "rebelVP": 0,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 70"
+    },
+    {
+        "name": "miners-strike",
+        "displayName": "Miners' Strike",
+        "storyArc": "capture-officer",
+        "territory": "neutral",
+        "replayOnDefeat": false,
+        "rebelVP": 1,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 72"
+    },
+    {
+        "name": "secure-holonet-receiver",
+        "displayName": "Capture Officer",
+        "storyArc": "defection",
+        "startingMission": true,
+        "territory": "neutral",
+        "replayOnDefeat": true,
+        "unlockOnVictory": "defector",
+        "rebelVP": 0,
+        "imperialVP": 0,
+        "info": "Rulebook, p. 74"
+    },
+    {
+        "name": "revenge",
+        "displayName": "Revenge",
+        "storyArc": "chasing-phantoms",
+        "territory": "hostile",
+        "replayOnDefeat": false,
+        "rebelVP": 0.5,
+        "imperialVP": 1000,
+        "info": "Rulebook, p. 66"
+    },
+    {
+        "name": "pride-of-the-empire",
+        "displayName": "Pride of the Empire",
+        "storyArc": "defection",
+        "territory": "neutral",
+        "replayOnDefeat": false,
+        "rebelVP": 1,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 78"
+    },
+    {
+        "name": "defector",
+        "displayName": "Defector",
+        "storyArc": "defection",
+        "territory": "hostile",
+        "replayOnDefeat": false,
+        "unlockOnVictory": "pride-of-the-empire",
+        "rebelVP": 0,
+        "imperialVP": 1,
+        "info": "Rulebook, p. 76"
     }
 ]
