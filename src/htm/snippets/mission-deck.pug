@@ -7,6 +7,7 @@ div(id="view-mission-deck" class="col-md-4")
                 th Territory
                 th VP
                 th Info
+                th Action
         tbody
             | {{#missions}}
             tr
@@ -16,4 +17,11 @@ div(id="view-mission-deck" class="col-md-4")
                 td {{rebelVP}} / {{rebelVP}}
                 td
                     small {{info}}
+                td
+                    button(class="btn btn-success"
+                           data-id="{{name}}"
+                           data-status="victory") Victory
+                    button(class="btn btn-warning"
+                           data-id="{{name}}"
+                           data-status="defeat") Defeat
             | {{/missions}}

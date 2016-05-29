@@ -67,6 +67,13 @@ Client.prototype.createCampaign = function(username, campaign){
     });
 };
 
+Client.prototype.updateCampaign = function(campaign){
+    return this._PUT({
+        endpoint: '/campaign/' + campaign._id,
+        payload: campaign
+    });
+};
+
 Client.prototype.deleteCampaign = function(campaignid){
     return this._DELETE({
         endpoint: '/campaign/' + campaignid
@@ -168,6 +175,11 @@ Client.prototype._GET = function(p){
 
 Client.prototype._POST = function(p){
     p.method = 'POST';
+    return this._request(p);
+};
+
+Client.prototype._PUT = function(p){
+    p.method = 'PUT';
     return this._request(p);
 };
 

@@ -208,17 +208,22 @@ Collection.prototype.put = function(doc){
             promise.fail(err);
         }else{
             var docToStore = this._unwrap(doc);
-            if(docToStore._id){
-                db.collection(this.name).update(docToStore, function(err, status){
+            var docid = docToStore._id;
+            if(docid){
+                console.log('Update ' + this.name + '/' + docid);
+                delete docToStore._id;  // MongoDB will attempt to update if present
+                predicate = {_id: new ObjectID(docid)};
+                db.collection(this.name).replaceOne(predicate, docToStore, function(err, status){
                     if(err){
-                        promise.fail(err);
+                        console.log(err);
                         // TODO:
                         // notFound
                         // invalid
                         // conflict
                         promise.fail(errors.databaseError('Update error'));
                     }else{
-                        promise.resolve(status.insertedIds[0]);
+                        // TODO check status.matchedCount === 1 ?
+                        promise.resolve();
                     }
                 });
             }else{

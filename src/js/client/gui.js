@@ -180,6 +180,32 @@ Session.prototype.loadMission = function(missionName){
     }
 };
 
+Session.prototype.doAftermath = function(missionName, victory){
+    var m = this.missionDetails[missionName];
+    if(m){
+        this.campaign.missionAftermath(m, victory);
+        this.client.updateCampaign(this.campaign).then(function(){
+            signal(EVT_CAMPAIGN_UPDATED);
+            //this.loadCampaign(this.campaign._id);
+        });
+    }else{
+        // load the mission details
+        this.client.getMission(missionName).then(function(mission){
+            if(!this.missionDetails[mission.name]){  // prevent duplicate signal
+                this.missionDetails[mission.name] = mission;
+                signal(EVT_MISSION_DETAILS_UPDATED);
+            }
+
+            this.campaign.missionAftermath(mission, victory);
+            this.client.updateCampaign(this.campaign).then(function(){
+                signal(EVT_CAMPAIGN_UPDATED);
+                //this.loadCampaign(this.campaign._id);
+            });
+        });
+    }
+
+};
+
 
 // Views ----------------------------------------------------------------------
 
@@ -483,7 +509,13 @@ MissionDeckView.prototype.bindSignals = function(){
 };
 
 MissionDeckView.prototype.bindEvents = function(){
-
+    $(this.selector + ' button').off('click');
+    $(this.selector + ' button').on('click', function(evt){
+        var missionName = $(evt.delegateTarget).data('id');
+        var status = $(evt.delegateTarget).data('status');
+        var victory = status === 'victory';
+        this.session.doAftermath(missionName, victory);
+    }.bind(this));
 };
 
 MissionDeckView.prototype.getRenderContext = function(){

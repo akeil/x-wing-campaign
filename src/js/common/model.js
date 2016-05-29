@@ -99,7 +99,7 @@ Campaign.prototype.removeMission = function(missionName){
 
 /*
  * mission: a Mission object
- // * victory: true | false
+ * victory: true | false
  */
 Campaign.prototype.missionAftermath = function(mission, victory){
     // TODO: check if actually in missionDeck

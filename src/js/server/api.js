@@ -9,6 +9,7 @@
  * User     | `/api/users                 | GET
  * User     | `/api/user/<name>           | GET, PUT, DELETE
  * Campaign | `/api/campaigns/<user>`     | GET
+ * Campaign | `/api/campaign`             | POST
  * Campaign | `/api/campaign/<id>`        | GET, PUT, DELETE
  * Pilot    | `/api/campaign/<id>/pilots` | GET
  * Pilot    | `/api/pilot/<id>`           | GET, PUT, DELETE
@@ -193,6 +194,32 @@ api.get('/campaign/:campaignid', function(req, res){
     console.log('GET campaign ' + campaignid);
     store.campaigns.get(campaignid).then(function(campaign){
         res.json(campaign);
+    }).except(function(err){
+        sendError(res, err);
+    });
+});
+
+/*
+ * Save a single campaign
+ */
+api.put('/campaign/:campaignid', function(req, res){
+    var campaignid = req.params.campaignid;
+    console.log('PUT campaign ' + campaignid);
+
+    // TODO load the current instance ?
+    // TODO check current user is owner
+    var campaign = new model.Campaign(req.body);
+    campaign._id = campaignid;
+
+    try{
+        campaign.validate();
+    }catch(err){
+        sendError(res, err);
+        return;
+    }
+
+    store.campaigns.put(campaign).then(function(){
+        res.json({});
     }).except(function(err){
         sendError(res, err);
     });
