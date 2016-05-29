@@ -159,9 +159,9 @@ Session.prototype.loadPilot = function(pilotid){
 // Views ----------------------------------------------------------------------
 
 
-_BaseView = function(name, selector, session){
+_BaseView = function(name, session){
      this.name = name;
-     this.selector = selector;
+     this.selector = '#view-' + name;
      this.session = session;
      this._template = '';
      this._children = [];
@@ -225,7 +225,7 @@ _BaseView.prototype.refresh = function(){
 
 
 StartView = function(session){
-    _BaseView.call(this, 'start', '#view-start', session);
+    _BaseView.call(this, 'start', session);
     this._children.push(new CampaignsView(session));
     this._children.push(new NewCampaignView(session));
 };
@@ -237,7 +237,7 @@ StartView.prototype = new _BaseView();
 
 
 CampaignsView = function(session){
-    _BaseView.call(this, 'campaigns', '#view-campaigns', session);
+    _BaseView.call(this, 'campaigns', session);
 };
 
 CampaignsView.prototype = new _BaseView();
@@ -274,7 +274,7 @@ CampaignsView.prototype.getRenderContext = function(){
 
 
 NewCampaignView = function(session){
-    _BaseView.call(this, 'new-campaign', '#view-new-campaign', session);
+    _BaseView.call(this, 'new-campaign', session);
 };
 
 NewCampaignView.prototype = new _BaseView();
@@ -293,7 +293,7 @@ _BaseView.prototype.bindEvents = function(){
 
 
 CampaignView = function(session){
-    _BaseView.call(this, 'campaign', '#view-campaign', session);
+    _BaseView.call(this, 'campaign', session);
     this._children.push(new PilotsView(session));
     this._children.push(new AddPilotView(session));
     this._children.push(new PilotDetailsView(session));
@@ -324,7 +324,7 @@ CampaignView.prototype.getRenderContext = function(){
 
 
 PilotsView = function(session){
-    _BaseView.call(this, 'pilots', '#view-pilots', session);
+    _BaseView.call(this, 'pilots', session);
 };
 
 PilotsView.prototype = new _BaseView();
@@ -366,7 +366,7 @@ PilotsView.prototype.getRenderContext = function(){
 
 
 AddPilotView = function(session){
-    _BaseView.call(this, 'add-pilot', '#view-add-pilot', session);
+    _BaseView.call(this, 'add-pilot', session);
 };
 
 AddPilotView.prototype = new _BaseView();
@@ -396,7 +396,7 @@ AddPilotView.prototype.getRenderContext = function(){
 
 
 PilotDetailsView = function(session){
-    _BaseView.call(this, 'pilot-details', '#view-pilot-details', session);
+    _BaseView.call(this, 'pilot-details', session);
 };
 
 PilotDetailsView.prototype = new _BaseView();
@@ -418,8 +418,11 @@ PilotDetailsView.prototype.getRenderContext = function(){
 };
 
 
+// Missions -------------------------------------------------------------------
+
+
 MissionsView = function(session){
-    _BaseView.call(this, 'missions', '#view-missions', session);
+    _BaseView.call(this, 'missions', session);
 };
 
 MissionsView.prototype = new _BaseView();
