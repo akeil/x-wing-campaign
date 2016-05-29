@@ -1,3 +1,5 @@
+var errors = require('../common/errors');
+
 // Constants ------------------------------------------------------------------
 
 
@@ -27,6 +29,15 @@ User = function(props) {
     this.displayName = props.displayName || null;
 };
 
+User.prototype.validate = function(){
+    if(!this.name){
+        throw errors.invalid('Username must be set');
+    }
+
+    if(!this.displayName){
+        throw errors.invalid('Display name must be set');
+    }
+};
 
 module.exports.User = User;
 

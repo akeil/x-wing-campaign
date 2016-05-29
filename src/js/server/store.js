@@ -1,5 +1,6 @@
 var mongodb = require('mongodb'),
-    prom = require('../common/promise');
+    prom = require('../common/promise'),
+    errors = require('../common/errors');
 
 var client = mongodb.MongoClient;
 var ObjectID = mongodb.ObjectID;
@@ -54,16 +55,18 @@ var _db = function(callback){
         callback(null, _conn);
     }else{
         if(!_dbURL){
-            callback("DatabaseNotInitialized", null);
+            callback(errors.illegalState('Database not initialized'), null);
         }else{
             client.connect(_dbURL, function(err, db){
-                console.log('connect to database');
+                console.log('Connect to database');
                 if(!err){
                     _conn = db;
+                    callback(null, _conn);
                 }else{
                     console.log(err);
+                    var msg = 'Could not connect to database';
+                    callback(errors.databaseError(msg), _conn);
                 }
-                callback(err, _conn);
             });
         }
     }
@@ -75,6 +78,9 @@ var identity = function(doc){
 };
 
 
+/*
+ * Access a MongoDB collection.
+ */
 Collection = function(name, wrapper, unwrapper){
     this.name = name;
     this._wrap = wrapper || identity;
@@ -95,13 +101,12 @@ Collection.prototype.get = function(docid){
                 {_id: new ObjectID(docid)},
                 function(lookupErr, doc){
                     if(lookupErr){
-                        promise.fail(lookupErr);
+                        promise.fail(errors.databaseError('Lookup error'));
+                    }else if(doc === null){
+                            var msg = 'No document with id ' + docid;
+                            promise.fail(errors.notFound(msg));
                     }else{
-                        if(doc === null){
-                            promise.fail('NotFound');
-                        }else{
                             promise.resolve(this._wrap(doc));
-                        }
                     }
                 }.bind(this)
             );
@@ -127,9 +132,10 @@ Collection.prototype.delete = function(docid){
                 {},  // no options
                 function(opErr, docsRemoved){
                     if(opErr){
-                        promise.fail(opErr);
+                        console.log(opErr);
+                        promise.fail(errors.databaseError('Delete error'));
                     }else{
-                        promise.resolve(null);
+                        promise.resolve();
                     }
                 }
             );
@@ -140,7 +146,10 @@ Collection.prototype.delete = function(docid){
 };
 
 
-
+/*
+ * Find a single document by the given predicats.
+ * It is an error if multiple documents are found.
+ */
 Collection.prototype.findOne = function(predicate){
     var promise = new prom.Promise();
 
@@ -152,7 +161,10 @@ Collection.prototype.findOne = function(predicate){
                 predicate,
                 function(lookupErr, doc){
                     if(lookupErr){
-                        promise.fail(lookupErr);
+                        promise.fail(errors.databaseError('Lookup error'));
+                    }else if(doc === null){
+                        var msg = 'No matching document found';
+                        promise.fail(errors.notFound(msg));
                     }else{
                         promise.resolve(this._wrap(doc));
                     }
@@ -165,7 +177,15 @@ Collection.prototype.findOne = function(predicate){
 };
 
 
+/*
+ * Save a single document.
+ * If the document has its `_id` field set,
+ * an update operation is attempted, otherwise an `insert`.
+ */
 Collection.prototype.put = function(doc){
+
+    // TODO: assert that this is actually a single doc
+
     var promise = new prom.Promise();
 
     _db(function(err, db){
@@ -177,8 +197,13 @@ Collection.prototype.put = function(doc){
                 db.collection(this.name).update(docToStore, function(err, status){
                     if(err){
                         promise.fail(err);
+                        // TODO:
+                        // notFound
+                        // invalid
+                        // conflict
+                        promise.fail(errors.databaseError('Update error'));
                     }else{
-                        promise.resolve(status.insertedIds);
+                        promise.resolve(status.insertedIds[0]);
                     }
                 });
             }else{
@@ -186,10 +211,12 @@ Collection.prototype.put = function(doc){
                     if(err){
                         if(err.code === 11000){
                             // TODO: duplicate key error
+                            promise.fail(errors.conflict('Duplicate key'));
+                        }else{
+                            promise.fail(errors.databaseError('Insert error'));
                         }
-                        promise.fail(err);
                     }else{
-                        promise.resolve(status.insertedIds);
+                        promise.resolve(status.insertedIds[0]);
                     }
                 });
             }
@@ -220,7 +247,7 @@ Collection.prototype.select = function(predicate, fields){
             cursor.toArray(
                 function(lookupErr, results){
                     if(lookupErr){
-                        promise.fail(lookupErr);
+                        promise.fail(errors.databaseError('Lookup error'));
                     }else{
                         promise.resolve(results);
                     }
