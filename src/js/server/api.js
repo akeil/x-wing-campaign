@@ -184,7 +184,7 @@ api.get('/campaign/:campaignid', function(req, res){
 
 
 /*
- * Delete a new campaign
+ * Delete a campaign
  */
 api.delete('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;

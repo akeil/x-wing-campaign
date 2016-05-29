@@ -131,6 +131,12 @@ Session.prototype.createPilot = function(owner, callsign){
         }.bind(this));
 };
 
+Session.prototype.deletePilot = function(pilotid){
+    this.client.deletePilot(pilotid).then(function(){
+        this.refreshPilots();
+    }.bind(this));
+};
+
 Session.prototype.loadCampaign = function(campaignid){
     this.client.getCampaign(campaignid).then(function(campaign){
         this.campaign = campaign;
@@ -327,6 +333,7 @@ PilotsView.prototype.bindSignals = function(){
 };
 
 PilotsView.prototype.bindEvents = function(){
+    // navigation links to show pilot details
     $(this.selector + ' li a').each(function(index, a){
         $(a).off('click');
         $(a).on('click', function(evt){
@@ -334,6 +341,15 @@ PilotsView.prototype.bindEvents = function(){
             var pilotid = $(evt.delegateTarget).data('id');
             this.session.loadPilot(pilotid);
 
+        }.bind(this));
+    }.bind(this));
+
+    // delete buttons
+    $(this.selector + ' li button').each(function(index, button){
+        $(button).off('click');
+        $(button).on('click', function(evt){
+            var pilotid = $(evt.delegateTarget).data("id");
+            this.session.deletePilot(pilotid);
         }.bind(this));
     }.bind(this));
 };

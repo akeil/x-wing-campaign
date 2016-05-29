@@ -104,6 +104,13 @@ Client.prototype.createPilot = function(campaignid, pilot){
     });
 };
 
+Client.prototype.deletePilot = function(pilotid){
+    return this._DELETE({
+        endpoint: '/pilot/' + pilotid
+    });
+};
+
+
 // Ship -----------------------------------------------------------------------
 
 Client.prototype.getShips = function(campaignid){
