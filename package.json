@@ -7,6 +7,10 @@
     "type": "git",
     "url": "https://github.com/akeil/x-wing-campaign.git"
   },
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
   "homepage": "http://akeil.net/code/",
   "devDependencies": {
     "bootstrap-less": "^3.3.8",
