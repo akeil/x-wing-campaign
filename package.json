@@ -30,17 +30,23 @@
     "vinyl-source-stream": "*"
   },
   "dependencies": {
+    "body-parser": "^1.15.1",
     "dojo": "^1.11.1",
     "express": "*",
+    "gulp-buffer": "0.0.2",
+    "gulp-notify": "^2.2.0",
+    "gulp-tap": "^0.1.3",
     "jquery": "*",
     "jqueryui": "^1.11.1",
+    "jshint": "^2.9.2",
     "mongodb": "*",
     "mustache": "^2.2.1",
-    "serve-static": "*"
+    "serve-static": "*",
+    "vinyl-transform": "^1.0.0"
   },
   "scripts": {
-    "postintall": "gulp build",
-    "start": "node app.js"
+    "prepublish": "gulp build",
+    "start": "node build/server/app.js"
   },
   "main": "app.js"
 }
