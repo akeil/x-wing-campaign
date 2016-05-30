@@ -9,9 +9,10 @@ var express = require('express'),
     api = require('./api'),
     store = require('./store');
 
+console.log(process.env);
 
 // for openshift or local installation
-var port, host, dbname, dburl;
+var host, port, dbName, dburl;
 host = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 
@@ -27,7 +28,7 @@ if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
     dbUser = '';
     dbPass = '';
 }
-dbName = 'x-wing-campaign';
+dbName = 'xwing';
 
 dburl = 'mongodb://';
 if(dbPass){
@@ -102,4 +103,4 @@ store.setup(dburl, function(err){
     }
 });
 
-console.log('Webserver listening on port ' + port);
+console.log('Webserver started on port ' + port);

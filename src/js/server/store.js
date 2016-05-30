@@ -75,6 +75,7 @@ var setup = function(dbURL, callback){
                 }
             });
         }
+        console.log(err);
         callback(err);
     });
 };
