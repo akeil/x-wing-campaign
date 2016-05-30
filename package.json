@@ -48,5 +48,6 @@
     "prepublish": "gulp build",
     "start": "node build/server/app.js"
   },
-  "main": "app.js"
+  "private": true,
+  "main": "build/server/app.js"
 }
