@@ -1,0 +1,34 @@
+GUI
+---
+reset form contents after submit
+use placeholde tex for forms
+
+Function to select
+Select a random mission from the deck
+
+From Campaign view, navigate back to start view
+or select another campaign
+
+Introdice a separate pilots main-view
+to edit pilot details
+
+in that view, allow to navigate between other pilots 
+from the same campaign
+
+add a list of "my pilots" to the start view
+navigate to pilot view
+
+implement change ship
+
+allow to edit pilot props
+
+mission aftermath for pilots
+by default (only?) work on the last played mission
+- set kills
+- set XP (mission total or by type
+- buy upgrades
+
+Model:
+Upgrade / Card class
+cards data - import from https://github.com/geordanr/xwing
+
