@@ -74,8 +74,9 @@ var setup = function(dbURL, callback){
                     console.log(err);
                 }
             });
+
+            console.log(err);
         }
-        console.log(err);
         callback(err);
     });
 };

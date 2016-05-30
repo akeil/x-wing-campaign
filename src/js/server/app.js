@@ -9,7 +9,6 @@ var express = require('express'),
     api = require('./api'),
     store = require('./store');
 
-console.log(process.env);
 
 // for openshift or local installation
 var host, port, dbName, dburl;
