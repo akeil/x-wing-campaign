@@ -98,7 +98,7 @@ store.setup(dburl, function(err){
     }else{
         _initShips();
         _initMissions();
-        app.listen(port);
+        app.listen(port, host);
     }
 });
 
