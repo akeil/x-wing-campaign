@@ -50,22 +50,25 @@ Session = function(props){
     this.missionDetails = {};
 };
 
-Session.prototype.setup = function(){
-    this.client.getUser().then(function(user){
-        this.user = user;
-        signal(EVT_USER_UPDATED);
-        this.refreshCampaigns();
+Session.prototype.setup = function(password){
+    this.client.login(password).then(function(){
+        this.client.getUser().then(function(user){
+            this.user = user;
+            signal(EVT_USER_UPDATED);
+            this.refreshCampaigns();
+        }.bind(this));
+
+        this.refreshShips();
+        this.refreshMissions();
+
+        this._views = {
+            start: new StartView(this),
+            campaign: new CampaignView(this)
+        };
+        this.show('start');
+
     }.bind(this));
-
-    this.refreshShips();
-    this.refreshMissions();
-
-    this._views = {
-        start: new StartView(this),
-        campaign: new CampaignView(this)
-    };
 };
-
 
 Session.prototype.show = function(viewName){
     view = this._views[viewName];
@@ -585,15 +588,11 @@ var fetchView = function(viewName){
 };
 
 
-var login = function(){
-    return new Session({username: 'akeil'});
-};
-
-
-var main = function(){
-    var session = login();
-    session.setup();
-    session.show('start');
-};
-
-$(main);
+$(function(){
+    $('#login').on('submit', function(evt){
+        evt.preventDefault();
+        var username = $('#login-username').val();
+        var password = $('#login-password').val();
+        new Session({username: username}).setup(password);
+    });
+});

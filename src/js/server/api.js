@@ -39,6 +39,7 @@ var express = require('express'),
     bcrypt = require('bcrypt'),
     crypto = require('crypto'),
     store = require('./store'),
+    errors = require('../common/errors'),
     model = require('../common/model');
 
 
@@ -195,7 +196,8 @@ api.post('/user/:username/login', function(req, res){
         bcrypt.compare(password, user.pwHash, function(err, matches){
             if(err){
                 //  TODO proper error class
-                sendError(res, errors.forbidden());
+                console.log(err);
+                sendError(res, errors.forbidden('error comparing pw'));
             }else if(matches !== true){
                 sendError(res, errors.badPassword());
             } else {
@@ -217,7 +219,7 @@ api.post('/user/:username/login', function(req, res){
                     });
                 }).except(function(err){
                     // TODO proper error class
-                    sendError(errors.forbidden());
+                    sendError(errors.forbidden('failed to store session'));
                 });
             }
         });

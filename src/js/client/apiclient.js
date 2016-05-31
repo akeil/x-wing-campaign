@@ -14,9 +14,6 @@ var prom = require('../common/promise'),
 var $ = require('jquery');
 
 
-var AUTH_HEADER = 'X-Auth-Token';
-
-
 Client = function(username){
     this.username = username;
     this.baseurl = '/api';
@@ -53,6 +50,7 @@ Client.prototype.login = function(password){
 
     this._POST({
         endpoint: '/user/' + this.username + '/login',
+        auth: false,
         payload: {password: password}
     }).then(function(result){
         this._token = result.token;
@@ -220,16 +218,18 @@ Client.prototype._request = function(p){
     var method = p.method;
     var payload = p.payload || null;
     var wrap = p.wrap || identity;
-    var auth = p.auth || true;  // most requests require it, default to true
+    var auth = p.auth === false ? false : true;
     var headers = {};
 
     var promise = new prom.Promise();
 
-    if(auth && ! this._token){  // early exit
+    if(auth && !this._token){
         promise.fail(errors.unauthorized('Not logged in'));
-        return;
+        return promise;
     }else if(auth){
-        headers[AUTH_HEADER] = this._token;
+        headers = {
+            'X-Auth-Token': this._token
+        };
     }
 
     if(payload){

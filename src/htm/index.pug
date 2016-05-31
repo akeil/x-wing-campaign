@@ -9,4 +9,17 @@ html(lang="en")
 
         nav
         div(id="view-main" class="container")
+            div(class="jumbotron")
+                h1 Welcome
+                form(id="login")
+                    div(class="input-group")
+                        label(for="login-username") Username:
+                        input(id="login-username" name="login-username" class="form-control")
+                    div(class="input-group")
+                        label(for="login-password") Password:
+                        input(type="password" id="login-password" name="login-password" class="form-control")
+
+                    div(class="input-group")
+                        button(type="submit" class="btn btn-primary btn-lg") Login
+
         footer
