@@ -28,6 +28,10 @@ module.exports.invalid = function(message){
     return new Exception(400, "ValidationError", message);
 };
 
+module.exports.unauthorized = function(message){
+    return new Exception(401, "Unauthorized", message);
+};
+
 
 module.exports.forbidden = function(message){
     return new Exception(403, "Forbidden", message);

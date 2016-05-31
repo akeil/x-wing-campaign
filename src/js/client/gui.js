@@ -38,8 +38,7 @@ var onSignal = function(eventName, callback){
 
 Session = function(props){
     this._views = {};
-    this.username = props.username;
-    this.client = new apiclient.Client();
+    this.client = new apiclient.Client(props.username);
     this.user = null;
     this.users = null;
     this.campaign = null;
@@ -52,7 +51,7 @@ Session = function(props){
 };
 
 Session.prototype.setup = function(){
-    this.client.getUser(this.username).then(function(user){
+    this.client.getUser().then(function(user){
         this.user = user;
         signal(EVT_USER_UPDATED);
         this.refreshCampaigns();
@@ -95,7 +94,7 @@ Session.prototype.refreshUsers = function(){
 };
 
 Session.prototype.refreshCampaigns = function(){
-    this.client.getCampaigns(this.user.name).then(function(campaigns){
+    this.client.getCampaigns().then(function(campaigns){
         this.campaigns = campaigns;
         signal(EVT_CAMPAIGNS_UPDATED);
     }.bind(this));
@@ -129,7 +128,7 @@ Session.prototype.createCampaign = function(displayName){
     campaign = new model.Campaign({
         displayName: displayName
     });
-    this.client.createCampaign(this.user.name, campaign).then(function(){
+    this.client.createCampaign(campaign).then(function(){
         this.refreshCampaigns();
     }.bind(this)).except(function(err){
         console.log(err);

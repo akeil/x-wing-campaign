@@ -14,15 +14,20 @@ var prom = require('../common/promise'),
 var $ = require('jquery');
 
 
-Client = function(){
+var AUTH_HEADER = 'X-Auth-Token';
+
+
+Client = function(username){
+    this.username = username;
     this.baseurl = '/api';
+    this._token = null;
 };
 
 // User -----------------------------------------------------------------------
 
-Client.prototype.getUser = function(username){
+Client.prototype.getUser = function(){
     return this._GET({
-        endpoint: '/user/' + username,
+        endpoint: '/user/' + this.username,
         wrap: function(data){
             return new model.User(data);
         }
@@ -42,11 +47,28 @@ Client.prototype.getUsers = function(){
     });
 };
 
+Client.prototype.login = function(password){
+    // yes, this wraps one promise with another one
+    var promise = new prom.Promise();
+
+    this._POST({
+        endpoint: '/user/' + this.username + '/login',
+        payload: {password: password}
+    }).then(function(result){
+        this._token = result.token;
+        promise.resolve();
+    }.bind(this)).except(function(err){
+        promise.fail(err);
+    });
+
+    return promise;
+};
+
 // Campaign -------------------------------------------------------------------
 
-Client.prototype.getCampaigns = function(username){
+Client.prototype.getCampaigns = function(){
     return this._GET({
-        endpoint: '/campaigns/' + username,
+        endpoint: '/campaigns/' + this.username,
         wrap: function(campaigns){
             results = [];
             for(var i=0; i < campaigns.length; i++){
@@ -66,9 +88,9 @@ Client.prototype.getCampaign = function(campaignid){
     });
 };
 
-Client.prototype.createCampaign = function(username, campaign){
+Client.prototype.createCampaign = function(campaign){
     return this._POST({
-        endpoint: '/campaigns/' + username,
+        endpoint: '/campaigns/' + this.username,
         payload: campaign
     });
 };
@@ -198,8 +220,17 @@ Client.prototype._request = function(p){
     var method = p.method;
     var payload = p.payload || null;
     var wrap = p.wrap || identity;
+    var auth = p.auth || true;  // most requests require it, default to true
+    var headers = {};
 
     var promise = new prom.Promise();
+
+    if(auth && ! this._token){  // early exit
+        promise.fail(errors.unauthorized('Not logged in'));
+        return;
+    }else if(auth){
+        headers[AUTH_HEADER] = this._token;
+    }
 
     if(payload){
         payload = JSON.stringify(payload);
@@ -208,6 +239,7 @@ Client.prototype._request = function(p){
     $.ajax({
         url: url,
         type: method,
+        headers: headers,
         dataType: 'json',  // for response
         data: payload,
         contentType: 'application/json'
