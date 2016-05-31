@@ -18,7 +18,7 @@
 Exception = function(code, name, message){
     this.code = code;
     this.name = name;
-    this.message = message;
+    this.message = message || '';
 };
 
 module.exports.Exception = Exception;
@@ -31,6 +31,11 @@ module.exports.invalid = function(message){
 
 module.exports.forbidden = function(message){
     return new Exception(403, "Forbidden", message);
+};
+
+
+module.exports.badPassword = function(message){
+    return new Exception(403, "BadPassword", message);
 };
 
 
@@ -51,4 +56,9 @@ module.exports.databaseError = function(message){
 
 module.exports.illegalState = function(message){
     return new Exception(500, 'IllegalState', message);
+};
+
+
+module.exports.serviceError = function(message){
+    return new Exception(500, 'ServiceError', message);
 };

@@ -71,6 +71,8 @@ User = function(props) {
     this._id = props._id || null;
     this.name = props.name || null;
     this.displayName = props.displayName || null;
+
+    this.pwHash = props.pwHash || null;
 };
 
 User.prototype.validate = function(){

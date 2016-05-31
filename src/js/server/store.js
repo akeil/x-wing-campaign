@@ -43,6 +43,23 @@ var setup = function(dbURL, callback){
                 }
             });
 
+            db.createCollection('sessions', function(err, collection){
+                if(!err){
+                    console.log('create index for session.token');
+                    collection.createIndex(
+                        {'token': INDEX_TYPE_ASC},
+                        {unique: true, name: 'sessions_token_unique'}
+                    );
+                    console.log('create index for session.csrfToken');
+                    collection.createIndex(
+                        {'csrfToken': INDEX_TYPE_ASC},
+                        {unique: true, name: 'sessions_csrfToken_unique'}
+                    );
+                }else{
+                    console.log(err);
+                }
+            });
+
             db.createCollection('campaigns', function(err, collection){});
             db.createCollection('pilots', function(err, collection){});
             db.createCollection('ships', function(err, collection){
@@ -297,6 +314,7 @@ Collection.prototype.select = function(predicate, fields){
 
 
 module.exports.users = new Collection('users');
+module.exports.sessions = new Collection('sessions');
 module.exports.campaigns = new Collection('campaigns');
 module.exports.pilots = new Collection('pilots');
 module.exports.ships = new Collection('ships');
