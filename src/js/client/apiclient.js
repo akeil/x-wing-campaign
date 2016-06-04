@@ -16,8 +16,30 @@ var $ = require('jquery');
 
 Client = function(username){
     this.username = username;
-    this.baseurl = '/api';
+    this.apiURL = '/api';
+    this.authURL = '/auth';
     this._token = null;
+};
+
+
+// Authentication -------------------------------------------------------------
+
+Client.prototype.login = function(password){
+    var promise = new prom.Promise();
+
+    this._request({
+        url: this.authURL + '/login/' + this.username,
+        method: 'POST',
+        auth: false,
+        payload: {password: password}
+    }).then(function(result){
+        this._token = result.token;
+        promise.resolve();
+    }.bind(this)).except(function(err){
+        promise.fail(err);
+    });
+
+    return promise;
 };
 
 // User -----------------------------------------------------------------------
@@ -44,23 +66,6 @@ Client.prototype.getUsers = function(){
     });
 };
 
-Client.prototype.login = function(password){
-    // yes, this wraps one promise with another one
-    var promise = new prom.Promise();
-
-    this._POST({
-        endpoint: '/user/' + this.username + '/login',
-        auth: false,
-        payload: {password: password}
-    }).then(function(result){
-        this._token = result.token;
-        promise.resolve();
-    }.bind(this)).except(function(err){
-        promise.fail(err);
-    });
-
-    return promise;
-};
 
 // Campaign -------------------------------------------------------------------
 
@@ -195,26 +200,30 @@ Client.prototype.getMission = function(name){
 
 Client.prototype._GET = function(p){
     p.method = 'GET';
+    p.url = this.apiURL + p.endpoint;
     return this._request(p);
 };
 
 Client.prototype._POST = function(p){
     p.method = 'POST';
+    p.url = this.apiURL + p.endpoint;
     return this._request(p);
 };
 
 Client.prototype._PUT = function(p){
     p.method = 'PUT';
+    p.url = this.apiURL + p.endpoint;
     return this._request(p);
 };
 
 Client.prototype._DELETE = function(p){
     p.method = 'DELETE';
+    p.url = this.apiURL + p.endpoint;
     return this._request(p);
 };
 
 Client.prototype._request = function(p){
-    var url = this.baseurl + p.endpoint;
+    var url = p.url;
     var method = p.method;
     var payload = p.payload || null;
     var wrap = p.wrap || identity;

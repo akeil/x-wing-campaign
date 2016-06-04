@@ -7,6 +7,7 @@
 var express = require('express'),
     serveStatic = require('serve-static'),
     api = require('./api'),
+    auth = require('./auth'),
     store = require('./store');
 
 
@@ -44,6 +45,13 @@ var app = express();
 app.locals.title = 'X-Wing Campaign';
 app.locals.email = 'alex@akeil.net';
 
+
+// log every request
+app.use('/', function(req, res, next){
+    console.log(req.method + ' ' + req.originalUrl);
+    next();
+});
+
 // serve static content on '/' from 'www/*'
 console.log('Static dir is ' + __dirname + '/../www');
 app.use(serveStatic(__dirname + '/../www', {
@@ -55,6 +63,7 @@ app.use('/css', serveStatic(__dirname + '/../www/css'));
 app.use('/img', serveStatic(__dirname + '/../www/img'));
 
 // mount sub-apps
+app.use('/auth', auth.app);
 app.use('/api', api());
 
 

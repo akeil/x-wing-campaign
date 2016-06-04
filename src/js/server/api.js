@@ -36,8 +36,7 @@
  */
 var express = require('express'),
     bodyParser = require('body-parser'),
-    bcrypt = require('bcrypt'),
-    crypto = require('crypto'),
+    auth = require('./auth'),
     store = require('./store'),
     errors = require('../common/errors'),
     model = require('../common/model');
@@ -50,7 +49,7 @@ api.on('mount', function(parent){
 });
 
 
-// parse JSON request body
+// all requests are expected to be in JSON format
 api.use(bodyParser.json());
 /*
 //catch-all error handler
@@ -61,12 +60,9 @@ api.use(function(err, req, res, next){
     res.json({error: err});
 });
 */
-// log every request
-api.use('/', function(req, res, next){
-    console.log(req.method + ' ' + req.originalUrl);
-    next();
-});
 
+// authenticate
+api.use('/', auth.authenticate);
 
 /*
  * Create an error object from the given error
@@ -143,20 +139,15 @@ api.put('/user/:username', function(req, res){
         return;
     }
 
-    bcrypt.hash(password, 10, function(err, hash){
-        if(!err){
-            user.pwHash = hash;
-            // TODO set pwExpires and pwMustValidate
-            store.users.put(user).then(function(insertedId){
-                res.json({id: insertedId});
-            }).except(function(err){
-                sendError(res, err);
-            });
-        }else{
-            sendError(res, errors.serviceError());
-        }
+    auth.setPassword(user, password).then(function(user){
+        store.users.put(user).then(function(insertedId){
+            res.json({id: insertedId});
+        }).except(function(err){
+            sendError(res, err);
+        });
+    }).except(function(err){
+        sendError(res, err);
     });
-
 });
 
 /*
@@ -172,63 +163,6 @@ api.delete('/user/:username', function(req, res){
             sendError(res, err);
         });
     }).except(function(err){
-        sendError(res, err);
-    });
-});
-
-/*
- * Initialize a new Session for the given user.
- * Expects a JSON body with the clear password:
- * ```
- * {"password": "secret"}
- * ```
- *
- * Returns a JSON response with tthe CSRF token:
- * ```
- * {"token": "abcd"}
- * ```
- * And a `Set-Cookie` header with the session token:
- * ```
- * Set-Cookie: session=<session-token>; path=/; expires=<Date+Time>; httponly
- * ```
- */
-api.post('/user/:username/login', function(req, res){
-    var username = req.params.username;
-    var password = req.body.password;
-
-    store.users.findOne({name: username}).then(function(user){
-        bcrypt.compare(password, user.pwHash, function(err, matches){
-            if(err){
-                //  TODO proper error class
-                console.log(err);
-                sendError(res, errors.forbidden('error comparing pw'));
-            }else if(matches !== true){
-                sendError(res, errors.badPassword());
-            } else {
-                // that's a valid password, create a session
-                var session = {
-                    user: user.name,
-                    token: crypto.randomBytes(16).toString('hex'),
-                    csrfToken: crypto.randomBytes(16).toString('hex'),
-                    expires: new Date().getTime() + (60 * 60 * 24)
-                };
-                store.sessions.put(session).then(function(sessionId){
-                    console.log('Created session for ' + user.name);
-                    res.cookie('session', session.token, {
-                        expires: new Date(session.expires * 1000),
-                        httpOnly: true
-                    });
-                    res.json({
-                        token: session.csrfToken
-                    });
-                }).except(function(err){
-                    // TODO proper error class
-                    sendError(errors.forbidden('failed to store session'));
-                });
-            }
-        });
-    }).except(function(err){
-        // the user does not exist
         sendError(res, err);
     });
 });
