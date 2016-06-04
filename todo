@@ -1,7 +1,7 @@
 GUI
 ---
 reset form contents after submit
-use placeholde tex for forms
+use placeholder text for forms
 
 Function to select
 Select a random mission from the deck
@@ -9,10 +9,10 @@ Select a random mission from the deck
 From Campaign view, navigate back to start view
 or select another campaign
 
-Introdice a separate pilots main-view
+Introduce a separate pilots main-view
 to edit pilot details
 
-in that view, allow to navigate between other pilots 
+in that view, allow to navigate between other pilots
 from the same campaign
 
 add a list of "my pilots" to the start view
@@ -32,3 +32,6 @@ Model:
 Upgrade / Card class
 cards data - import from https://github.com/geordanr/xwing
 
+Methods to change/rest password
+Handle auth-errors in GUI
+Setup an initial admin user with password
