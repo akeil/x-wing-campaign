@@ -67,7 +67,8 @@ Session.prototype.login = function(password){
 
         this._views = {
             home: new HomeView(this),
-            campaign: new CampaignView(this)
+            campaign: new CampaignView(this),
+            pilot: new PilotView(this)
         };
         show('#main', this._views.home);  // use this.showHome() instead?
 
@@ -96,7 +97,8 @@ Session.prototype.showHome = function(){
 };
 
 Session.prototype.showPilot = function(pilotid){
-
+    show('#main', this._views.pilot);
+    this.loadPilot(pilotid);
 };
 
 Session.prototype.showCampaign = function(campaignid){
@@ -436,7 +438,6 @@ CampaignView = function(session){
     _BaseView.call(this, 'campaign', session);
     this._children.push(new PilotsView(session));
     this._children.push(new AddPilotView(session));
-    this._children.push(new PilotDetailsView(session));
     this._children.push(new MissionsView(session));
     this._children.push(new MissionDeckView(session));
 };
@@ -481,7 +482,7 @@ PilotsView.prototype.bindEvents = function(){
         $(a).on('click', function(evt){
             evt.preventDefault();
             var pilotid = $(evt.delegateTarget).data('id');
-            this.session.loadPilot(pilotid);
+            this.session.showPilot(pilotid);
 
         }.bind(this));
     }.bind(this));
@@ -529,32 +530,6 @@ AddPilotView.prototype.bindEvents = function(){
 AddPilotView.prototype.getRenderContext = function(){
     return {
         users: this.session.users
-    };
-};
-
-
-// Pilot Details --------------------------------------------------------------
-
-
-PilotDetailsView = function(session){
-    _BaseView.call(this, 'pilot-details', session);
-};
-
-PilotDetailsView.prototype = new _BaseView();
-
-PilotDetailsView.prototype.bindSignals = function(){
-    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
-    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
-};
-
-PilotDetailsView.prototype.bindEvents = function(){
-
-};
-
-PilotDetailsView.prototype.getRenderContext = function(){
-    return {
-        pilot: this.session.pilot,
-        ships: this.session.ships
     };
 };
 
@@ -656,6 +631,32 @@ MissionDeckView.prototype.getRenderContext = function(){
 
     return {
         missions: missions
+    };
+};
+
+
+// Pilot ----------------------------------------------------------------------
+
+
+PilotView = function(session){
+    _BaseView.call(this, 'pilot', session);
+};
+
+PilotView.prototype = new _BaseView();
+
+PilotView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
+};
+
+PilotView.prototype.bindEvents = function(){
+
+};
+
+PilotView.prototype.getRenderContext = function(){
+    return {
+        pilot: this.session.pilot,
+        ships: this.session.ships
     };
 };
 
