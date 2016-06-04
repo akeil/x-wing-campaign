@@ -24,43 +24,8 @@ var express = require('express'),
     errors = require('../common/errors');
 
 
-var auth = express();
-
-auth.use(bodyParser.json());
-
-
-/*
- * Initialize a new Session for the given user.
- * Expects a JSON body with the clear password:
- * ```
- * {"password": "secret"}
- * ```
- *
- * Returns a JSON response with the CSRF token:
- * ```
- * {"token": "abcd"}
- * ```
- *
- * And a `Set-Cookie` header with the session token:
- * ```
- * Set-Cookie: session=<session-token>; path=/; expires=<Date+Time>; httponly
- * ```
- */
-auth.post('/login/:username', function(req, res){
-    var username = req.params.username;
-    var password = req.body.password;
-    login(username, password).then(function(session){
-        res.cookie('session', session.token, {
-            expires: new Date(session.expires * 1000),
-            httpOnly: true
-        });
-        res.json({
-            token: session.csrfToken
-        });
-    }).except(function(err){
-        sendError(res, err);
-    });
-});
+var SESSION_COOKIE = 'session';
+var AUTH_HEADER = 'X-Auth-Token';
 
 
 /*
@@ -121,9 +86,9 @@ var login = function(username, password){
 var authenticate = function(req, res, next){
     var token, csrfToken;
     if(req.cookies){
-        token = req.cookies.session;
+        token = req.cookies[SESSION_COOKIE];
     }
-    csrfToken = req.get('X-Auth-Token');
+    csrfToken = req.get(AUTH_HEADER);
 
     if(!token || !csrfToken){
         console.log('No session token from cookie.');
@@ -182,6 +147,64 @@ var sendError = function(res, err){
         message: err.message || 'Error handling request'
     });
 };
+
+
+var auth = express();
+
+auth.use(bodyParser.json());
+
+
+/*
+ * Initialize a new Session for the given user.
+ * Expects a JSON body with the clear password:
+ * ```
+ * {"password": "secret"}
+ * ```
+ *
+ * Returns a JSON response with the CSRF token:
+ * ```
+ * {"token": "abcd"}
+ * ```
+ *
+ * And a `Set-Cookie` header with the session token:
+ * ```
+ * Set-Cookie: session=<session-token>; path=/; expires=<Date+Time>; httponly
+ * ```
+ */
+auth.post('/login/:username', function(req, res){
+    var username = req.params.username;
+    var password = req.body.password;
+    if(!username || !password){
+        sendError(res, errors.invalid('missing username or password'));
+    }else{
+        login(username, password).then(function(session){
+            res.cookie(SESSION_COOKIE, session.token, {
+                expires: new Date(session.expires * 1000),
+                httpOnly: true
+            });
+            res.json({
+                token: session.csrfToken
+            });
+        }).except(function(err){
+            sendError(res, err);
+        });
+    }
+});
+
+/*
+ * Logout from an existing session
+ */
+auth.use('/logout', authenticate);
+auth.post('/logout', function(req, res){
+    store.sessions.delete(req.session._id).then(function(){
+        console.log('Logout ' + req.user.name + ' from ' + req.session._id);
+        res.clearCookie(SESSION_COOKIE);
+        res.status(200);
+        res.json({});
+    }).except(function(err){
+        sendError(res, err);
+    });
+});
 
 
 module.exports.app = auth;
