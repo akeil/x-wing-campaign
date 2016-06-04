@@ -50,17 +50,17 @@ Session = function(props){
     this.missionDetails = {};
 };
 
-Session.prototype.setup = function(password){
+Session.prototype.login = function(password){
     this.client.login(password).then(function(){
+
         this.client.getUser().then(function(user){
             this.user = user;
             signal(EVT_USER_UPDATED);
-            this.refreshCampaigns();
         }.bind(this));
 
         this.refreshShips();
         this.refreshMissions();
-        // TODO load users campaigns
+        this.refreshCampaigns();
 
         show('#header', new HeaderView(this));
 
@@ -83,7 +83,7 @@ Session.prototype.logout = function(){
         this.ships = null;
         this.missions = null;
         this.missionDetails = {};
-        // TODO: back to login view
+        show('#main', new WelcomeView());
     }.bind(this)).except(function(err){
 
     });
@@ -283,6 +283,26 @@ _BaseView.prototype.refresh = function(){
         $(this.selector).replaceWith(this.render());
         this.bindEvents();
     }.bind(this));
+};
+
+
+// Welcome --------------------------------------------------------------------
+
+
+WelcomeView = function(){
+    _BaseView.call(this, 'welcome', null);
+};
+
+WelcomeView.prototype = new _BaseView();
+
+WelcomeView.prototype.bindEvents = function(){
+    $('#login').off('submit');
+    $('#login').on('submit', function(evt){
+        evt.preventDefault();
+        var username = $('#login-username').val();
+        var password = $('#login-password').val();
+        new Session({username: username}).login(password);
+    });
 };
 
 
@@ -624,10 +644,5 @@ var fetchView = function(viewName){
 
 
 $(function(){
-    $('#login').on('submit', function(evt){
-        evt.preventDefault();
-        var username = $('#login-username').val();
-        var password = $('#login-password').val();
-        new Session({username: username}).setup(password);
-    });
+    show('#main', new WelcomeView());
 });
