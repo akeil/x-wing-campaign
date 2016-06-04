@@ -5,6 +5,7 @@
  * - Starts listening for requests
  */
 var express = require('express'),
+    cookieParser = require('cookie-parser'),
     serveStatic = require('serve-static'),
     api = require('./api'),
     auth = require('./auth'),
@@ -61,6 +62,8 @@ app.use(serveStatic(__dirname + '/../www', {
 app.use('/js', serveStatic(__dirname + '/../www/js'));
 app.use('/css', serveStatic(__dirname + '/../www/css'));
 app.use('/img', serveStatic(__dirname + '/../www/img'));
+
+app.use(cookieParser());
 
 // mount sub-apps
 app.use('/auth', auth.app);

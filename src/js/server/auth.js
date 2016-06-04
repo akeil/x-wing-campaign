@@ -122,6 +122,7 @@ var authenticate = function(req, res, next){
         console.log('No CSRF token in HTTP header.');
         // exit
     }
+
     if(req.cookies){
         token = req.cookies.session;
     }

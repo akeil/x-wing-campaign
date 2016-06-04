@@ -36,6 +36,7 @@
   "dependencies": {
     "bcrypt": "^0.8.6",
     "body-parser": "^1.15.1",
+    "cookie-parser": "^1.4.3",
     "dojo": "^1.11.1",
     "express": "*",
     "gulp-buffer": "0.0.2",
