@@ -129,6 +129,13 @@ Campaign.prototype.validate = function(){
     }
 };
 
+Campaign.prototype.patch = function(props){
+    this.owner = props.owner || this.owner;
+    this.displayName = props.displayName || this.displayName;
+    this.missionDeck = props.missionDeck || this.missionDeck;
+    this.playedMissions = props.playedMissions || this.playedMissions;
+};
+
 /*
  * Add the given `missionName` to the `missionDeck`.
  */
@@ -244,7 +251,9 @@ Campaign.prototype.victoryStatus = function(){
 };
 
 module.exports.Campaign = Campaign;
-
+module.exports.NewCampaign = function(props){
+    return new Campaign(props);
+};
 
 // Mission --------------------------------------------------------------------
 

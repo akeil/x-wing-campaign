@@ -12,6 +12,7 @@
  *```
  */
 var mongodb = require('mongodb'),
+    model = require('../common/model'),
     prom = require('../common/promise'),
     errors = require('../common/errors');
 
@@ -152,10 +153,10 @@ Collection.prototype.get = function(docid){
                     if(lookupErr){
                         promise.fail(errors.databaseError('Lookup error'));
                     }else if(doc === null){
-                            var msg = 'No document with id ' + docid;
-                            promise.fail(errors.notFound(msg));
+                        var msg = 'No document with id ' + docid;
+                        promise.fail(errors.notFound(msg));
                     }else{
-                            promise.resolve(this._wrap(doc));
+                        promise.resolve(this._wrap(doc));
                     }
                 }.bind(this)
             );
@@ -315,7 +316,7 @@ Collection.prototype.select = function(predicate, fields){
 
 module.exports.users = new Collection('users');
 module.exports.sessions = new Collection('sessions');
-module.exports.campaigns = new Collection('campaigns');
+module.exports.campaigns = new Collection('campaigns', model.NewCampaign);
 module.exports.pilots = new Collection('pilots');
 module.exports.ships = new Collection('ships');
 module.exports.missions = new Collection('missions');

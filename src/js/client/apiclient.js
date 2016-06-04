@@ -85,9 +85,7 @@ Client.prototype.getCampaigns = function(){
 Client.prototype.getCampaign = function(campaignid){
     return this._GET({
         endpoint: '/campaign/' + campaignid,
-        wrap: function(data){
-            return new model.Campaign(data);
-        }
+        wrap: model.NewCampaign
     });
 };
 

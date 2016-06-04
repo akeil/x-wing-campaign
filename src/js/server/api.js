@@ -140,7 +140,11 @@ api.delete('/user/:username', function(req, res){
  */
 api.get('/campaigns/:username', function(req, res){
     var username = req.params.username;
-    // TODO check permission
+
+    if(req.user.name !== username){
+        throw errors.forbidden('Cannot access campaigns for another user');
+    }
+
     var fields = ['displayName', 'owner'];
     store.campaigns.select({owner: username}, fields).then(function(campaigns){
         res.json(campaigns);
@@ -155,7 +159,11 @@ api.get('/campaigns/:username', function(req, res){
  */
 api.post('/campaigns/:username', function(req, res){
     var username = req.params.username;
-    // TODO check permission (user == owner)
+
+    if(req.user.name !== username){
+        throw errors.forbidden('Cannot create campaign for another user');
+    }
+
     store.users.findOne({name: username}).then(function(user){
         var campaign = new model.Campaign(req.body);
         campaign.owner = username;
@@ -195,9 +203,9 @@ api.post('/campaigns/:username', function(req, res){
  */
 api.get('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
-    // TODO check current user is owner or member
 
     store.campaigns.get(campaignid).then(function(campaign){
+        // TODO check current user is owner or member
         res.json(campaign);
     }).except(function(err){
         sendError(res, err);
@@ -210,15 +218,27 @@ api.get('/campaign/:campaignid', function(req, res){
 api.put('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
 
-    // TODO load the current instance ?
-    // TODO check current user is owner
-    var campaign = new model.Campaign(req.body);
-    campaign._id = campaignid;
+    store.campaigns.get(campaignid).then(function(campaign){
+        if(campaign.owner !== req.user.name){
+            var msg = 'Cannot modify campaign owned by another user';
+            sendError(res, errors.forbidden(msg));
+            return;
+        }
 
-    campaign.validate();  // throws exception
+        campaign.patch(req.body);
+        try{
+            campaign.validate();
+        }catch(err){
+            sendError(res, err);
+            return;
+        }
 
-    store.campaigns.put(campaign).then(function(){
-        res.json({});
+        store.campaigns.put(campaign).then(function(){
+            res.json({});
+        }).except(function(err){
+            sendError(res, err);
+        });
+
     }).except(function(err){
         sendError(res, err);
     });
@@ -231,10 +251,17 @@ api.put('/campaign/:campaignid', function(req, res){
  */
 api.delete('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
-    // TODO check current user is owner
-    store.campaigns.delete(campaignid).then(function(result){
-        // no result
-        res.json({});
+    store.campaigns.get(campaignid).then(function(campaign){
+        if(campaign.owner !== req.user.name){
+            var msg = 'Cannot delete campaign owned by another user';
+            sendError(res, errors.forbidden(msg));
+        }else{
+            store.campaigns.delete(campaignid).then(function(result){
+                res.json({});
+            }).except(function(err){
+                sendError(res, err);
+            });
+        }
     }).except(function(err){
         sendError(res, err);
     });
