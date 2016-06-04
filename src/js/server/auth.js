@@ -39,9 +39,8 @@ var login = function(username, password){
     store.users.findOne({name: username}).then(function(user){
         bcrypt.compare(password, user.pwHash, function(err, matches){
             if(err){
-                //  TODO proper error class
                 console.log(err);
-                promise.fail(err);
+                promise.fail(errors.serviceError('authentication error'));
             }else if(matches !== true){
                 promise.fail(errors.badPassword());
             } else {
@@ -56,8 +55,7 @@ var login = function(username, password){
                     console.log('Created session ' + sessionId + ' for ' + user.name);
                     promise.resolve(session);
                 }).except(function(err){
-                    // TODO proper error class
-                    promise.fail(errors.forbidden('failed to store session'));
+                    promise.fail(errors.serviceError('failed to store session'));
                 });
             }
         });
@@ -79,9 +77,7 @@ var login = function(username, password){
  * ```
  *
  * If the session is not valid, the request is aborted and
- * answered with
- * - HTTP 401 - Unauthorized for missing session information
- * - HTTP 403 - Forbidden for an invalid session
+ * answered with `HTTP 401 - Unauthorized`.
  */
 var authenticate = function(req, res, next){
     var token, csrfToken;
@@ -114,11 +110,11 @@ var authenticate = function(req, res, next){
             next();
         }).except(function(err){
             console.log('User not found');
-            sendError(res, errors.forbidden('invalid session'));
+            sendError(res, errors.unauthorized('invalid session'));
         });
     }).except(function(err){
         console.log('Could not load session');
-        sendError(res, errors.forbidden('invalid session'));
+        sendError(res, errors.unauthorized('invalid session'));
     });
 };
 
