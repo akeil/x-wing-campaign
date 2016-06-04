@@ -44,43 +44,12 @@ var express = require('express'),
 
 var api = express();
 api.set('json spaces', 2);
-api.on('mount', function(parent){
-    console.log('api mounted at ' + api.mountpath);
-});
-
 
 // all requests are expected to be in JSON format
 api.use(bodyParser.json());
-/*
-//catch-all error handler
-api.use(function(err, req, res, next){
-    console.log('Error');
-    console.log(err);
-    res.status(500);
-    res.json({error: err});
-});
-*/
 
-// authenticate
-api.use('/', auth.authenticate);
-
-/*
- * Create an error object from the given error
- * and write it as a JSON object to the response.
- *
- * Also, set the appropriate HTTP code.
- *
- * The `err` argument is ideally an instance of `errors.Exception`
- * but other error types can also be passed in.
- */
-var sendError = function(res, err){
-    console.log(err);
-    res.status(err.code || 500);
-    res.json({
-        name: err.name || 'ServiceError',
-        message: err.message || 'Error handling request'
-    });
-};
+// authenticate all requests
+api.use(auth.authenticate);
 
 
 // User -----------------------------------------------------------------------
@@ -132,12 +101,7 @@ api.put('/user/:username', function(req, res){
     var password = req.body.password;
     user.name = username;
 
-    try{
-        user.validate();
-    }catch(err){
-        sendError(res, err);
-        return;
-    }
+    user.validate();  // throws exception
 
     auth.setPassword(user, password).then(function(user){
         store.users.put(user).then(function(insertedId){
@@ -251,12 +215,7 @@ api.put('/campaign/:campaignid', function(req, res){
     var campaign = new model.Campaign(req.body);
     campaign._id = campaignid;
 
-    try{
-        campaign.validate();
-    }catch(err){
-        sendError(res, err);
-        return;
-    }
+    campaign.validate();  // throws exception
 
     store.campaigns.put(campaign).then(function(){
         res.json({});
@@ -312,12 +271,7 @@ api.post('/campaign/:campaignid/pilot', function(req, res){
     var pilot = new model.Pilot(req.body);
     pilot.campaignid = campaignid;
 
-    try{
-        pilot.validate();
-    }catch(err){
-        sendError(res, err);
-        return;
-    }
+    pilot.validate();  // throws exception
 
     // TODO validate that the campaign exists
     // TODO validate current user is campaign owner
@@ -424,6 +378,42 @@ api.get('/mission/:missionname', function(req, res){
         sendError(res, err);
     });
 });
+
+
+// Error Handling -------------------------------------------------------------
+
+
+/*
+ * Error handler for all exceptions that occur directly while handling the
+ * request.
+ * This handler will NOT be invoked for exceptions that are thrown in an
+ * asynchronous callback. Use `sendError()` for these.
+ *
+ * IMPORTANT: call to `app.use(<error-handler>)` must com *after* all calls
+ * to HTTP verbs like `app.get()`.
+ */
+api.use(function(err, req, res, next){
+    sendError(res, err);
+});
+
+
+/*
+ * Create an error object from the given error
+ * and write it as a JSON object to the response.
+ *
+ * Also, set the appropriate HTTP code.
+ *
+ * The `err` argument is ideally an instance of `errors.Exception`
+ * but other error types can also be passed in.
+ */
+var sendError = function(res, err){
+    console.log(err);
+    res.status(err.code || 500);
+    res.json({
+        name: err.name || 'ServiceError',
+        message: err.message || 'Error handling request'
+    });
+};
 
 
 // Exports --------------------------------------------------------------------

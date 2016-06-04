@@ -1,3 +1,20 @@
+/*
+ * This module is responsible for login, authentication and session management.
+ *
+ * It provides a HTTP handler to serve login-requests and initialize a session.
+ * The HTTP handler is at:
+ * ```
+ * POST <mountpoint>/login/<username>
+ * ```
+ *
+ * The auth module also exports a *middleware* function `authenticate()`
+ * which can be used to check authentication for requests.
+ *
+ * Sessions are stored in the database in a collection named `sessions`.
+ * The module expects a second DB collection named `users` where each user
+ * has a unique `name` and a `pwHash` attribute.
+ *
+ */
 var express = require('express'),
     bodyParser = require('body-parser'),
     bcrypt = require('bcrypt'),
@@ -12,7 +29,6 @@ var auth = express();
 auth.use(bodyParser.json());
 
 
-
 /*
  * Initialize a new Session for the given user.
  * Expects a JSON body with the clear password:
@@ -20,10 +36,11 @@ auth.use(bodyParser.json());
  * {"password": "secret"}
  * ```
  *
- * Returns a JSON response with tthe CSRF token:
+ * Returns a JSON response with the CSRF token:
  * ```
  * {"token": "abcd"}
  * ```
+ *
  * And a `Set-Cookie` header with the session token:
  * ```
  * Set-Cookie: session=<session-token>; path=/; expires=<Date+Time>; httponly
@@ -46,6 +63,12 @@ auth.post('/login/:username', function(req, res){
 });
 
 
+/*
+ * Checks whether the given username and password are valid and if valid,
+ * creates a new session for the user.
+ *
+ * Returns a *Promise* on the *Session* object.
+ */
 var login = function(username, password){
     var promise = new prom.Promise();
     store.users.findOne({name: username}).then(function(user){
@@ -82,6 +105,16 @@ var login = function(username, password){
 };
 
 
+/*
+ * Middelware function to authenticate requests.
+ * Checks if the requests belongs to a valid session and if so, sets
+ * ```
+ * req.user = user;        // User object
+ * req.session = session;  // Session object
+ * ```
+ *
+ * If the session is not valid, the request is aborted.
+ */
 var authenticate = function(req, res, next){
     var token, csrfToken;
     csrfToken = req.get('X-Auth-Token');
