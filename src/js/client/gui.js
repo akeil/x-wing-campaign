@@ -61,6 +61,10 @@ Session.prototype.setup = function(password){
         this.refreshShips();
         this.refreshMissions();
 
+        console.log('header');
+        var header = new HeaderView(this);
+        header.load('#header');
+
         this._views = {
             start: new StartView(this),
             campaign: new CampaignView(this)
@@ -68,6 +72,22 @@ Session.prototype.setup = function(password){
         this.show('start');
 
     }.bind(this));
+};
+
+Session.prototype.logout = function(){
+    this.client.logout().then(function(){
+        this.users = null;
+        this.campaign = null;
+        this.campaigns = null;
+        this.pilot = null;
+        this.pilots = null;
+        this.ships = null;
+        this.missions = null;
+        this.missionDetails = {};
+        // TODO: back to login view
+    }.bind(this)).except(function(err){
+
+    });
 };
 
 Session.prototype.show = function(viewName){
@@ -270,6 +290,23 @@ _BaseView.prototype.refresh = function(){
         // unbind events?
         $(this.selector).replaceWith(this.render());
         this.bindEvents();
+    }.bind(this));
+};
+
+
+// Header ---------------------------------------------------------------------
+
+HeaderView = function(session){
+    _BaseView.call(this, 'header', session);
+};
+
+HeaderView.prototype = new _BaseView();
+
+HeaderView.prototype.bindEvents = function(){
+    $('#logout').off('click');
+    $('#logout').on('click', function(evt){
+        evt.preventDefault();
+        this.session.logout();
     }.bind(this));
 };
 

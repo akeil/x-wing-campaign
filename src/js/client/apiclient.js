@@ -52,6 +52,22 @@ Client.prototype.login = function(password){
     return promise;
 };
 
+Client.prototype.logout = function(){
+    var promise = new prom.Promise();
+
+    this._request({
+        url: this.authURL + '/logout',
+        method: 'POST'
+    }).then(function(result){
+        this._token = null;
+        promise.resolve();
+    }.bind(this)).except(function(err){
+        promise.fail(err);
+    });
+
+    return promise;
+};
+
 // User -----------------------------------------------------------------------
 
 Client.prototype.getUser = function(){
