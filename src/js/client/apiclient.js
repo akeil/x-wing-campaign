@@ -22,6 +22,16 @@ Client = function(username){
 };
 
 
+var arrayOf = function(factory){
+    return function(items){
+        results = [];
+        for(var i=0; i < items.length; i++){
+            results.push(factory(items[i]));
+        }
+        return results;
+    };
+};
+
 // Authentication -------------------------------------------------------------
 
 Client.prototype.login = function(password){
@@ -54,13 +64,7 @@ Client.prototype.getUser = function(){
 Client.prototype.getUsers = function(){
     return this._GET({
         endpoint: '/users',
-        wrap: function(items){
-            results = [];
-            for(var i=0; i < items.length; i++){
-                results.push(new model.User(items[i]));
-            }
-            return results;
-        }
+        wrap: arrayOf(model.NewUser)
     });
 };
 
@@ -70,13 +74,7 @@ Client.prototype.getUsers = function(){
 Client.prototype.getCampaigns = function(){
     return this._GET({
         endpoint: '/campaigns/' + this.username,
-        wrap: function(campaigns){
-            results = [];
-            for(var i=0; i < campaigns.length; i++){
-                results.push(new model.Campaign(campaigns[i]));
-            }
-            return results;
-        }
+        wrap: arrayOf(model.NewCampaign)
     });
 };
 
@@ -112,13 +110,7 @@ Client.prototype.deleteCampaign = function(campaignid){
 Client.prototype.getPilots = function(campaignid){
     return this._GET({
         endpoint: '/campaign/' + campaignid + '/pilots',
-        wrap: function(pilots){
-            results = [];
-            for(var i=0; i < pilots.length; i++){
-                results.push(new model.Pilot(pilots[i]));
-            }
-            return results;
-        }
+        wrap: arrayOf(model.NewPilot)
     });
 };
 
@@ -147,13 +139,7 @@ Client.prototype.deletePilot = function(pilotid){
 Client.prototype.getShips = function(campaignid){
     return this._GET({
         endpoint: '/ships',
-        wrap: function(items){
-            results = [];
-            for(var i=0; i < items.length; i++){
-                results.push(new model.Ship(items[i]));
-            }
-            return results;
-        }
+        wrap: arrayOf(model.NewShip)
     });
 };
 
@@ -169,13 +155,7 @@ Client.prototype.getShip = function(name){
 Client.prototype.getMissions = function(campaignid){
     return this._GET({
         endpoint: '/mission',
-        wrap: function(items){
-            results = [];
-            for(var i=0; i < items.length; i++){
-                results.push(new model.Mission(items[i]));
-            }
-            return results;
-        }
+        wrap: arrayOf(model.NewMission)
     });
 };
 

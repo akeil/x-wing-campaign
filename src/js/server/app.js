@@ -81,7 +81,7 @@ var _initShips = function(){
             var items = JSON.parse(contents);
             for(var i=0; i < items.length; i++){
                 console.log('insert ship ' + items[i].name);
-                store.ships.put(new model.Ship(items[i]));
+                store.ships.put(model.NewShip(items[i]));
             }
         }
     });
@@ -97,7 +97,7 @@ var _initMissions = function(){
             var items = JSON.parse(contents);
             for(var i=0; i < items.length; i++){
                 console.log('insert mission ' + items[i].name);
-                store.missions.put(new model.Mission(items[i]));
+                store.missions.put(model.NewMission(items[i]));
             }
         }
     });

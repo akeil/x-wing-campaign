@@ -117,7 +117,7 @@ api.put('/user/:username', function(req, res){
     // TODO check permission "admin"
 
     var username = req.params.username;
-    var user = new model.User(req.body);
+    var user = model.NewUser(req.body);
     var password = req.body.password;
     user.name = username;
 
@@ -185,7 +185,7 @@ api.post('/campaigns/:username', function(req, res){
     }
 
     store.users.findOne({name: username}).then(function(user){
-        var campaign = new model.Campaign(req.body);
+        var campaign = model.NewCampaign(req.body);
         campaign.owner = username;
 
         try{
@@ -346,7 +346,7 @@ api.get('/campaign/:campaignid/pilots', function(req, res){
  */
 api.post('/campaign/:campaignid/pilot', function(req, res){
     var campaignid = req.params.campaignid;
-    var pilot = new model.Pilot(req.body);
+    var pilot = model.NewPilot(req.body);
     pilot.campaignid = campaignid;
 
     pilot.validate();  // throws exception
@@ -382,7 +382,6 @@ api.get('/pilot/:pilotid', function(req, res){
             res.json(pilot);
         }else{
             getCampaignMembers(pilot.campaignid).then(function(usernames){
-                console.log(usernames);
                 if(usernames.indexOf(req.user.name) >= 0){
                     res.json(pilot);
                 }else{

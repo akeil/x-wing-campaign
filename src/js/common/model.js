@@ -8,9 +8,9 @@
  * - Ship (static data)
  *
  * Each model can be created by passing a dictionary of properties
- * to the constructor:
+ * to the factory functioin:
  * ```
- * var instance = new Model({
+ * var instance = NewModel({
  *        foo: "some-value",
  *        bar: "some-other-value"
  *    });
@@ -85,7 +85,6 @@ User.prototype.validate = function(){
     }
 };
 
-module.exports.User = User;
 module.exports.NewUser = function(props){
     return new User(props);
 };
@@ -252,7 +251,6 @@ Campaign.prototype.victoryStatus = function(){
     }
 };
 
-module.exports.Campaign = Campaign;
 module.exports.NewCampaign = function(props){
     return new Campaign(props);
 };
@@ -280,7 +278,6 @@ Mission = function(props){
     this.info = props.info || null;
 };
 
-module.exports.Mission = Mission;
 module.exports.NewMission = function(props){
     return new Mission(props);
 };
@@ -485,8 +482,6 @@ Pilot.prototype.addAbility = function(mission, upgradeCard){
     this.spendXP(mission, KIND_ABILITY, cost);
 };
 
-
-module.exports.Pilot = Pilot;
 module.exports.NewPilot = function(props){
     return new Pilot(props);
 };
@@ -516,8 +511,6 @@ Ship = function(props) {
     this.slots = props.slots || {};
 };
 
-
-module.exports.Ship = Ship;
 module.exports.NewShip = function(props){
     return new Ship(props);
 };

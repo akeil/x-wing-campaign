@@ -128,7 +128,7 @@ Session.prototype.refreshMissions = function(){
 };
 
 Session.prototype.createCampaign = function(displayName){
-    campaign = new model.Campaign({
+    campaign = model.NewCampaign({
         displayName: displayName
     });
     this.client.createCampaign(campaign).then(function(){
@@ -139,7 +139,7 @@ Session.prototype.createCampaign = function(displayName){
 };
 
 Session.prototype.createPilot = function(owner, callsign){
-        var pilot = new model.Pilot({
+        var pilot = model.NewPilot({
             owner: owner,
             callsign: callsign
         });
