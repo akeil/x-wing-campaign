@@ -65,10 +65,10 @@ Session.prototype.login = function(password){
         show('#header', new HeaderView(this));
 
         this._views = {
-            start: new StartView(this),
+            home: new HomeView(this),
             campaign: new CampaignView(this)
         };
-        show('#main', this._views.start);
+        show('#main', this._views.home);  // use this.showHome() instead?
 
     }.bind(this));
 };
@@ -88,6 +88,12 @@ Session.prototype.logout = function(){
 
     });
 };
+
+Session.prototype.showHome = function(campaignid){
+    // TODO: unload the current campaign
+    show('#main', this._views.home);
+};
+
 
 Session.prototype.showCampaign = function(campaignid){
     console.log('show campaign ' + campaignid);
@@ -310,6 +316,12 @@ HeaderView = function(session){
 HeaderView.prototype = new _BaseView();
 
 HeaderView.prototype.bindEvents = function(){
+    $('#header-home').off('click');
+    $('#header-home').on('click', function(evt){
+        evt.preventDefault();
+        this.session.showHome();
+    }.bind(this));
+
     $('#logout').off('click');
     $('#logout').on('click', function(evt){
         evt.preventDefault();
@@ -321,13 +333,13 @@ HeaderView.prototype.bindEvents = function(){
 // Start View -----------------------------------------------------------------
 
 
-StartView = function(session){
-    _BaseView.call(this, 'start', session);
+HomeView = function(session){
+    _BaseView.call(this, 'home', session);
     this._children.push(new CampaignsView(session));
     this._children.push(new NewCampaignView(session));
 };
 
-StartView.prototype = new _BaseView();
+HomeView.prototype = new _BaseView();
 
 
 // Campaigns View -------------------------------------------------------------
@@ -621,6 +633,8 @@ MissionDeckView.prototype.getRenderContext = function(){
 
 
 var show = function(where, view){
+    //TODO: determine if the requested view is already showing.
+    // do not load it then
     view.load(where);
 };
 

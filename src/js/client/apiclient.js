@@ -170,7 +170,7 @@ Client.prototype.getShip = function(name){
 
 Client.prototype.getMissions = function(campaignid){
     return this._GET({
-        endpoint: '/mission',
+        endpoint: '/missions',
         wrap: arrayOf(model.NewMission)
     });
 };
