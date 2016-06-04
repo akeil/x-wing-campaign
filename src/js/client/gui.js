@@ -228,7 +228,6 @@ _BaseView = function(name, session){
      this.name = name;
      this.selector = '#view-' + name;
      this.session = session;
-     this._template = '';
      this._children = [];
 
      this.bindSignals();
@@ -239,21 +238,17 @@ _BaseView.prototype.bindSignals = function(){};
 _BaseView.prototype._loadTemplate = function(){
     var promise = new prom.Promise();
 
-    if(this._template !== ''){
-        promise.resolve(this._template);
-    }else{
-        fetchView(this.name).then(function(template){
-            this._template = template;
-            promise.resolve();
-        }.bind(this));
-    }
+    loadSnippet(this.name).then(function(template){
+        promise.resolve(template);
+    }.bind(this));
+
     return promise;
 };
 
 _BaseView.prototype.load = function(selector){
     this._loadTemplate().then(function(template){
         console.log('add ' + this.name + ' to ' + selector);
-        $(selector).html(this.render());
+        $(selector).html(this._render(template));
         this.bindEvents();
         this._loadChildren();
     }.bind(this));
@@ -272,15 +267,15 @@ _BaseView.prototype.getRenderContext = function(){
 
 _BaseView.prototype.bindEvents = function(){};
 
-_BaseView.prototype.render = function(){
-    return Mustache.render(this._template, this.getRenderContext());
+_BaseView.prototype._render = function(template){
+    return Mustache.render(template, this.getRenderContext());
 };
 
 _BaseView.prototype.refresh = function(){
     console.log('Refresh ' + this.name);
     this._loadTemplate().then(function(template){
         // unbind events?
-        $(this.selector).replaceWith(this.render());
+        $(this.selector).replaceWith(this._render(template));
         this.bindEvents();
     }.bind(this));
 };
@@ -630,14 +625,22 @@ var show = function(where, view){
 };
 
 
-var fetchView = function(viewName){
+var snippets = {};
+
+
+var loadSnippet = function(name){
     var promise = new prom.Promise();
 
-    $.ajax({
-        url: 'snippets/' + viewName + '.html'
-    }).done(function(content){
-        promise.resolve(content);
-    });
+    if(snippets[name]){
+        promise.resolve(snippets[name]);
+    }else{
+        $.ajax({
+            url: 'snippets/' + name + '.html'
+        }).done(function(content){
+            snippets[name] = content;
+            promise.resolve(content);
+        });
+    }
 
     return promise;
 };
