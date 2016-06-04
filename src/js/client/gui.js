@@ -58,6 +58,7 @@ Session.prototype.login = function(password){
             signal(EVT_USER_UPDATED);
         }.bind(this));
 
+        this.refreshUsers();
         this.refreshShips();
         this.refreshMissions();
         this.refreshCampaigns();
@@ -89,22 +90,19 @@ Session.prototype.logout = function(){
     });
 };
 
-Session.prototype.showHome = function(campaignid){
+Session.prototype.showHome = function(){
     // TODO: unload the current campaign
     show('#main', this._views.home);
 };
 
+Session.prototype.showPilot = function(pilotid){
+
+};
 
 Session.prototype.showCampaign = function(campaignid){
     console.log('show campaign ' + campaignid);
     show('#main', this._views.campaign);
     this.loadCampaign(campaignid);
-};
-
-Session.prototype.deleteCampaign = function(campaignid){
-    this.client.deleteCampaign(campaignid).then(function(){
-        this.refreshCampaigns();
-    }.bind(this));
 };
 
 Session.prototype.refreshUsers = function(){
@@ -156,6 +154,12 @@ Session.prototype.createCampaign = function(displayName){
     }.bind(this));
 };
 
+Session.prototype.deleteCampaign = function(campaignid){
+    this.client.deleteCampaign(campaignid).then(function(){
+        this.refreshCampaigns();
+    }.bind(this));
+};
+
 Session.prototype.createPilot = function(owner, callsign){
         var pilot = model.NewPilot({
             owner: owner,
@@ -173,12 +177,11 @@ Session.prototype.deletePilot = function(pilotid){
 };
 
 Session.prototype.loadCampaign = function(campaignid){
+    // TODO: properly unload() an existing campaign
     this.client.getCampaign(campaignid).then(function(campaign){
         this.campaign = campaign;
         signal(EVT_CAMPAIGN_UPDATED);
         this.refreshPilots();
-        this.refreshUsers();
-
     }.bind(this));
 };
 
@@ -281,6 +284,9 @@ _BaseView.prototype.refresh = function(){
     console.log('Refresh ' + this.name);
     this._loadTemplate().then(function(template){
         // unbind events?
+        if($(this.selector).length === 0){
+            console.log('view element ' + this.selector + ' not found');
+        }
         $(this.selector).replaceWith(this._render(template));
         this.bindEvents();
     }.bind(this));
@@ -315,6 +321,11 @@ HeaderView = function(session){
 
 HeaderView.prototype = new _BaseView();
 
+HeaderView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
+};
+
 HeaderView.prototype.bindEvents = function(){
     $('#header-home').off('click');
     $('#header-home').on('click', function(evt){
@@ -327,8 +338,28 @@ HeaderView.prototype.bindEvents = function(){
         evt.preventDefault();
         this.session.logout();
     }.bind(this));
+
+    $('#campaign-nav li a').each(function(index, a){
+        $(a).off('click');
+        $(a).on('click', function(evt){
+            evt.preventDefault();
+            var kind = $(evt.delegateTarget).data('kind');
+            var id = $(evt.delegateTarget).data('id');
+            if(kind === 'pilot'){
+                this.session.showPilot(id);
+            }else if(kind === 'campaign'){
+                this.session.showCampaign(id);
+            }
+        }.bind(this));
+    }.bind(this));
 };
 
+HeaderView.prototype.getRenderContext = function(){
+    return {
+        campaign: this.session.campaign,
+        pilots: this.session.pilots
+    };
+};
 
 // Start View -----------------------------------------------------------------
 
@@ -360,7 +391,7 @@ CampaignsView.prototype.bindEvents = function(){
     $(this.selector + ' ul li a').each(function(index, a){
         $(a).off('click');
         $(a).on('click', function(evt){
-            var campaignid = $(evt.delegateTarget).data("id");
+            var campaignid = $(evt.delegateTarget).data('id');
             this.session.showCampaign(campaignid);
         }.bind(this));
     }.bind(this));
@@ -369,7 +400,7 @@ CampaignsView.prototype.bindEvents = function(){
     $(this.selector + ' li button').each(function(index, button){
         $(button).off('click');
         $(button).on('click', function(evt){
-            var campaignid = $(evt.delegateTarget).data("id");
+            var campaignid = $(evt.delegateTarget).data('id');
             this.session.deleteCampaign(campaignid);
         }.bind(this));
     }.bind(this));

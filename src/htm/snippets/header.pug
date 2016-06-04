@@ -1,15 +1,17 @@
-div(class="container")
+div(id="view-header" class="container")
     div(class="navbar-header")
         a(class="navbar-brand" href="#" id="header-home") Home
 
     div
-        ul(class="nav navbar-nav")
+        ul(id="campaign-nav" class="nav navbar-nav")
+            | {{#campaign}}
+            li(class="active")
+                a(data-id="{{_id}}" data-kind="campaign" href="#") {{displayName}}
+            | {{/campaign}}
+            | {{#pilots}}
             li
-                a Item 1
-            li
-                a Item 2
-            li
-                a Item 3
+                a(data-id="{{_id}}" data-kind="pilot" href="#") {{callsign}}
+            | {{/pilots}}
 
         ul(class="nav navbar-nav navbar-right")
             li
