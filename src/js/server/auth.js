@@ -113,14 +113,17 @@ var login = function(username, password){
  * req.session = session;  // Session object
  * ```
  *
- * If the session is not valid, the request is aborted.
+ * If the session is not valid, the request is aborted and
+ * answered with
+ * - HTTP 401 - Unauthorized for missing session information
+ * - HTTP 403 - Forbidden for an invalid session
  */
 var authenticate = function(req, res, next){
     var token, csrfToken;
     csrfToken = req.get('X-Auth-Token');
     if(!csrfToken){
         console.log('No CSRF token in HTTP header.');
-        // exit
+        throw errors.unauthorized('Missing authentication token');
     }
 
     if(req.cookies){
@@ -128,13 +131,13 @@ var authenticate = function(req, res, next){
     }
     if(!token){
         console.log('No session token from cookie.');
-        // exit
+        throw errors.unauthorized('Missing authentication token');
     }
 
     var predicate = {token: token, csrfToken: csrfToken};
     store.sessions.findOne(predicate).then(function(session){
         console.log('Found session ' + session._id);
-        // check if expired
+        // TODO check if expired
         store.users.findOne({name: session.user}).then(function(user){
             console.log('Session for user ' + user.name);
             req.session = session;
@@ -143,12 +146,14 @@ var authenticate = function(req, res, next){
         }).except(function(err){
             console.log(err);
             console.log('User not loaded.');
-            next();  //  TODO: end
+            res.status(403);
+            res.json(errors.forbidden('invalid session'));
         });
     }).except(function(err){
         console.log('Could not load session');
         console.log(err);
-        next();  //  TODO: end
+        res.status(403);
+        res.json(errors.forbidden('invalid session'));
     });
 };
 
