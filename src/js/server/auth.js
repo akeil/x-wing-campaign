@@ -127,7 +127,7 @@ var authenticate = function(req, res, next){
 
     if(!token || !csrfToken){
         console.log('No session token from cookie.');
-        sendError(errors.unauthorized('Missing authentication token'));
+        sendError(res, errors.unauthorized('Missing authentication token'));
         return;
     }
 
@@ -142,11 +142,11 @@ var authenticate = function(req, res, next){
             next();
         }).except(function(err){
             console.log('User not found');
-            sendError(errors.forbidden('invalid session'));
+            sendError(res, errors.forbidden('invalid session'));
         });
     }).except(function(err){
         console.log('Could not load session');
-        sendError(errors.forbidden('invalid session'));
+        sendError(res, errors.forbidden('invalid session'));
     });
 };
 
