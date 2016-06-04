@@ -52,13 +52,19 @@ api.on('mount', function(parent){
 
 // parse JSON request body
 api.use(bodyParser.json());
-
+/*
 //catch-all error handler
 api.use(function(err, req, res, next){
     console.log('Error');
     console.log(err);
     res.status(500);
     res.json({error: err});
+});
+*/
+// log every request
+api.use('/', function(req, res, next){
+    console.log(req.method + ' ' + req.originalUrl);
+    next();
 });
 
 
@@ -102,7 +108,6 @@ api.get('/users', function(req, res){
  */
 api.get('/user/:username', function(req, res){
     var username = req.params.username;
-    console.log('GET user ' + username);
     store.users.findOne({name: username}).then(function(user){
         delete user.pwHash;
         res.json(user);
@@ -160,7 +165,6 @@ api.put('/user/:username', function(req, res){
 api.delete('/user/:username', function(req, res){
     var username = req.params.username;
     // TODO check permission "admin"
-    console.log('DELETE user ' + username);
     store.users.findOne({name: username}).then(function(user){
         store.users.delete(user._id).then(function(result){
             res.json({});
@@ -238,7 +242,6 @@ api.post('/user/:username/login', function(req, res){
  */
 api.get('/campaigns/:username', function(req, res){
     var username = req.params.username;
-    console.log('GET campaigns for ' + username);
     // TODO check permission
     var fields = ['displayName', 'owner'];
     store.campaigns.select({owner: username}, fields).then(function(campaigns){
@@ -296,7 +299,6 @@ api.get('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
     // TODO check current user is owner or member
 
-    console.log('GET campaign ' + campaignid);
     store.campaigns.get(campaignid).then(function(campaign){
         res.json(campaign);
     }).except(function(err){
@@ -309,7 +311,6 @@ api.get('/campaign/:campaignid', function(req, res){
  */
 api.put('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
-    console.log('PUT campaign ' + campaignid);
 
     // TODO load the current instance ?
     // TODO check current user is owner
@@ -338,7 +339,6 @@ api.put('/campaign/:campaignid', function(req, res){
 api.delete('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
     // TODO check current user is owner
-    console.log('DELETE campaign ' + campaignid);
     store.campaigns.delete(campaignid).then(function(result){
         // no result
         res.json({});
@@ -375,7 +375,6 @@ api.get('/campaign/:campaignid/pilots', function(req, res){
  */
 api.post('/campaign/:campaignid/pilot', function(req, res){
     var campaignid = req.params.campaignid;
-    console.log('Create pilot for campaign ' + campaignid);
     var pilot = new model.Pilot(req.body);
     pilot.campaignid = campaignid;
 
@@ -402,7 +401,6 @@ api.post('/campaign/:campaignid/pilot', function(req, res){
  */
 api.get('/pilot/:pilotid', function(req, res){
     var pilotid = req.params.pilotid;
-    console.log('GET pilot ' + pilotid);
     // TODO check that current user is campaign member
     store.pilots.get(pilotid).then(function(pilot){
         res.json(pilot);
@@ -417,7 +415,6 @@ api.get('/pilot/:pilotid', function(req, res){
 api.delete('/pilot/:pilotid', function(req, res){
     var pilotid = req.params.pilotid;
     // TODO validate user is owner or campaign owner
-    console.log('DELETE pilot ' + pilotid);
     store.pilots.delete(pilotid).then(function(result){
         res.json({});  // no result
     }).except(function(err){
@@ -446,7 +443,6 @@ api.get('/ships', function(req, res){
  */
 api.get('/ship/:shipname', function(req, res){
     var shipname = req.params.shipname;
-    console.log('GET ship ' + shipname);
     store.ships.findOne({name: shipname}).then(function(ship){
         res.json(ship);
     }).except(function(err){
@@ -488,7 +484,6 @@ api.get('/missions/initial', function(req, res){
  */
 api.get('/mission/:missionname', function(req, res){
     var missionname = req.params.missionname;
-    console.log('GET mission ' + missionname);
     store.missions.findOne({name: missionname}).then(function(item){
         res.json(item);
     }).except(function(err){
