@@ -1,83 +1,114 @@
 div(id="view-pilot" class="col-md-6")
-    h3 Pilot Details ({{pilot.callsign}})
-    |{{^pilot}}
-    p no pilot
-    | {{/pilot}}
-    table
-        tbody
-            tr
-                th Player
-                td {{pilot.owner}}
-            tr
-                th Callsign
-                td {{pilot.callsign}}
-            tr
-                th Pilot Skill
-                td {{pilotSkill}}
-            tr
-                th XP
-                td {{currentXP}}
+    div(class="row")
+        div(class="col-sm-12")
+            h3 Pilot Details ({{pilot.callsign}})
+            |{{^pilot}}
+            p no pilot
+            | {{/pilot}}
+            table(class="table")
+                tbody
+                    tr
+                        th Player
+                        td {{pilot.owner}}
+                    tr
+                        th Callsign
+                        td {{pilot.callsign}}
+                    tr
+                        th Pilot Skill
+                        td {{pilotSkill}}
+                    tr
+                        th XP
+                        td {{currentXP}}
 
-    h4 Mission Aftermath
-    form(id="pilot-aftermath" class="form-horizontal")
-        div(class="form-group")
+    div(class="row")
+        div(class="col-sm-4")
+            h4 Played Missions
+            table(class="table")
+                thead
+                    tr
+                        th Mission
+                        th XP
 
-            label(for="pilot-aftermath-mission"
-                  class="col-sm-4 control-label") Mission
-            div(class="col-sm-8")
-                select(name="pilot-aftermath-mission"
-                      id="pilot-aftermath-mission"
-                      class="form-control")
-                    | {{#playedMissions}}
-                    option(value="{{name}}" "{{_ui_selected}}") {{displayName}}
-                    | {{/playedMissions}}
+        div(class="col-sm-4")
+            h4 Kills
+            table(class="table")
+                tbody
+                    tr
+                        th Tie Fighter
+                        td xxxxxxx
+                    tr
+                        th Tie Interceptor
+                        td xxxxxxx
 
-        div(class="form-group")
-            label(for="pilot-aftermath-xp"
-                  class="col-sm-4 control-label") Total XP earned
-            div(class="col-sm-8")
-                input(name="pilot-aftermath-xp"
-                      id="pilot-aftermath-xp"
-                      type="number"
-                      class="form-control")
 
-        | {{#enemyShips}}
-        div(class="form-group")
-            label(for="pilot-kills-{{name}}"
-                  class="col-sm-4 control-label") {{displayName}}
-            div(class="col-sm-8")
-                div(class="input-group")
-                    span(class="input-group-btn")
-                        button(class="btn btn-default" type="button") -
-                    input(name="pilot-kills-{{name}}"
-                          id="pilot-kills-{{name}}"
-                          data-kind="{{name}}"
-                          type="number"
-                          class="form-control pilot-aftermath-kill")
-                    span(class="input-group-btn")
-                        button(class="btn btn-default" type="button") +
-        | {{/enemyShips}}
+        div(class="col-sm-4")
+            h4 Upgrades
 
-        div(class="form-group")
-            div(class="col-sm-offset-2 col-sm-10")
-            button(type="submit" class="btn btn-default") Save
 
-    h4 Ship
-    | {{#pilot.ship}}
-    p Current ship is {{pilot.ship}}
-    | {{/pilot.ship}}
+    div(class="row")
+        div(class="col-sm-6")
+            h4 Mission Aftermath
+            form(id="pilot-aftermath" class="form-horizontal")
+                div(class="form-group")
 
-    | {{^pilot.ship}}
-    p Select a ship.
-    | {{/pilot.ship}}
+                    label(for="pilot-aftermath-mission"
+                          class="col-sm-4 control-label") Mission
+                    div(class="col-sm-8")
+                        select(name="pilot-aftermath-mission"
+                              id="pilot-aftermath-mission"
+                              class="form-control")
+                            | {{#playedMissions}}
+                            option(value="{{name}}" "{{_ui_selected}}") {{displayName}}
+                            | {{/playedMissions}}
 
-    form(id="pilot-change-ship")
-        div(class="form-group")
-            label(for="pilot-change-ship-name") Change to
-            div(class="input-group")
-                select(id="pilot-change-ship-name" name="pilot-change-ship-name" class="form-control")
-                    | {{#ships}}
-                    option(value="{{name}}") {{displayName}}
-                    | {{/ships}}
-                span(class="input-group-btn")
-                    button(type="submit" class="btn btn-default") Change
+                div(class="form-group")
+                    label(for="pilot-aftermath-xp"
+                          class="col-sm-4 control-label") Total XP earned
+                    div(class="col-sm-8")
+                        input(name="pilot-aftermath-xp"
+                              id="pilot-aftermath-xp"
+                              type="number"
+                              class="form-control")
+
+                | {{#enemyShips}}
+                div(class="form-group")
+                    label(for="pilot-kills-{{name}}"
+                          class="col-sm-4 control-label") {{displayName}}
+                    div(class="col-sm-8")
+                        div(class="input-group")
+                            span(class="input-group-btn")
+                                button(class="btn btn-default" type="button") -
+                            input(name="pilot-kills-{{name}}"
+                                  id="pilot-kills-{{name}}"
+                                  data-kind="{{name}}"
+                                  type="number"
+                                  class="form-control pilot-aftermath-kill")
+                            span(class="input-group-btn")
+                                button(class="btn btn-default" type="button") +
+                | {{/enemyShips}}
+
+            div(class="form-group")
+                div(class="col-sm-offset-2 col-sm-10")
+                button(type="submit" class="btn btn-default") Save
+
+    div(class="row")
+        div(class="col-md-6")
+            h4 Ship
+            | {{#pilot.ship}}
+            p Current ship is {{pilot.ship}}
+            | {{/pilot.ship}}
+
+            | {{^pilot.ship}}
+            p Select a ship.
+            | {{/pilot.ship}}
+
+            form(id="pilot-change-ship")
+                div(class="form-group")
+                    label(for="pilot-change-ship-name") Change to
+                    div(class="input-group")
+                        select(id="pilot-change-ship-name" name="pilot-change-ship-name" class="form-control")
+                            | {{#ships}}
+                            option(value="{{name}}") {{displayName}}
+                            | {{/ships}}
+                        span(class="input-group-btn")
+                            button(type="submit" class="btn btn-default") Change

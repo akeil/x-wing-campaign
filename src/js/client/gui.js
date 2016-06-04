@@ -1,3 +1,6 @@
+/*
+ *
+ */
 var apiclient = require('./apiclient'),
     model = require('../common/model'),
     prom = require('../common/promise');
@@ -368,6 +371,7 @@ WelcomeView.prototype.bindEvents = function(){
 
 // Header ---------------------------------------------------------------------
 
+
 HeaderView = function(session){
     _BaseView.call(this, 'header', session);
 };
@@ -413,6 +417,7 @@ HeaderView.prototype.getRenderContext = function(){
         pilots: this.session.pilots
     };
 };
+
 
 // Start View -----------------------------------------------------------------
 
@@ -513,7 +518,7 @@ CampaignView.prototype.getRenderContext = function(){
 };
 
 
-// Pilots View ----------------------------------------------------------------
+// Pilots ---------------------------------------------------------------------
 
 
 PilotsView = function(session){
