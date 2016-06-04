@@ -38,6 +38,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     auth = require('./auth'),
     store = require('./store'),
+    prom = require('../common/promise'),
     errors = require('../common/errors'),
     model = require('../common/model');
 
@@ -50,6 +51,25 @@ api.use(bodyParser.json());
 
 // authenticate all requests
 api.use(auth.authenticate);
+
+
+// Helpers --------------------------------------------------------------------
+
+
+var getCampaignMembers = function(campaignid){
+    var promise = new prom.Promise();
+    var predicate = {campaignid: campaignid};
+    var fields = ['owner'];
+    store.pilots.select(predicate, fields).then(function(docs){
+        promise.resolve(docs.map(function(doc){
+            return doc.owner;
+        }));
+    }).except(function(err){
+        promise.fail(err);
+    });
+
+    return promise;
+};
 
 
 // User -----------------------------------------------------------------------
@@ -205,8 +225,21 @@ api.get('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
 
     store.campaigns.get(campaignid).then(function(campaign){
-        // TODO check current user is owner or member
-        res.json(campaign);
+        if(req.user.name === campaign.owner){
+            res.json(campaign);
+        }else{
+            getCampaignMembers(campaignid).then(function(usernames){
+                if(usernames.indexOf(req.user.name) >= 0){
+                    res.json(campaign);
+                }else{
+                    var msg = 'you are not a member of this campaign';
+                    sendError(res, errors.forbidden(msg));
+                }
+            }).except(function(err){
+                sendError(res, err);
+            });
+        }
+
     }).except(function(err){
         sendError(res, err);
     });
@@ -272,10 +305,28 @@ api.delete('/campaign/:campaignid', function(req, res){
  */
 api.get('/campaign/:campaignid/pilots', function(req, res){
     var campaignid = req.params.campaignid;
-    // check current user is campaign member
     var fields = ['owner', 'callsign'];
     store.pilots.select({campaignid: campaignid}, fields).then(function(pilots){
-        res.json(pilots);
+        // if the user is one of the pilots owners, he is a campaign member
+        var usernames = pilots.map(function(pilot){
+            return pilot.owner;
+        });
+        if(usernames.indexOf(req.user.name) >= 0){
+            res.json(pilots);
+        }else{
+            // check campaign ownership
+            store.campaigns.get(campaignid).then(function(campaign){
+                if(req.user.name === campaign.owner){
+                    res.json(pilots);
+                }else{
+                    var msg = 'you are not a member of this campaign';
+                    sendError(res, errors.forbidden(msg));
+                }
+            }).except(function(err){
+                sendError(res, err);
+            });
+        }
+
     }).except(function(err){
         sendError(res, err);
     });
@@ -300,12 +351,19 @@ api.post('/campaign/:campaignid/pilot', function(req, res){
 
     pilot.validate();  // throws exception
 
-    // TODO validate that the campaign exists
-    // TODO validate current user is campaign owner
-    // TODO validate pilot.owner is not already in the campaign?
-    // TODO validate that pilot's campaign props are reset?
-    store.pilots.put(pilot).then(function(insertedId){
-        res.json({id: insertedId});
+    store.campaigns.get(campaignid).then(function(campaign){
+        if(req.user.name !== campaign.owner){
+            var msg = 'cannot add pilot to campaign owned by another user';
+            sendError(res, errors.forbidden(msg));
+        }else{
+            // TODO validate pilot.owner is not already in the campaign?
+            // TODO validate that pilot's campaign props are reset?
+            store.pilots.put(pilot).then(function(insertedId){
+                res.json({id: insertedId});
+            }).except(function(err){
+                sendError(res, err);
+            });
+        }
     }).except(function(err){
         sendError(res, err);
     });
@@ -316,9 +374,34 @@ api.post('/campaign/:campaignid/pilot', function(req, res){
  */
 api.get('/pilot/:pilotid', function(req, res){
     var pilotid = req.params.pilotid;
-    // TODO check that current user is campaign member
+    // permissions:
+    // - user is owner of pilot
+    // - user is member or owner of the pilot's campaign
     store.pilots.get(pilotid).then(function(pilot){
-        res.json(pilot);
+        if(req.user.name === pilot.owner){
+            res.json(pilot);
+        }else{
+            getCampaignMembers(pilot.campaignid).then(function(usernames){
+                console.log(usernames);
+                if(usernames.indexOf(req.user.name) >= 0){
+                    res.json(pilot);
+                }else{
+                    store.campaigns.get(pilot.campaignid).then(function(campaign){
+                        if(req.user.name === campaign.owner){
+                            res.json(pilot);
+                        }else{
+                            var msg = 'cannot access pilot details';
+                            sendError(res, errors.forbidden(msg));
+                        }
+                    }).except(function(err){
+                        sendError(res, err);
+                    });
+                }
+            }).except(function(err){
+                sendError(res, err);
+            });
+        }
+
     }).except(function(err){
         sendError(res, err);
     });
@@ -329,12 +412,22 @@ api.get('/pilot/:pilotid', function(req, res){
  */
 api.delete('/pilot/:pilotid', function(req, res){
     var pilotid = req.params.pilotid;
-    // TODO validate user is owner or campaign owner
-    store.pilots.delete(pilotid).then(function(result){
-        res.json({});  // no result
+    store.pilots.get(pilotid).then(function(pilot){
+        if(req.user.name === pilot.owner){
+            store.pilots.delete(pilotid).then(function(result){
+                res.json({});  // no result
+            }).except(function(err){
+                sendError(res, err);
+            });
+        }else{
+            //TODO: allow it for campaign.owner?
+            var msg = 'cannot delete pilot from another user';
+            sendError(res, errors.forbidden(msg));
+        }
     }).except(function(err){
         sendError(res, err);
     });
+
 });
 
 
