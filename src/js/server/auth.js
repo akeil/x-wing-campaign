@@ -85,10 +85,10 @@ var login = function(username, password){
                     user: user.name,
                     token: crypto.randomBytes(16).toString('hex'),
                     csrfToken: crypto.randomBytes(16).toString('hex'),
-                    expires: new Date().getTime() + (60 * 60 * 24)
+                    expires: new Date().getTime() + (1000 * 60 * 60 * 24)
                 };
                 store.sessions.put(session).then(function(sessionId){
-                    console.log('Created session for ' + user.name);
+                    console.log('Created session ' + sessionId + ' for ' + user.name);
                     promise.resolve(session);
                 }).except(function(err){
                     // TODO proper error class
@@ -133,10 +133,17 @@ var authenticate = function(req, res, next){
 
     var predicate = {token: token, csrfToken: csrfToken};
     store.sessions.findOne(predicate).then(function(session){
-        console.log('Found session ' + session._id);
-        // TODO check if expired
+
+        var expires = session.expires || 0;
+        var ts = new Date().getTime();
+        if( expires < ts){
+            console.log('Session for ' + session.user + ' is expired');
+            sendError(res, errors.unauthorized('Session expired'));
+            return;
+        }
+
         store.users.findOne({name: session.user}).then(function(user){
-            console.log('Session for user ' + user.name);
+            console.log('Session ' + session._id + ' for user ' + user.name);
             req.session = session;
             req.user = user;
             next();
