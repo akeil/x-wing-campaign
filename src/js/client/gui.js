@@ -60,16 +60,15 @@ Session.prototype.setup = function(password){
 
         this.refreshShips();
         this.refreshMissions();
+        // TODO load users campaigns
 
-        console.log('header');
-        var header = new HeaderView(this);
-        header.load('#header');
+        show('#header', new HeaderView(this));
 
         this._views = {
             start: new StartView(this),
             campaign: new CampaignView(this)
         };
-        this.show('start');
+        show('#main', this._views.start);
 
     }.bind(this));
 };
@@ -90,16 +89,9 @@ Session.prototype.logout = function(){
     });
 };
 
-Session.prototype.show = function(viewName){
-    view = this._views[viewName];
-    if(view){
-        view.load('#view-main');
-    }
-};
-
 Session.prototype.showCampaign = function(campaignid){
     console.log('show campaign ' + campaignid);
-    this.show('campaign');
+    show('#main', this._views.campaign);
     this.loadCampaign(campaignid);
 };
 
@@ -611,6 +603,12 @@ MissionDeckView.prototype.getRenderContext = function(){
 
 
 // ----------------------------------------------------------------------------
+
+
+var show = function(where, view){
+    view.load(where);
+};
+
 
 var fetchView = function(viewName){
     var promise = new prom.Promise();
