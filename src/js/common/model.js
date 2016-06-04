@@ -120,6 +120,14 @@ Campaign = function(props) {
     this.playedMissions = props.playedMissions || [];
 };
 
+Campaign.prototype.patch = function(props){
+    props = props || {};
+    this.owner = props.owner || this.owner;
+    this.displayName = props.displayName || this.displayName;
+    this.missionDeck = props.missionDeck || this.missionDeck;
+    this.playedMissions = props.playedMissions || this.playedMissions;
+};
+
 Campaign.prototype.validate = function(){
     if(!this.owner){
         throw errors.invalid('Owner must be set');
@@ -128,13 +136,6 @@ Campaign.prototype.validate = function(){
     if(!this.displayName){
         throw errors.invalid('Display name must be set');
     }
-};
-
-Campaign.prototype.patch = function(props){
-    this.owner = props.owner || this.owner;
-    this.displayName = props.displayName || this.displayName;
-    this.missionDeck = props.missionDeck || this.missionDeck;
-    this.playedMissions = props.playedMissions || this.playedMissions;
 };
 
 /*
@@ -308,21 +309,33 @@ Pilot = function(props) {
     this.ship = props.ship || null;
     this.callsign = props.callsign || null;
 
-    this.kills = props.kills || [];
-
     /*
      * Expected:
      * [
      *   {
-     *     mission: <v>,
-     *     kind: <v>,
-     *     value: <v>
+     *     mission: <mission-name>,
+     *     xp: <value>,
+     *     kills: {
+     *        'tie-figther': 2,
+     *        'tie-interceptor': 2,
+     *        ...
+     *     }
      *   }
      * ]
      */
-    this.earnedXP = props.earnedXP || [];
+    this.playedMissions = props.playedMissions || [];
 
     this.spentXP = props.spentXP || [];
+};
+
+Pilot.prototype.patch = function(props){
+    props = props || {};
+    this.campaignid = props.campaignid || this.campaignid;
+    this.owner = props.owner || this.owner;
+    this.ship = props.ship || this.ship;
+    this.callsign = props.callsign || this.callsign;
+    this.playedMissions = props.playedMissions || this.playedMissions;
+    this.spentXP = props.spentXP || this.spentXP;
 };
 
 Pilot.prototype.validate = function(){
@@ -340,8 +353,8 @@ Pilot.prototype.validate = function(){
 
 Pilot.prototype.totalEarnedXP = function(){
     var total = 0;
-    for(var i=0; i < this.earnedXP.length; i++){
-        total += this.earnedXP[i].value;
+    for(var i=0; i < this.playedMissions.length; i++){
+        total += this.playedMissions[i].xp || 0;
     }
     return total;
 };
@@ -349,7 +362,7 @@ Pilot.prototype.totalEarnedXP = function(){
 Pilot.prototype.totalSpentXP = function(){
     var total = 0;
     for(var i=0; i < this.spentXP.length; i++){
-        total += this.spentXP[i].value;
+        total += this.spentXP[i].xp || 0;
     }
     return total;
 };
@@ -358,36 +371,34 @@ Pilot.prototype.currentXP = function(){
     return this.totalEarnedXP() - this.totalSpentXP();
 };
 
-Pilot.prototype.earnXP = function(mission, kind, count){
-    this.earnedXP.push({
-        mission: mission,
-        kind: kind,
-        value: count
+Pilot.prototype.missionAftermath = function(missionName, xp, kills){
+    for (var i = 0; i < this.playedMissions.length; i++) {
+        if(this.playedMissions[i].mission === missionName){
+            this.playedMissions[i].xp = xp || 0;
+            this.playedMissions[i].kills = kills || 0;
+            return;
+        }
+    }
+    // mission not yet recorded
+    this.playedMissions.push({
+        mission: missionName,
+        xp: xp,
+        kills: kills
     });
-    // TODO: group/sum and re-sort
 };
 
-Pilot.prototype.spendXP = function(mission, kind, count){
+Pilot.prototype.spendXP = function(missionName, kind, xp){
     this.spentXP.push({
-        mission: mission,
+        mission: missionName,
         kind: kind,
-        value: count
+        xp: xp
     });
     // TODO: group/sum and re-sort
-};
-
-Pilot.prototype.addKills = function(mission, shipType, count){
-    // TODO: group/sum by mission + shipType
-    this.kills.push({
-        mission: mission,
-        shipType: shipType,
-        count: count
-    });
 };
 
 Pilot.prototype.skill = function(){
     var result = BASE_SKILL;
-    for(var i=0; i < this.earnedXP.length; i++){
+    for(var i=0; i < this.spentXP.length; i++){
         if(this.spentXP[i] === KIND_SKILL_INCREASE){
           result += 1;
         }
@@ -426,14 +437,18 @@ Pilot.prototype.abilities = function(){
     return result;
 };
 
-Pilot.prototype.changeShip = function(mission, newShip){
+Pilot.prototype.changeShip = function(mission, ship){
     var availableXP = this.currentXP();
     if(availableXP < SHIP_CHANGE_COST){
-        throw "InsufficientXP";
+        throw errors.conflict('Insufficient XP');
     }
-    // TODO: check whether ship matches skill level
-    // TODO: where/how do we store the new shipType
+
+    if(ship.requiredSkill > this.skill()){
+        throw errors.conflict('Required skill level not met');
+    }
+
     this.spendXP(mission, KIND_SHIP_CHANGE, SHIP_CHANGE_COST);
+    this.ship = ship.name;
 };
 
 Pilot.prototype.increaseSkill = function(mission){
@@ -514,3 +529,15 @@ Ship = function(props) {
 module.exports.NewShip = function(props){
     return new Ship(props);
 };
+
+
+module.exports.enemyShips = [
+    {
+        name: 'tie-figther',
+        displayName: 'Tie Fighter'
+    },
+    {
+        name: 'tie-interceptor',
+        displayName: 'Tie Interceptor'
+    }
+];

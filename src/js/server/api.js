@@ -407,6 +407,29 @@ api.get('/pilot/:pilotid', function(req, res){
 });
 
 /*
+ * Update pilot data
+ */
+api.put('/pilot/:pilotid', function(req, res){
+    var pilotid = req.params.pilotid;
+    store.pilots.get(pilotid).then(function(pilot){
+        if(req.user.name === pilot.owner){
+            pilot.patch(req.body);
+            store.pilots.put(pilot).then(function(){
+                res.json({});
+            }).except(function(err){
+                sendError(res, err);
+            });
+        }else{
+            //TODO: allow it for campaign.owner?
+            var msg = 'cannot edit pilot from another user';
+            sendError(res, errors.forbidden(msg));
+        }
+    }).except(function(err){
+        sendError(res, err);
+    });
+});
+
+/*
  * Delete a pilot by id
  */
 api.delete('/pilot/:pilotid', function(req, res){

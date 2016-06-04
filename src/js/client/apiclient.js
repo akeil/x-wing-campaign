@@ -144,6 +144,13 @@ Client.prototype.createPilot = function(campaignid, pilot){
     });
 };
 
+Client.prototype.updatePilot = function(pilot){
+    return this._PUT({
+        endpoint: '/pilot/' + pilot._id,
+        payload: pilot
+    });
+};
+
 Client.prototype.deletePilot = function(pilotid){
     return this._DELETE({
         endpoint: '/pilot/' + pilotid

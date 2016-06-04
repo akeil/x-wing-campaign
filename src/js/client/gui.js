@@ -145,6 +145,15 @@ Session.prototype.refreshMissions = function(){
     }.bind(this));
 };
 
+Session.prototype.shipByName = function(shipName){
+    for (var i = 0; i < this.ships.length; i++) {
+        if(this.ships[i].name === shipName){
+            return this.ships[i];
+        }
+    }
+    throw errors.notFound('No ship with name ' + shipName);
+};
+
 Session.prototype.createCampaign = function(displayName){
     campaign = model.NewCampaign({
         displayName: displayName
@@ -226,9 +235,51 @@ Session.prototype.doAftermath = function(missionName, victory){
                 signal(EVT_CAMPAIGN_UPDATED);
                 //this.loadCampaign(this.campaign._id);
             });
+            // TODO rollback client state if server update failed ...
         });
     }
+};
 
+Session.prototype.doPilotAftermath = function(missionName, xp, kills){
+    if(!this.pilot){
+        errorMessage(errors.illegalState('Pilot not loaded'));
+        return;
+    }
+
+    try{
+        this.pilot.missionAftermath(missionName, xp, kills);
+        this.client.updatePilot(this.pilot).then(function(){
+            signal(EVT_PILOT_UPDATED);
+        }).except(function(err){
+            errorMessage(err);
+            //TODO set pilot back to previous state
+        });
+    }catch(err){
+        errorMessage(err);
+    }
+};
+
+Session.prototype.changeShip = function(shipName){
+    if(!this.pilot){
+        errorMessage(errors.illegalState('Pilot not loaded'));
+        return;
+    }else if(this.pilot.ship === shipName){
+        errorMessage(errors.illegalState('ship already selected'));
+        return;
+    }
+
+    try{
+        var ship = this.shipByName(shipName);  // throws
+        this.pilot.changeShip(ship);  // throws
+        this.client.updatePilot(this.pilot).then(function(){
+            signal(EVT_PILOT_UPDATED);
+        }).except(function(err){
+            errorMessage(err);
+            //TODO set pilot back to previous state
+        });
+    }catch(err){
+        errorMessage(err);
+    }
 };
 
 
@@ -647,17 +698,62 @@ PilotView.prototype = new _BaseView();
 PilotView.prototype.bindSignals = function(){
     onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
     onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_MISSION_DETAILS_UPDATED, this.refresh.bind(this));
 };
 
 PilotView.prototype.bindEvents = function(){
+    $('#pilot-change-ship').off('submit');
+    $('#pilot-change-ship').on('submit', function(evt){
+        evt.preventDefault();
+        var shipName = $('#pilot-change-ship-name').val();
+        this.session.changeShip(shipName);
+    }.bind(this));
 
+    // mission aftermath
+    $('#pilot-aftermath').off('submit');
+    $('#pilot-aftermath').on('submit', function(evt){
+        evt.preventDefault();
+        var missionName = $('#pilot-aftermath-mission').val();
+        var xp = parseInt($('#pilot-aftermath-xp').val(), 10);
+        var kills = {};
+        $('#pilot-aftermath input').each(function(input){
+            var kind = $(input).data('kind');
+            if(kind){
+                kills[kind] = parseInt($(input).val(), 10);
+            }
+        }.bind(this));
+        this.session.doPilotAftermath(missionName, xp, kills);
+    }.bind(this));
 };
 
 PilotView.prototype.getRenderContext = function(){
-    return {
+    var ctx = {
         pilot: this.session.pilot,
-        ships: this.session.ships
+        currentXP: '-',
+        pilotSkill: '-',
+        ships: this.session.ships,
+        playedMissions: [],
+        enemyShips: model.enemyShips
     };
+
+    if(this.session.pilot){
+        ctx.currentXP = this.session.pilot.currentXP();
+        ctx.pilotSkill = this.session.pilot.skill();
+    }
+
+    if(this.session.campaign){
+        var playedMissions = this.session.campaign.playedMissions;
+        for (var i = 0; i < playedMissions.length; i++) {
+            var name = playedMissions[i].name;
+            var m = this.session.missionDetails[name];
+            if(m){
+                m._ui_selected = i === (playedMissions.length -1) ? 'selected' : '';
+                ctx.playedMissions.push(m);
+            }
+        }
+    }
+
+    return ctx;
 };
 
 
@@ -670,6 +766,10 @@ var show = function(where, view){
     view.load(where);
 };
 
+
+var errorMessage = function(err){
+    console.error(err);
+};
 
 var snippets = {};
 
