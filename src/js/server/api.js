@@ -407,9 +407,8 @@ api.use(function(err, req, res, next){
  * but other error types can also be passed in.
  */
 var sendError = function(res, err){
-    console.log(err);
-    res.status(err.code || 500);
-    res.json({
+    console.error(err);
+    res.status(err.code || 500).json({
         name: err.name || 'ServiceError',
         message: err.message || 'Error handling request'
     });

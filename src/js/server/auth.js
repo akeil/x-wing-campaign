@@ -58,7 +58,7 @@ auth.post('/login/:username', function(req, res){
             token: session.csrfToken
         });
     }).except(function(err){
-        sendError(res, err); // TODO
+        sendError(res, err);
     });
 });
 
@@ -120,18 +120,15 @@ var login = function(username, password){
  */
 var authenticate = function(req, res, next){
     var token, csrfToken;
-    csrfToken = req.get('X-Auth-Token');
-    if(!csrfToken){
-        console.log('No CSRF token in HTTP header.');
-        throw errors.unauthorized('Missing authentication token');
-    }
-
     if(req.cookies){
         token = req.cookies.session;
     }
-    if(!token){
+    csrfToken = req.get('X-Auth-Token');
+
+    if(!token || !csrfToken){
         console.log('No session token from cookie.');
-        throw errors.unauthorized('Missing authentication token');
+        sendError(errors.unauthorized('Missing authentication token'));
+        return;
     }
 
     var predicate = {token: token, csrfToken: csrfToken};
@@ -144,16 +141,12 @@ var authenticate = function(req, res, next){
             req.user = user;
             next();
         }).except(function(err){
-            console.log(err);
-            console.log('User not loaded.');
-            res.status(403);
-            res.json(errors.forbidden('invalid session'));
+            console.log('User not found');
+            sendError(errors.forbidden('invalid session'));
         });
     }).except(function(err){
         console.log('Could not load session');
-        console.log(err);
-        res.status(403);
-        res.json(errors.forbidden('invalid session'));
+        sendError(errors.forbidden('invalid session'));
     });
 };
 
@@ -173,6 +166,16 @@ var setPassword = function(user, password){
 
     return promise;
 };
+
+
+var sendError = function(res, err){
+    console.error(err);
+    res.status(err.code || 500).json({
+        name: err.name || 'ServiceError',
+        message: err.message || 'Error handling request'
+    });
+};
+
 
 module.exports.app = auth;
 module.exports.authenticate = authenticate;
