@@ -86,7 +86,9 @@ User.prototype.validate = function(){
 };
 
 module.exports.User = User;
-
+module.exports.NewUser = function(props){
+    return new User(props);
+};
 
 // Campaign -------------------------------------------------------------------
 
@@ -279,6 +281,9 @@ Mission = function(props){
 };
 
 module.exports.Mission = Mission;
+module.exports.NewMission = function(props){
+    return new Mission(props);
+};
 
 
 // Pilot ----------------------------------------------------------------------
@@ -482,6 +487,9 @@ Pilot.prototype.addAbility = function(mission, upgradeCard){
 
 
 module.exports.Pilot = Pilot;
+module.exports.NewPilot = function(props){
+    return new Pilot(props);
+};
 
 
 // Ship -----------------------------------------------------------------------
@@ -510,3 +518,6 @@ Ship = function(props) {
 
 
 module.exports.Ship = Ship;
+module.exports.NewShip = function(props){
+    return new Ship(props);
+};

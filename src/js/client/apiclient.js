@@ -47,9 +47,7 @@ Client.prototype.login = function(password){
 Client.prototype.getUser = function(){
     return this._GET({
         endpoint: '/user/' + this.username,
-        wrap: function(data){
-            return new model.User(data);
-        }
+        wrap: model.NewUser
     });
 };
 
@@ -127,9 +125,7 @@ Client.prototype.getPilots = function(campaignid){
 Client.prototype.getPilot = function(pilotid){
     return this._GET({
         endpoint: '/pilot/' + pilotid,
-        wrap: function(data){
-            return new model.Pilot(data);
-        }
+        wrap: model.NewPilot
     });
 };
 
@@ -164,9 +160,7 @@ Client.prototype.getShips = function(campaignid){
 Client.prototype.getShip = function(name){
     return this._GET({
         endpoint: '/ship/' + name,
-        wrap: function(data){
-            return new model.Ship(data);
-        }
+        wrap: model.NewShip
     });
 };
 
@@ -188,9 +182,7 @@ Client.prototype.getMissions = function(campaignid){
 Client.prototype.getMission = function(name){
     return this._GET({
         endpoint: '/mission/' + name,
-        wrap: function(data){
-            return new model.Mission(data);
-        }
+        wrap: model.NewMission
     });
 };
 

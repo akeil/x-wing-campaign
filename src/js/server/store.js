@@ -314,11 +314,11 @@ Collection.prototype.select = function(predicate, fields){
 // Exports --------------------------------------------------------------------
 
 
-module.exports.users = new Collection('users');
+module.exports.users = new Collection('users', model.NewUser);
 module.exports.sessions = new Collection('sessions');
 module.exports.campaigns = new Collection('campaigns', model.NewCampaign);
-module.exports.pilots = new Collection('pilots');
-module.exports.ships = new Collection('ships');
-module.exports.missions = new Collection('missions');
+module.exports.pilots = new Collection('pilots', model.NewPilot);
+module.exports.ships = new Collection('ships', model.NewShip);
+module.exports.missions = new Collection('missions', model.NewMission);
 
 module.exports.setup = setup;
