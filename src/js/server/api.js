@@ -278,7 +278,6 @@ api.put('/campaign/:campaignid', function(req, res){
     });
 });
 
-
 /*
  * Delete a campaign.
  * Expects a `model.Campaign` in the request body.
