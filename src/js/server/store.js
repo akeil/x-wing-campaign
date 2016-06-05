@@ -78,6 +78,29 @@ var setup = function(dbURL, callback){
                 }
             });
 
+            db.createCollection('upgrades', function(err, collection){
+                if(!err){
+                    console.log('create index for upgrade.name');
+                    collection.createIndex(
+                        {'name': INDEX_TYPE_ASC},
+                        {unique: true, name: 'upgrades_name_unique'},
+                        function(err){
+                            console.log(err);
+                        }
+                    );
+                    collection.createIndex(
+                        {'slot': INDEX_TYPE_ASC},
+                        {unique: false, name: 'upgrades_slot'},
+                        function(err){
+                            console.log(err);
+                        }
+                    );
+
+                }else{
+                    console.log(err);
+                }
+            });
+
             db.createCollection('missions', function(err, collection){
                 if(!err){
                     console.log('create index for mission.name');
@@ -319,6 +342,7 @@ module.exports.sessions = new Collection('sessions');
 module.exports.campaigns = new Collection('campaigns', model.NewCampaign);
 module.exports.pilots = new Collection('pilots', model.NewPilot);
 module.exports.ships = new Collection('ships', model.NewShip);
+module.exports.upgrades = new Collection('upgrades', model.NewUpgrade);
 module.exports.missions = new Collection('missions', model.NewMission);
 
 module.exports.setup = setup;

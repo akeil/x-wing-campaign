@@ -28,10 +28,6 @@ by default (only?) work on the last played mission
 - set XP (mission total or by type
 - buy upgrades
 
-Model:
-Upgrade / Card class
-cards data - import from https://github.com/geordanr/xwing
-
 Methods to change/reset password
 Handle auth-errors in GUI
 Setup an initial admin user with password

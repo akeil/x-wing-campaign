@@ -3,6 +3,7 @@ var dst = './build';
 var www = dst + '/www';
 
 module.exports = {
+    dst: dst,
     data: {
         src: './data/**',
         dst: dst + '/data/'

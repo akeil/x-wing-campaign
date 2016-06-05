@@ -88,6 +88,31 @@ var _initShips = function(){
 };
 
 
+var _initUpgrades = function(){
+    var fs = require('fs'),
+        model = require('../common/model');
+    var path = './data/upgrades';
+
+    var oneFile = function(err, contents){
+        if(!err){
+            var items = JSON.parse(contents);
+            for(var i=0; i < items.length; i++){
+                console.log('insert upgrade ' + items[i].name);
+                store.upgrades.put(model.NewUpgrade(items[i]));
+            }
+        }
+    };
+
+    fs.readdir(path, function(err, files){
+        for(var i = 0; i < files.length; i++) {
+            if(!err){
+                console.log('Read ' + files[i]);
+                fs.readFile(path + '/' + files[i], oneFile);
+            }
+        }
+    });
+};
+
 var _initMissions = function(){
     var fs = require('fs'),
         model = require('../common/model');
@@ -109,6 +134,7 @@ store.setup(dburl, function(err){
         console.log(err);
     }else{
         _initShips();
+        _initUpgrades();
         _initMissions();
         app.listen(port, host);
     }

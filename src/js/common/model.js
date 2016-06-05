@@ -577,3 +577,7 @@ Upgrade = function(props){
     this.description = props.description || null;
     this.unique = props.unique ? true : false;
 };
+
+module.exports.NewUpgrade = function(props){
+    return new Upgrade(props);
+};
