@@ -75,7 +75,7 @@ app.use('/api', api());
 var _initShips = function(){
     var fs = require('fs'),
         model = require('../common/model');
-    var path = './data/ships.json';
+    var path = __dirname + '/../data/ships.json';
     fs.readFile(path, function(err, contents){
         if(!err){
             var items = JSON.parse(contents);
@@ -91,7 +91,7 @@ var _initShips = function(){
 var _initUpgrades = function(){
     var fs = require('fs'),
         model = require('../common/model');
-    var path = './data/upgrades';
+    var path = __dirname + '/../data/upgrades';
 
     var oneFile = function(err, contents){
         if(!err){
@@ -106,7 +106,7 @@ var _initUpgrades = function(){
     fs.readdir(path, function(err, files){
         for(var i = 0; i < files.length; i++) {
             if(!err){
-                console.log('Read ' + files[i]);
+                console.log('Read ' + path + '/' + files[i]);
                 fs.readFile(path + '/' + files[i], oneFile);
             }
         }
@@ -116,7 +116,7 @@ var _initUpgrades = function(){
 var _initMissions = function(){
     var fs = require('fs'),
         model = require('../common/model');
-    var path = './data/missions.json';
+    var path = __dirname + '/../data/missions.json';
     fs.readFile(path, function(err, contents){
         if(!err){
             var items = JSON.parse(contents);

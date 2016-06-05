@@ -16,7 +16,6 @@ gulp.task('data', function(){
             var dirname = path.dirname(file.path);
             var ext = path.extname(file.path);
             if(dirname.lastIndexOf('/upgrades') > 0 && ext === '.json'){
-                console.log(file.path);
                 var items = JSON.parse(file.contents.toString('utf8'));
                 var slot = path.basename(file.path, '.json');
                 // special case for crew-xxx files
@@ -34,7 +33,6 @@ gulp.task('data', function(){
                     };
                 });
                 file.contents = new Buffer(JSON.stringify(converted));
-                //console.log(file.contents.toString());
             }
         }))
         .pipe(gulp.dest(config.dst));
