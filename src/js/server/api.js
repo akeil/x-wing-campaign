@@ -496,21 +496,21 @@ api.get('/ship/:shipname', function(req, res){
  * }
  * ```
  */
-api.get('/ugrades', function(req, res){
+api.get('/upgrades', function(req, res){
     getUpgrades(req, res, null);
 });
 
 /*
  * Same as GET /upgrades but filtered by the given slot.
  */
-api.get('/ugrades/:slot', function(req, res){
+api.get('/upgrades/:slot', function(req, res){
     var slot = req.params.slot;
     getUpgrades(req, res, {slot: slot});
 });
 
-var getUpgrades = function(res, req, predicate){
+var getUpgrades = function(req, res, predicate){
     var fields = ['name', 'slot', 'cost', 'displayName'];
-    store.upgrades.select().then(function(upgrades){
+    store.upgrades.select(predicate, fields).then(function(upgrades){
         res.json(upgrades);
     }).except(function(err){
         sendError(res, err);
@@ -520,7 +520,7 @@ var getUpgrades = function(res, req, predicate){
 /*
  * Get full details for a single upgrade
  */
-api.get('/ugrade/:upgradename', function(req, res){
+api.get('/upgrade/:upgradename', function(req, res){
     var upgradename = req.params.upgradename;
     store.findOne({name: upgradename}).then(function(upgrade){
         res.json(upgrade);
