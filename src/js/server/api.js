@@ -342,7 +342,8 @@ api.get('/campaign/:campaignid/pilots', function(req, res){
  * The request body must contain:
  * {
  *  "owner": <username-of-owner>
- *  "callsign": <callsign-for-pilot>
+ *  "callsign": <callsign-for-pilot>,
+ *  "ship": <name-of-ship>
  + }
  */
 api.post('/campaign/:campaignid/pilot', function(req, res){
@@ -359,8 +360,13 @@ api.post('/campaign/:campaignid/pilot', function(req, res){
         }else{
             // TODO validate pilot.owner is not already in the campaign?
             // TODO validate that pilot's campaign props are reset?
-            store.pilots.put(pilot).then(function(insertedId){
-                res.json({id: insertedId});
+            store.ships.findOne({name: pilot.ship}).then(function(ship){
+                pilot.initialXP = ship.initialXP;
+                store.pilots.put(pilot).then(function(insertedId){
+                    res.json({id: insertedId});
+                }).except(function(err){
+                    sendError(res, err);
+                });
             }).except(function(err){
                 sendError(res, err);
             });
@@ -461,7 +467,7 @@ api.delete('/pilot/:pilotid', function(req, res){
  * Get a list of all available ships
  */
 api.get('/ships', function(req, res){
-    var fields = ['name', 'displayName', 'requiredSkill'];
+    var fields = ['name', 'displayName', 'requiredSkill', 'startingShip'];
     store.ships.select(null, fields).then(function(ships){
         res.json(ships);
     }).except(function(err){

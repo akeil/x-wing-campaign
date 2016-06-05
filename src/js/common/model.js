@@ -319,7 +319,7 @@ Pilot = function(props) {
     this.owner = props.owner || null;
     this.ship = props.ship || null;
     this.callsign = props.callsign || null;
-
+    this.initialXP = props.initialXP || 0;
     /*
      * Expected:
      * [
@@ -346,6 +346,7 @@ Pilot.prototype.patch = function(props){
     this.owner = props.owner || this.owner;
     this.ship = props.ship || this.ship;
     this.callsign = props.callsign || this.callsign;
+    this.initialXP = props.initialXP || this.initialXP;
     this.playedMissions = props.playedMissions || this.playedMissions;
     this.spentXP = props.spentXP || this.spentXP;
     this.upgrades = props.upgrades || this.upgrades;
@@ -360,6 +361,9 @@ Pilot.prototype.validate = function(){
     }
     if(!this.callsign){
         throw errors.invalid('Callsign must be set');
+    }
+    if(!this.ship){
+        throw errors.invalid('Ship must be set');
     }
 
 };
@@ -391,12 +395,13 @@ Pilot.prototype.totalSpentXP = function(){
 };
 
 Pilot.prototype.currentXP = function(){
-    return this.totalEarnedXP() - this.totalSpentXP();
+    return this.initialXP + this.totalEarnedXP() - this.totalSpentXP();
 };
 
 Pilot.prototype.missionAftermath = function(missionName, xp, kills){
     for (var i = 0; i < this.playedMissions.length; i++) {
         if(this.playedMissions[i].mission === missionName){
+            // update existing record
             this.playedMissions[i].xp = xp || 0;
             this.playedMissions[i].kills = kills || 0;
             return;
@@ -558,7 +563,8 @@ Ship = function(props) {
     this.name = props.name || null;
     this.displayName = props.displayName || null;
     this.requiredSkill = props.requiredSkill || null;
-
+    this.startingShip = props.startingShip ? true : false;
+    this.initialXP = props.initialXP || 0;
     this.slots = props.slots || {};
 };
 

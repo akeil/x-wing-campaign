@@ -185,10 +185,11 @@ Session.prototype.deleteCampaign = function(campaignid){
     }.bind(this));
 };
 
-Session.prototype.createPilot = function(owner, callsign){
+Session.prototype.createPilot = function(owner, callsign, shipName){
         var pilot = model.NewPilot({
             owner: owner,
-            callsign: callsign
+            callsign: callsign,
+            ship: shipName
         });
         this.client.createPilot(this.campaign._id, pilot).then(function(){
             this.refreshPilots();
@@ -599,6 +600,7 @@ AddPilotView.prototype = new _BaseView();
 
 AddPilotView.prototype.bindSignals = function(){
     onSignal(EVT_USERS_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
 };
 
 AddPilotView.prototype.bindEvents = function(){
@@ -607,13 +609,21 @@ AddPilotView.prototype.bindEvents = function(){
         evt.preventDefault();
         var owner = $('#pilot-owner').val();
         var callsign = $('#pilot-callsign').val();
-        this.session.createPilot(owner, callsign);
+        var shipName = $('#pilot-ship').val();
+        this.session.createPilot(owner, callsign, shipName);
     }.bind(this));
 };
 
 AddPilotView.prototype.getRenderContext = function(){
+    var ships = [];
+    for (var i = 0; i < this.session.ships.length; i++) {
+        if(this.session.ships[i].startingShip){
+            ships.push(this.session.ships[i]);
+        }
+    }
     return {
-        users: this.session.users
+        users: this.session.users,
+        ships: ships
     };
 };
 

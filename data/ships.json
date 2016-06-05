@@ -3,6 +3,8 @@
         "name": "x-wing",
         "displayName": "X-Wing",
         "requiredSkill": 1,
+        "startingShip": true,
+        "initialXP": 5,
         "slots": {
             "1": ["astromech", "torpedo", "modification"],
             "3": ["elite"],
@@ -18,6 +20,8 @@
         "name": "y-wing",
         "displayName": "Y-Wing",
         "requiredSkill": 1,
+        "startingShip": true,
+        "initialXP": 8,
         "slots": {
             "1": ["astromech", "turret", "modification", "torpedo", "torpedo"],
             "3": ["elite"],
