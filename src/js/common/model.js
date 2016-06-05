@@ -163,6 +163,17 @@ Campaign.prototype.removeMission = function(missionName){
 };
 
 /*
+ * Get he name of the last played mission.
+ */
+Campaign.prototype.currentMission = function(){
+    if(this.playedMssions){
+        return this.playedMssions[this.playedMssions.length -1].name;
+    }else{
+        return null;
+    }
+};
+
+/*
  * Calculate and apply the effects of a played mission.
  * This means:
  *
@@ -351,10 +362,20 @@ Pilot.prototype.validate = function(){
 
 };
 
-Pilot.prototype.totalEarnedXP = function(){
+/*
+ * Get the number of earned XP either for a mission if `missionName` is set
+ * or for all missions if no `missionName` is given.
+ */
+Pilot.prototype.totalEarnedXP = function(missionName){
+    var allMissions = !missionName;
     var total = 0;
     for(var i=0; i < this.playedMissions.length; i++){
-        total += this.playedMissions[i].xp || 0;
+        if(allMissions || missionName === this.playedMissions[i].mission){
+            total += this.playedMissions[i].xp || 0;
+            if(!allMissions){
+                return total;
+            }
+        }
     }
     return total;
 };

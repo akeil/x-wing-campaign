@@ -273,7 +273,7 @@ Session.prototype.changeShip = function(shipName){
 
     try{
         var ship = this.shipByName(shipName);  // throws
-        this.pilot.changeShip(ship);  // throws
+        this.pilot.changeShip(this.campaign.currentMission(), ship);  // throws
         this.client.updatePilot(this.pilot).then(function(){
             signal(EVT_PILOT_UPDATED);
         }).except(function(err){
@@ -707,6 +707,7 @@ PilotView.prototype.bindSignals = function(){
 };
 
 PilotView.prototype.bindEvents = function(){
+    // change ship
     $('#pilot-change-ship').off('submit');
     $('#pilot-change-ship').on('submit', function(evt){
         evt.preventDefault();
@@ -719,12 +720,12 @@ PilotView.prototype.bindEvents = function(){
     $('#pilot-aftermath').on('submit', function(evt){
         evt.preventDefault();
         var missionName = $('#pilot-aftermath-mission').val();
-        var xp = parseInt($('#pilot-aftermath-xp').val(), 10);
+        var xp = parseInt($('#pilot-aftermath-xp').val() || 0, 10);
         var kills = {};
         $('#pilot-aftermath input').each(function(input){
             var kind = $(input).data('kind');
             if(kind){
-                kills[kind] = parseInt($(input).val(), 10);
+                kills[kind] = parseInt($(input).val() || 0, 10);
             }
         }.bind(this));
         this.session.doPilotAftermath(missionName, xp, kills);
@@ -736,14 +737,17 @@ PilotView.prototype.getRenderContext = function(){
         pilot: this.session.pilot,
         currentXP: '-',
         pilotSkill: '-',
+        totalEarnedXP: '-',
         ships: this.session.ships,
         playedMissions: [],
+        pilotMissions: [],
         enemyShips: model.enemyShips
     };
 
     if(this.session.pilot){
         ctx.currentXP = this.session.pilot.currentXP();
         ctx.pilotSkill = this.session.pilot.skill();
+        ctx.totalEarnedXP = this.session.pilot.totalEarnedXP();
     }
 
     if(this.session.campaign){
@@ -752,8 +756,14 @@ PilotView.prototype.getRenderContext = function(){
             var name = playedMissions[i].name;
             var m = this.session.missionDetails[name];
             if(m){
+                // select control for aftermath form
                 m._ui_selected = i === (playedMissions.length -1) ? 'selected' : '';
                 ctx.playedMissions.push(m);
+
+                if(this.session.pilot){
+                    // played mission for the pilot
+                    m._xp = this.session.pilot.totalEarnedXP(m.name);
+                }
             }
         }
     }
