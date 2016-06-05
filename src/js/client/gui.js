@@ -154,7 +154,7 @@ Session.prototype.shipByName = function(shipName){
             return this.ships[i];
         }
     }
-    throw errors.notFound('No ship with name ' + shipName);
+    return null;
 };
 
 Session.prototype.createCampaign = function(displayName){
@@ -744,14 +744,18 @@ PilotView.prototype.getRenderContext = function(){
         enemyShips: model.enemyShips
     };
 
-    if(this.session.pilot){
-        ctx.currentXP = this.session.pilot.currentXP();
-        ctx.pilotSkill = this.session.pilot.skill();
-        ctx.totalEarnedXP = this.session.pilot.totalEarnedXP();
+    var campaign = this.session.campaign;
+    var pilot = this.session.pilot;
+
+    if(pilot){
+        ctx.currentXP = pilot.currentXP();
+        ctx.pilotSkill = pilot.skill();
+        ctx.totalEarnedXP = pilot.totalEarnedXP();
+        ctx.ship = this.session.shipByName(pilot.ship);
     }
 
-    if(this.session.campaign){
-        var playedMissions = this.session.campaign.playedMissions;
+    if(campaign){
+        var playedMissions = campaign.playedMissions;
         for (var i = 0; i < playedMissions.length; i++) {
             var name = playedMissions[i].name;
             var m = this.session.missionDetails[name];
@@ -760,9 +764,9 @@ PilotView.prototype.getRenderContext = function(){
                 m._ui_selected = i === (playedMissions.length -1) ? 'selected' : '';
                 ctx.playedMissions.push(m);
 
-                if(this.session.pilot){
+                if(pilot){
                     // played mission for the pilot
-                    m._xp = this.session.pilot.totalEarnedXP(m.name);
+                    m._xp = pilot.totalEarnedXP(m.name);
                 }
             }
         }
