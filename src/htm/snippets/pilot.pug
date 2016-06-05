@@ -112,6 +112,25 @@ div(id="view-pilot" class="col-md-6")
                     button(type="submit" class="btn btn-default") Save
 
     div(class="row")
+        div(class="col-md-12" id="pilot-upgrades")
+            h4 Upgrades
+            table(class="table table-striped")
+                thead
+                    tr
+                        th Slot
+                        th Name
+                        th Cost
+                tbody
+                    | {{#upgrades}}
+                    tr
+                        td {{slot}}
+                        td {{displayName}}
+                        td {{cost}}
+                            button(class="btn btn-xs btn-primary"
+                                   data-id="{{name}}") Buy
+                    | {{/upgrades}}
+
+    div(class="row")
         div(class="col-md-6")
             h4 Ship
             | {{#ship}}

@@ -522,7 +522,7 @@ var getUpgrades = function(req, res, predicate){
  */
 api.get('/upgrade/:upgradename', function(req, res){
     var upgradename = req.params.upgradename;
-    store.findOne({name: upgradename}).then(function(upgrade){
+    store.upgrades.findOne({name: upgradename}).then(function(upgrade){
         res.json(upgrade);
     }).except(function(err){
         sendError(res, err);

@@ -166,8 +166,8 @@ Campaign.prototype.removeMission = function(missionName){
  * Get he name of the last played mission.
  */
 Campaign.prototype.currentMission = function(){
-    if(this.playedMssions){
-        return this.playedMssions[this.playedMssions.length -1].name;
+    if(this.playedMissions){
+        return this.playedMissions[this.playedMissions.length -1].name;
     }else{
         return null;
     }
@@ -181,7 +181,7 @@ Campaign.prototype.currentMission = function(){
  * - determine if a new mission becomes unlocked
  *   and add it to the mission deck.
  * - remove the played mission from the mission deck
- * - add the given mission to the list of `playedMssions`
+ * - add the given mission to the list of `playedMissions`
  *
  * mission: a `Mission` object
  * victory: true | false
@@ -337,6 +337,7 @@ Pilot = function(props) {
     this.playedMissions = props.playedMissions || [];
 
     this.spentXP = props.spentXP || [];
+    this.upgrades = props.upgrades || [];
 };
 
 Pilot.prototype.patch = function(props){
@@ -347,6 +348,7 @@ Pilot.prototype.patch = function(props){
     this.callsign = props.callsign || this.callsign;
     this.playedMissions = props.playedMissions || this.playedMissions;
     this.spentXP = props.spentXP || this.spentXP;
+    this.upgrades = props.upgrades || this.upgrades;
 };
 
 Pilot.prototype.validate = function(){
@@ -408,13 +410,26 @@ Pilot.prototype.missionAftermath = function(missionName, xp, kills){
     });
 };
 
-Pilot.prototype.spendXP = function(missionName, kind, xp){
+Pilot.prototype.buyUpgrade = function(missionName, upgrade){
+    if(this.currentXP() < upgrade.cost){
+        throw errors.conflict('Insufficient XP');
+    }
+    // TODO: check available slots on ship?
+    this.spendXP(missionName, KIND_UPGRADE, upgrade.cost, upgrade.displayName);
+    this.upgrades.push(upgrade.name);
+};
+
+Pilot.prototype.spendXP = function(missionName, kind, xp, info){
     this.spentXP.push({
         mission: missionName,
         kind: kind,
-        xp: xp
+        xp: xp,
+        info: info
     });
-    // TODO: group/sum and re-sort
+    this.spentXP.sort(function(one, other){
+        // TODO: sort by order of missions played, then kind, then cost
+        return 0;
+    });
 };
 
 Pilot.prototype.skill = function(){

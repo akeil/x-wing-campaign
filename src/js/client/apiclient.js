@@ -176,8 +176,9 @@ Client.prototype.getShip = function(name){
 // Upgrade --------------------------------------------------------------------
 
 Client.prototype.getUpgrades = function(slot){
+    var p = slot ? ('/' + slot) : '';
     return this._GET({
-        endpoint: '/upgrades' + slot ? ('/' + slot) : '',
+        endpoint: '/upgrades' + p,
         wrap: arrayOf(model.NewUpgrade)
     });
 };

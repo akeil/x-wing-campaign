@@ -21,6 +21,7 @@ var EVT_PILOT_UPDATED       = 'xwing:pilot-updated';
 var EVT_PILOTS_UPDATED      = 'xwing:pilots-updated';
 var EVT_USERS_UPDATED       = 'xwing:users-updated';
 var EVT_SHIPS_UPDATED       = 'xwing:ships-updated';
+var EVT_UPGRADES_UPDATED    = 'xwing:upgrades-updated';
 var EVT_MISSIONS_UPDATED    = 'xwing:missions-updated';
 var EVT_MISSION_DETAILS_UPDATED = 'xwing:mission-details-updated';
 
@@ -49,6 +50,7 @@ Session = function(props){
     this.pilot = null;
     this.pilots = null;
     this.ships = null;
+    this.upgrades = null;
     this.missions = null;
     this.missionDetails = {};
 };
@@ -63,6 +65,7 @@ Session.prototype.login = function(password){
 
         this.refreshUsers();
         this.refreshShips();
+        this.refreshUpgrades();
         this.refreshMissions();
         this.refreshCampaigns();
 
@@ -136,6 +139,14 @@ Session.prototype.refreshShips = function(){
     this.client.getShips().then(function(ships){
         this.ships = ships;
         signal(EVT_SHIPS_UPDATED);
+
+    }.bind(this));
+};
+
+Session.prototype.refreshUpgrades = function(){
+    this.client.getUpgrades().then(function(upgrades){
+        this.upgrades = upgrades;
+        signal(EVT_UPGRADES_UPDATED);
 
     }.bind(this));
 };
@@ -283,6 +294,23 @@ Session.prototype.changeShip = function(shipName){
     }catch(err){
         errorMessage(err);
     }
+};
+
+Session.prototype.buyUpgrade = function(upgradename){
+    this.client.getUpgrade(upgradename).then(function(upgrade){
+        try{
+            this.pilot.buyUpgrade(this.campaign.currentMission(), upgrade);
+            this.client.updatePilot(this.pilot).then(function(){
+                signal(EVT_PILOT_UPDATED);
+            }).except(function(err){
+                errorMessage(err);
+            });
+        }catch(err){
+            errorMessage(err);
+        }
+    }.bind(this)).except(function(err){
+        errorMessage(err);
+    });
 };
 
 
@@ -730,6 +758,16 @@ PilotView.prototype.bindEvents = function(){
         }.bind(this));
         this.session.doPilotAftermath(missionName, xp, kills);
     }.bind(this));
+
+    // buy upgrades
+    $('#pilot-upgrades button').each(function(index, button){
+        $(button).off('click');
+        $(button).on('click', function(evt){
+            evt.preventDefault();
+            var upgradename = $(evt.delegateTarget).data("id");
+            this.session.buyUpgrade(upgradename);
+        }.bind(this));
+    }.bind(this));
 };
 
 PilotView.prototype.getRenderContext = function(){
@@ -739,6 +777,7 @@ PilotView.prototype.getRenderContext = function(){
         pilotSkill: '-',
         totalEarnedXP: '-',
         ships: this.session.ships,
+        upgrades: this.session.upgrades,
         playedMissions: [],
         pilotMissions: [],
         enemyShips: model.enemyShips
