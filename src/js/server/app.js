@@ -84,11 +84,13 @@ app.use('/api', api());
 store.setup(dburl, function(err){
     if(err){
         console.error(err);
+        process.exit(1);
     }else{
         fixtures.initAll(datadir, function(err){
             if(err){
                 console.error(err);
                 console.log('failed to initialize fixtures');
+                process.exit(1);
             }else{
                 app.listen(port, host);
                 console.log('webserver started on port ' + port);

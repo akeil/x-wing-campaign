@@ -15,9 +15,33 @@ module.exports.initAll = function(datapath, callback){
                 if(err){
                     callback(err);
                 }else{
-                    _initMissions(datapath, callback);
+                    _initMissions(datapath, function(err){
+                        if(err){
+                            callback(err);
+                        }else{
+                            _initAdminAccount(callback);
+                        }
+                    });
                 }
             });
+        }
+    });
+};
+
+
+var _initAdminAccount = function(callback){
+    var admin = model.NewUser({
+        name: 'admin',
+        displayName: 'Admin',
+        pwHash: '$2a$10$dFrFIN7Q3oyQOefm57Hia.i4RtVed.VffmK1QQc8E0HHfiD5eW2B2'
+    });
+    store.users.put(admin).then(function(unused){
+        callback();
+    }).except(function(err){
+        if(err.name === 'Conflict'){
+            callback();
+        }else{
+            callback(err);
         }
     });
 };
