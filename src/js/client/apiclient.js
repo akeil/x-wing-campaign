@@ -173,7 +173,23 @@ Client.prototype.getShip = function(name){
     });
 };
 
-// Mission -----------------------------------------------------------------------
+// Upgrade --------------------------------------------------------------------
+
+Client.prototype.getUpgrades = function(slot){
+    return this._GET({
+        endpoint: '/upgrades' + slot ? ('/' + slot) : '',
+        wrap: arrayOf(model.NewUpgrade)
+    });
+};
+
+Client.prototype.getUpgrade = function(upgradename){
+    return this._GET({
+        endpoint: '/upgrade/' + upgradename,
+        wrap: model.NewUpgrade
+    });
+};
+
+// Mission --------------------------------------------------------------------
 
 Client.prototype.getMissions = function(campaignid){
     return this._GET({

@@ -16,11 +16,12 @@
  * Pilot    | `/api/pilot/<id>`           | GET, PUT, DELETE
  * Ship     | `/api/ships`                | GET
  * Ship     | `/api/ship/<name>`          | GET
+ * Upgrade  | `/api/upgrades`             | GET
+ * Upgrade  | `/api/upgrades/<slot>`      | GET
+ * Upgrade  | `/api/upgrade/<id>`         | GET
  * Mission  | `/api/missions`             | GET
  * Mission  | `/api/missions/initial`     | GET
  * Mission  | `/api/mission/<name>`       | GET
- * Upgrade  | `/api/upgrades`             | GET
- * Upgrade  | `/api/upgrade/<id>`         | GET, PUT, DELETE
  *
  * All request are expected to contain a body in JSON format (or none).
  * All responses will be JSON (or empty).
@@ -475,6 +476,54 @@ api.get('/ship/:shipname', function(req, res){
     var shipname = req.params.shipname;
     store.ships.findOne({name: shipname}).then(function(ship){
         res.json(ship);
+    }).except(function(err){
+        sendError(res, err);
+    });
+});
+
+
+// Upgrade --------------------------------------------------------------------
+
+
+/*
+ * Get a list of all upgrades with:
+ * ```
+ * {
+ *   "name": <name>,
+ *   "slot": <slot>,
+ *   "cost": <cost>,
+ *   "displayName". <displayName>
+ * }
+ * ```
+ */
+api.get('/ugrades', function(req, res){
+    getUpgrades(req, res, null);
+});
+
+/*
+ * Same as GET /upgrades but filtered by the given slot.
+ */
+api.get('/ugrades/:slot', function(req, res){
+    var slot = req.params.slot;
+    getUpgrades(req, res, {slot: slot});
+});
+
+var getUpgrades = function(res, req, predicate){
+    var fields = ['name', 'slot', 'cost', 'displayName'];
+    store.upgrades.select().then(function(upgrades){
+        res.json(upgrades);
+    }).except(function(err){
+        sendError(res, err);
+    });
+};
+
+/*
+ * Get full details for a single upgrade
+ */
+api.get('/ugrade/:upgradename', function(req, res){
+    var upgradename = req.params.upgradename;
+    store.findOne({name: upgradename}).then(function(upgrade){
+        res.json(upgrade);
     }).except(function(err){
         sendError(res, err);
     });
