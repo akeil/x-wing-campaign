@@ -4,14 +4,14 @@
         "displayName": "X-Wing",
         "requiredSkill": 1,
         "slots": {
-            "1": ["Astromech", "Torpedo", "Modification"],
-            "3": ["Elite"],
-            "4": ["Modification"],
-            "5": ["Elite"],
-            "6": ["Modification"],
-            "7": ["Elite"],
-            "8": ["Modification"],
-            "9": ["Elite"]
+            "1": ["astromech", "torpedo", "modification"],
+            "3": ["elite"],
+            "4": ["modification"],
+            "5": ["elite"],
+            "6": ["modification"],
+            "7": ["elite"],
+            "8": ["modification"],
+            "9": ["elite"]
         }
     },
     {
@@ -19,14 +19,14 @@
         "displayName": "Y-Wing",
         "requiredSkill": 1,
         "slots": {
-            "1": ["Astromech", "Turret", "Modification", "Torpedo", "Torpedo"],
-            "3": ["Elite"],
-            "4": ["Modification"],
-            "5": ["Elite"],
-            "6": ["Modification"],
-            "7": ["Elite"],
-            "8": ["Modification"],
-            "9": ["Elite"]
+            "1": ["astromech", "turret", "modification", "torpedo", "torpedo"],
+            "3": ["elite"],
+            "4": ["modification"],
+            "5": ["elite"],
+            "6": ["modification"],
+            "7": ["elite"],
+            "8": ["modification"],
+            "9": ["elite"]
         }
     },
     {
@@ -34,14 +34,14 @@
         "displayName": "A-Wing",
         "requiredSkill": 4,
         "slots": {
-            "1": ["Elite", "Missile", "Modification"],
-            "3": ["Elite"],
-            "4": ["Modification"],
-            "5": ["Elite"],
-            "6": ["Modification"],
-            "7": ["Elite"],
-            "8": ["Modification"],
-            "9": ["Elite"]
+            "1": ["elite", "missile", "modification"],
+            "3": ["elite"],
+            "4": ["modification"],
+            "5": ["elite"],
+            "6": ["modification"],
+            "7": ["elite"],
+            "8": ["modification"],
+            "9": ["elite"]
         }
     },
     {
@@ -49,14 +49,14 @@
         "displayName": "B-Wing",
         "requiredSkill": 4,
         "slots": {
-            "1": ["System", "Cannon", "Torpedo", "Torpedo", "Modification"],
-            "3": ["Elite"],
-            "4": ["Modification"],
-            "5": ["Elite"],
-            "6": ["Modification"],
-            "7": ["Elite"],
-            "8": ["Modification"],
-            "9": ["Elite"]
+            "1": ["system", "cannon", "torpedo", "torpedo", "modification"],
+            "3": ["elite"],
+            "4": ["modification"],
+            "5": ["elite"],
+            "6": ["modification"],
+            "7": ["elite"],
+            "8": ["modification"],
+            "9": ["elite"]
         }
     },
     {
@@ -64,14 +64,14 @@
         "displayName": "HWK-290",
         "requiredSkill": 4,
         "slots": {
-            "1": ["Crew", "Illicit", "Turret", "Title", "Modification"],
-            "3": ["Elite"],
-            "4": ["Modification"],
-            "5": ["Elite"],
-            "6": ["Modification"],
-            "7": ["Elite"],
-            "8": ["Modification"],
-            "9": ["Elite"]
+            "1": ["crew", "illicit", "turret", "title", "modification"],
+            "3": ["elite"],
+            "4": ["modification"],
+            "5": ["elite"],
+            "6": ["modification"],
+            "7": ["elite"],
+            "8": ["modification"],
+            "9": ["elite"]
         }
     }
 ]

@@ -44,23 +44,23 @@ var KIND_ABILITY_CHANGE = "ability";
 var BASE_SKILL = 2;
 var SHIP_CHANGE_COST = 5;
 
-var SLOT_ASTROMECH          = 'Astromech';
-var SLOT_BOMB               = 'Bomb';
-var SLOT_CANNON             = 'Cannon';
-var SLOT_CARGO              = 'Cargo';
-var SLOT_CREW               = 'Crew';
-var SLOT_ELITE              = 'Elite';
-var SLOT_HARDPOINT          = 'Hardpoint';
-var SLOT_ILLICIT            = 'Illicit';
-var SLOT_MODIFICATION       = 'Modification';
-var SLOT_MISSILE            = 'Missile';
-var SLOT_SALVAGED_ASTROMECH = 'Salvaged Astromech';
-var SLOT_SYSTEM             = 'System';
-var SLOT_TEAM               = 'Team';
-var SLOT_TECH               = 'Tech';
-var SLOT_TITLE              = 'Title';
-var SLOT_TORPEDO            = 'Torpedo';
-var SLOT_TURRET             = 'Turret';
+var SLOT_ASTROMECH          = 'astromech';
+var SLOT_BOMB               = 'bomb';
+var SLOT_CANNON             = 'cannon';
+var SLOT_CARGO              = 'cargo';
+var SLOT_CREW               = 'crew';
+var SLOT_ELITE              = 'elite';
+var SLOT_HARDPOINT          = 'hardpoint';
+var SLOT_ILLICIT            = 'illicit';
+var SLOT_MISSILE            = 'missile';
+var SLOT_MODIFICATION       = 'modification';
+var SLOT_SALVAGED_ASTROMECH = 'salvaged-astromech';
+var SLOT_SYSTEM             = 'system';
+var SLOT_TEAM               = 'team';
+var SLOT_TECH               = 'tech';
+var SLOT_TITLE              = 'title';
+var SLOT_TORPEDO            = 'torpedo';
+var SLOT_TURRET             = 'turret';
 
 
 // User -----------------------------------------------------------------------
@@ -562,3 +562,18 @@ module.exports.enemyShips = [
         displayName: 'Tie Interceptor'
     }
 ];
+
+
+// Upgrades -------------------------------------------------------------------
+
+
+Upgrade = function(props){
+    props = props || {};
+    this._id = props._id || null;
+    this.name = props.name || null;
+    this.slot = props.slot || null;
+    this.displayName = props.displayName || null;
+    this.cost = props.cost || null;
+    this.description = props.description || null;
+    this.unique = props.unique ? true : false;
+};
