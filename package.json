@@ -1,6 +1,6 @@
 {
   "name": "x-wing-campaign",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Alexander Keil <alex@akeil.net>",
   "description": "Campaign tracker for the X-Wing boardgame",
   "repository": {
