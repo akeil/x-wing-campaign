@@ -24,101 +24,117 @@ var _conn;
 
 var INDEX_TYPE_ASC = 1;
 
+var COLLECTIONS = [
+    'users',
+    'sessions',
+    'campaigns',
+    'pilots',
+    'ships',
+    'upgrades',
+    'missions'
+];
+
+var INDICES = {
+    users: [
+        {
+            spec: {'name': INDEX_TYPE_ASC},
+            opts: {unique: true, name: 'users_name_unique'}
+        }
+    ],
+    sessions: [
+        {
+            spec: {'token': INDEX_TYPE_ASC},
+            opts: {unique: true, name: 'sessions_token_unique'}
+        },
+        {
+            spec: {'csrfToken': INDEX_TYPE_ASC},
+            opts: {unique: true, name: 'sessions_csrfToken_unique'}
+        }
+    ],
+    ships: [
+        {
+            spec: {'name': INDEX_TYPE_ASC},
+            opts: {unique: true, name: 'ships_name_unique'}
+        }
+    ],
+    upgrades: [
+        {
+            spec: {'name': INDEX_TYPE_ASC},
+            opts: {unique: true, name: 'upgrades_name_unique'}
+        },
+        {
+            spec: {'slot': INDEX_TYPE_ASC},
+            opts: {unique: false, name: 'upgrades_slot'},
+        }
+    ],
+    missions: [
+        {
+            spec: {'name': INDEX_TYPE_ASC},
+            opts: {unique: true, name: 'missions_name_unique'}
+        }
+    ]
+};
+
+
+// create configured indices recursively
+var makeIndex = function(collection, i, finalCallback){
+    specs = INDICES[collection.collectionName] || [];
+    if(i < specs.length){
+        var spec = specs[i].spec;
+        var opts = specs[i].opts;
+        console.log('create index ' + opts.name);
+        collection.ensureIndex(spec, opts, function(err){
+            if(!err){
+                makeIndex(collection, i + 1, finalCallback);
+            }else{
+                console.log('failed to create index ' + opts.name);
+                finalCallback(err);
+            }
+        });
+    }else{
+        finalCallback();  // all indices created
+    }
+
+};
+
+// create configured collections recursively
+// callback is invoked after all collections + indieces are created
+var makeColl = function(db, i, finalCallback){
+    if(i < COLLECTIONS.length){
+        var name = COLLECTIONS[i];
+        console.log('create collection ' + name);
+        db.createCollection(name, function(err, collection){
+            if(!err){
+                // indices for this collection
+                makeIndex(collection, 0, function(err){
+                    if(!err){
+                        // next collection
+                        makeColl(db, i + 1, finalCallback);
+                    }else{
+                        finalCallback(err);
+                    }
+                });
+
+            }else{
+                console.log('failed to create collection ' + name);
+                finalCallback(err);  // failed
+            }
+        });
+    }else{
+        finalCallback();  // all collections created
+    }
+};
+
 
 var setup = function(dbURL, callback){
-    console.log('Setup database');
-    _dbURL = dbURL;
-
+    console.log('setup database');
+    _dbURL = dbURL;  //  global variable
     _db(function(err, db){
         if(!err){
-            console.log('create collections');
-            db.createCollection('users', function(err, collection){
-                if(!err){
-                    console.log('create index for user.name');
-                    collection.createIndex(
-                        {'name': INDEX_TYPE_ASC},
-                        {unique: true, name: 'users_name_unique'}
-                    );
-                }else{
-                    console.log(err);
-                }
-            });
-
-            db.createCollection('sessions', function(err, collection){
-                if(!err){
-                    console.log('create index for session.token');
-                    collection.createIndex(
-                        {'token': INDEX_TYPE_ASC},
-                        {unique: true, name: 'sessions_token_unique'}
-                    );
-                    console.log('create index for session.csrfToken');
-                    collection.createIndex(
-                        {'csrfToken': INDEX_TYPE_ASC},
-                        {unique: true, name: 'sessions_csrfToken_unique'}
-                    );
-                }else{
-                    console.log(err);
-                }
-            });
-
-            db.createCollection('campaigns', function(err, collection){});
-            db.createCollection('pilots', function(err, collection){});
-            db.createCollection('ships', function(err, collection){
-                if(!err){
-                    console.log('create index for ship.name');
-                    collection.createIndex(
-                        {'name': INDEX_TYPE_ASC},
-                        {unique: true, name: 'ships_name_unique'},
-                        function(err){
-                            console.log(err);
-                        }
-                    );
-                }else{
-                    console.log(err);
-                }
-            });
-
-            db.createCollection('upgrades', function(err, collection){
-                if(!err){
-                    console.log('create index for upgrade.name');
-                    collection.createIndex(
-                        {'name': INDEX_TYPE_ASC},
-                        {unique: true, name: 'upgrades_name_unique'},
-                        function(err){
-                            console.log(err);
-                        }
-                    );
-                    collection.createIndex(
-                        {'slot': INDEX_TYPE_ASC},
-                        {unique: false, name: 'upgrades_slot'},
-                        function(err){
-                            console.log(err);
-                        }
-                    );
-
-                }else{
-                    console.log(err);
-                }
-            });
-
-            db.createCollection('missions', function(err, collection){
-                if(!err){
-                    console.log('create index for mission.name');
-                    collection.createIndex(
-                        {'name': INDEX_TYPE_ASC},
-                        {unique: true, name: 'missions_name_unique'},
-                        function(err){
-                            console.log(err);
-                        }
-                    );
-                }else{
-                    console.log(err);
-                }
-            });
-
-            console.log(err);
+            makeColl(db, 0, callback);
+        }else{
+            callback(err);
         }
-        callback(err);
     });
 };
 
@@ -131,12 +147,12 @@ var _db = function(callback){
             callback(errors.illegalState('Database not initialized'), null);
         }else{
             client.connect(_dbURL, function(err, db){
-                console.log('Connect to database');
+                console.log('connect to database');
                 if(!err){
                     _conn = db;
                     callback(null, _conn);
                 }else{
-                    console.log(err);
+                    console.error(err);
                     var msg = 'Could not connect to database';
                     callback(errors.databaseError(msg), _conn);
                 }
@@ -285,7 +301,6 @@ Collection.prototype.put = function(doc){
                 db.collection(this.name).insert(docToStore, function(err, status){
                     if(err){
                         if(err.code === 11000){
-                            // TODO: duplicate key error
                             promise.fail(errors.conflict('Duplicate key'));
                         }else{
                             promise.fail(errors.databaseError('Insert error'));
@@ -295,6 +310,37 @@ Collection.prototype.put = function(doc){
                     }
                 });
             }
+        }
+    }.bind(this));
+
+    return promise;
+};
+
+/*
+ * Insert an array of documents
+ */
+Collection.prototype.insert = function(docs){
+    var promise = new prom.Promise();
+
+    _db(function(err, db){
+        if(err){
+            promise.fail(err);
+        }else{
+            var docsToStore = docs.map(function(doc){
+                return this._unwrap(doc);
+            }.bind(this));
+            db.collection(this.name).insert(docs, function(err){
+                if(err){
+                    //console.error(err);
+                    if(err.code === 11000){
+                        promise.fail(errors.conflict('Duplicate key'));
+                    }else{
+                        promise.fail(errors.databaseError('Insert error'));
+                    }
+                }else{
+                    promise.resolve();
+                }
+            });
         }
     }.bind(this));
 

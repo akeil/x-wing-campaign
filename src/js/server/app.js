@@ -7,44 +7,57 @@
 var express = require('express'),
     cookieParser = require('cookie-parser'),
     serveStatic = require('serve-static'),
+    url = require('url'),
     api = require('./api'),
     auth = require('./auth'),
-    store = require('./store');
+    store = require('./store'),
+    fixtures = require('./fixtures');
 
 
 // for openshift or local installation
-var host, port, dbName, dburl;
-host = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var host, port, dburl;
+host = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080;
 
-var dbHost, dbPort, dbUser, dbPass, dbName;
-if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
-    dbHost = process.env.OPENSHIFT_MONGODB_DB_HOST;
-    dbPort = process.env.OPENSHIFT_MONGODB_DB_PORT;
-    dbUser = process.env.OPENSHIFT_MONGODB_DB_USERNAME;
-    dbPass = process.env.OPENSHIFT_MONGODB_DB_PASSWORD;
-}else{
-    dbHost = 'localhost';
-    dbPort = '27017';
-    dbUser = '';
-    dbPass = '';
-}
-dbName = 'xwing';
+// DB connection details from URL or indivudual settings
+// see https://developers.openshift.com/managing-your-applications/environment-variables.html#database-variables
+// for OpenShift environment variables.
+dburl = 'mongodb://localhost:27017/xwing';
+dburl = process.env.DB_URL || process.env.OPENSHIFT_MONGODB_DB_URL || dburl;
 
-dburl = 'mongodb://';
-if(dbPass){
-    dburl += dbUser + ':' + dbPass + '@';
+
+if(!dburl){
+    var openshiftService = process.env.DATABASE_SERVICE_NAME.toUpperCase();
+    var openshiftDB = process.env[openshiftService + '_DATABASE'];
+    var dbHost, dbPort, dbUser, dbPass, dbName;
+    dbHost = process.env.DB_HOST || process.env.OPENSHIFT_MONGODB_DB_HOST || 'localhost';
+    dbPort = process.env.DB_PORT || process.env.OPENSHIFT_MONGODB_DB_PORT || 27017;
+    dbUser = process.env.DB_USER || process.env.OPENSHIFT_MONGODB_DB_USERNAME || '';
+    dbPass = process.env.DB_PASS || process.env.OPENSHIFT_MONGODB_DB_PASSWORD || '';
+    dbName = process.env.DB_NAME || openshiftDB || 'xwing';
+
+    dburl = 'mongodb://';
+    if(dbPass){
+        dburl += dbUser + ':' + dbPass + '@';
+    }
+    dburl += dbHost + ':' + dbPort;
+    dburl += '/' + dbName;
 }
-dburl += dbHost + ':' + dbPort;
-dburl += '/' + dbName;
 
 console.log('Listen on ' + host + ':' + port);
-console.log('Database at ' + dbHost + ':' + dbPort + '/' + dbName);
+parsed = url.parse(dburl);  // do not write user:pass to log
+console.log('Database at ' + parsed.hostname + ':' + parsed.port + parsed.pathname);
+
 
 var app = express();
 
 app.locals.title = 'X-Wing Campaign';
 app.locals.email = 'alex@akeil.net';
+
+var staticdir = __dirname + '/../www';
+var datadir = __dirname + '/../data';
+console.log('Static dir is ' + staticdir);
+console.log('Data dir is ' + datadir);
 
 
 // log every request
@@ -53,91 +66,33 @@ app.use('/', function(req, res, next){
     next();
 });
 
-// serve static content on '/' from 'www/*'
-console.log('Static dir is ' + __dirname + '/../www');
-app.use(serveStatic(__dirname + '/../www', {
+app.use(serveStatic(staticdir, {
     index: ['index.htm', 'index.html'],
     extensions: ['htm', 'html']
 }));
-app.use('/js', serveStatic(__dirname + '/../www/js'));
-app.use('/css', serveStatic(__dirname + '/../www/css'));
-app.use('/img', serveStatic(__dirname + '/../www/img'));
+app.use('/js', serveStatic(staticdir + '/js'));
+app.use('/css', serveStatic(staticdir + '/css'));
+app.use('/img', serveStatic(staticdir + '/img'));
 
-app.use(cookieParser());
+app.use(cookieParser());  // for auth
 
 // mount sub-apps
 app.use('/auth', auth.app);
 app.use('/api', api());
 
 
-// insert some constant data into the db
-// TODO does not belong here ...
-var _initShips = function(){
-    var fs = require('fs'),
-        model = require('../common/model');
-    var path = __dirname + '/../data/ships.json';
-    fs.readFile(path, function(err, contents){
-        if(!err){
-            var items = JSON.parse(contents);
-            for(var i=0; i < items.length; i++){
-                console.log('insert ship ' + items[i].name);
-                store.ships.put(model.NewShip(items[i]));
-            }
-        }
-    });
-};
-
-
-var _initUpgrades = function(){
-    var fs = require('fs'),
-        model = require('../common/model');
-    var path = __dirname + '/../data/upgrades';
-
-    var oneFile = function(err, contents){
-        if(!err){
-            var items = JSON.parse(contents);
-            for(var i=0; i < items.length; i++){
-                console.log('insert upgrade ' + items[i].name);
-                store.upgrades.put(model.NewUpgrade(items[i]));
-            }
-        }
-    };
-
-    fs.readdir(path, function(err, files){
-        for(var i = 0; i < files.length; i++) {
-            if(!err){
-                console.log('Read ' + path + '/' + files[i]);
-                fs.readFile(path + '/' + files[i], oneFile);
-            }
-        }
-    });
-};
-
-var _initMissions = function(){
-    var fs = require('fs'),
-        model = require('../common/model');
-    var path = __dirname + '/../data/missions.json';
-    fs.readFile(path, function(err, contents){
-        if(!err){
-            var items = JSON.parse(contents);
-            for(var i=0; i < items.length; i++){
-                console.log('insert mission ' + items[i].name);
-                store.missions.put(model.NewMission(items[i]));
-            }
-        }
-    });
-};
-
-
 store.setup(dburl, function(err){
     if(err){
-        console.log(err);
+        console.error(err);
     }else{
-        _initShips();
-        _initUpgrades();
-        _initMissions();
-        app.listen(port, host);
+        fixtures.initAll(datadir, function(err){
+            if(err){
+                console.error(err);
+                console.log('failed to initialize fixtures');
+            }else{
+                app.listen(port, host);
+                console.log('webserver started on port ' + port);
+            }
+        });
     }
 });
-
-console.log('Webserver started on port ' + port);
