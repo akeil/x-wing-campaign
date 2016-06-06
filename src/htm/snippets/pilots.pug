@@ -3,9 +3,11 @@ div(id="view-pilots" class="col-md-4")
     ol
         | {{#pilots}}
         li
-            a(href="#" data-id="{{_id}}" data-version="{{version}}")
+            a(href="#" data-id="{{_id}}")
                 strong {{callsign}} &nbsp;
                 small played by &nbsp;
                 em {{owner}}
-            button(class="btn btn-danger btn-xs" data-id="{{_id}}") Delete
+            button(class="btn btn-danger btn-xs"
+                   data-id="{{_id}}"
+                   data-version="{{version}}") Delete
         | {{/pilots}}

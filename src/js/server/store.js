@@ -217,7 +217,7 @@ Collection.prototype.delete = function(docid, version){
         }else{
             var predicate = {
                 _id: new ObjectID(docid),
-                version: version
+                version: parseInt(version)
             };
             var opts = {w: 1};  // write concern, acknowledge write
             db.collection(this.name).remove(predicate, opts, function(opErr, result){
@@ -239,7 +239,7 @@ Collection.prototype.delete = function(docid, version){
                         promis.fail(errors.illegalState());
                     }
                 }
-            });
+            }.bind(this));
         }
     }.bind(this));
 
@@ -284,7 +284,6 @@ Collection.prototype.findOne = function(predicate){
 Collection.prototype.put = function(doc){
 
     // TODO: assert that this is actually a single doc
-
     var promise = new prom.Promise();
 
     _db(function(err, db){
@@ -296,8 +295,14 @@ Collection.prototype.put = function(doc){
             if(docid){
                 console.log('Update ' + this.name + '/' + docid);
                 delete docToStore._id;  // MongoDB will attempt to update if present
-                predicate = {_id: new ObjectID(docid)};
-                db.collection(this.name).replaceOne(predicate, docToStore, function(err, status){
+                var version = parseInt(docToStore.version);
+                var predicate = {
+                    _id: new ObjectID(docid),
+                    version: version
+                };
+                docToStore.version = version + 1;
+                var opts = {w: 1};
+                db.collection(this.name).replaceOne(predicate, docToStore, opts, function(err, result){
                     if(err){
                         console.log(err);
                         // TODO:
@@ -306,11 +311,21 @@ Collection.prototype.put = function(doc){
                         // conflict
                         promise.fail(errors.databaseError('Update error'));
                     }else{
-                        // TODO check status.matchedCount === 1 ?
-                        promise.resolve();
+                        var numberOfUpdatedDocs = result.result.nModified;
+                        if(numberOfUpdatedDocs === 1){
+                            promise.resolve();
+                        }else if(numberOfUpdatedDocs === 0){
+                            this.get(docid).then(function(){
+                                promise.fail(errors.lockingError());
+                            }).except(promise.fail);
+                        }else{
+                            promise.fail(errors.illegalState());
+                        }
+
                     }
-                });
+                }.bind(this));
             }else{
+                docToStore.version = 0;
                 db.collection(this.name).insert(docToStore, function(err, status){
                     if(err){
                         if(err.code === 11000){

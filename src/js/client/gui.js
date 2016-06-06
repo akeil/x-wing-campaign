@@ -234,9 +234,9 @@ Session.prototype.doAftermath = function(missionName, victory){
     if(m){
         this.campaign.missionAftermath(m, victory);
         this.client.updateCampaign(this.campaign).then(function(){
-            signal(EVT_CAMPAIGN_UPDATED);
-            //this.loadCampaign(this.campaign._id);
-        });
+            this.loadCampaign(this.campaign._id);
+            this.refreshCampaigns();
+        }.bind(this));
     }else{
         // load the mission details
         this.client.getMission(missionName).then(function(mission){
@@ -247,11 +247,11 @@ Session.prototype.doAftermath = function(missionName, victory){
 
             this.campaign.missionAftermath(mission, victory);
             this.client.updateCampaign(this.campaign).then(function(){
-                signal(EVT_CAMPAIGN_UPDATED);
-                //this.loadCampaign(this.campaign._id);
-            });
+                this.loadCampaign(this.campaign._id);
+                this.refreshCampaigns();
+            }.bind(this));
             // TODO rollback client state if server update failed ...
-        });
+        }.bind(this));
     }
 };
 
@@ -264,8 +264,9 @@ Session.prototype.doPilotAftermath = function(missionName, xp, kills){
     try{
         this.pilot.missionAftermath(missionName, xp, kills);
         this.client.updatePilot(this.pilot).then(function(){
-            signal(EVT_PILOT_UPDATED);
-        }).except(function(err){
+            this.loadPilot(this.pilot._id);
+            this.refreshPilots();
+        }.bind(this)).except(function(err){
             errorMessage(err);
             //TODO set pilot back to previous state
         });
@@ -287,8 +288,9 @@ Session.prototype.changeShip = function(shipName){
         var ship = this.shipByName(shipName);  // throws
         this.pilot.changeShip(this.campaign.currentMission(), ship);  // throws
         this.client.updatePilot(this.pilot).then(function(){
-            signal(EVT_PILOT_UPDATED);
-        }).except(function(err){
+            this.loadPilot(this.pilot._id);
+            this.refreshPilots();
+        }.bind(this)).except(function(err){
             errorMessage(err);
             //TODO set pilot back to previous state
         });
@@ -302,8 +304,8 @@ Session.prototype.buyUpgrade = function(upgradename){
         try{
             this.pilot.buyUpgrade(this.campaign.currentMission(), upgrade);
             this.client.updatePilot(this.pilot).then(function(){
-                signal(EVT_PILOT_UPDATED);
-            }).except(function(err){
+                this.loadPilot(this.pilot._id);
+            }.bind(this)).except(function(err){
                 errorMessage(err);
             });
         }catch(err){

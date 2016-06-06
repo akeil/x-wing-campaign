@@ -140,7 +140,7 @@ Campaign.prototype.validate = function(){
     if(!this.displayName){
         throw errors.invalid('Display name must be set');
     }
-    if(!this.version || this.version === null){
+    if(!this.version && this.version !== 0){
         throw errors.invalid('Version field must be set');
     }
 };
@@ -375,7 +375,7 @@ Pilot.prototype.validate = function(){
     if(!this.ship){
         throw errors.invalid('Ship must be set');
     }
-    if(!this.version || this.version === null){
+    if(!this.version && this.version !== 0){
         throw errors.invalid('Version field must be set');
     }
 };

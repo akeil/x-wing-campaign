@@ -81,7 +81,7 @@ var getCampaignMembers = function(campaignid){
  */
 // TODO pagination
 api.get('/users', function(req, res){
-    fields = ['name', 'displayName'];
+    fields = ['name', 'version', 'displayName'];
     store.users.select({}, fields).then(function(usernames){
         res.json(usernames);
     }).except(function(err){
@@ -169,7 +169,7 @@ api.get('/campaigns/:username', function(req, res){
         throw errors.forbidden('Cannot access campaigns for another user');
     }
 
-    var fields = ['displayName', 'owner'];
+    var fields = ['version', 'displayName', 'owner'];
     store.campaigns.select({owner: username}, fields).then(function(campaigns){
         res.json(campaigns);
     }).except(function(err){
@@ -309,7 +309,7 @@ api.delete('/campaign/:campaignid/:version', function(req, res){
  */
 api.get('/campaign/:campaignid/pilots', function(req, res){
     var campaignid = req.params.campaignid;
-    var fields = ['owner', 'callsign'];
+    var fields = ['version', 'owner', 'callsign'];
     store.pilots.select({campaignid: campaignid}, fields).then(function(pilots){
         // if the user is one of the pilots owners, he is a campaign member
         var usernames = pilots.map(function(pilot){
