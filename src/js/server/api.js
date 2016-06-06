@@ -136,13 +136,16 @@ api.put('/user/:username', function(req, res){
 });
 
 /*
- * Delete the user with the given username.
+ * Delete the user with the given username and version.
  */
-api.delete('/user/:username', function(req, res){
+api.delete('/user/:username/:version', function(req, res){
     var username = req.params.username;
+    var version = req.params.username;
     // TODO check permission "admin"
+    // TODO: if we delete by vrsion, no need to "find" first
+    // requires the we can delete by name
     store.users.findOne({name: username}).then(function(user){
-        store.users.delete(user._id).then(function(result){
+        store.users.delete(user._id, version).then(function(result){
             res.json({});
         }).except(function(err){
             sendError(res, err);
@@ -247,7 +250,8 @@ api.get('/campaign/:campaignid', function(req, res){
 });
 
 /*
- * Save a single campaign
+ * Update a single campaign
+ * Expects a `model.Campaign` in the request body.
  */
 api.put('/campaign/:campaignid', function(req, res){
     var campaignid = req.params.campaignid;
@@ -279,17 +283,17 @@ api.put('/campaign/:campaignid', function(req, res){
 });
 
 /*
- * Delete a campaign.
- * Expects a `model.Campaign` in the request body.
+ * Delete a campaign by ID and version.
  */
-api.delete('/campaign/:campaignid', function(req, res){
+api.delete('/campaign/:campaignid/:version', function(req, res){
     var campaignid = req.params.campaignid;
+    var version = req.params.version;
     store.campaigns.get(campaignid).then(function(campaign){
         if(campaign.owner !== req.user.name){
             var msg = 'Cannot delete campaign owned by another user';
             sendError(res, errors.forbidden(msg));
         }else{
-            store.campaigns.delete(campaignid).then(function(result){
+            store.campaigns.delete(campaignid, version).then(function(result){
                 res.json({});
             }).except(function(err){
                 sendError(res, err);
@@ -436,13 +440,14 @@ api.put('/pilot/:pilotid', function(req, res){
 });
 
 /*
- * Delete a pilot by id
+ * Delete a pilot by id and version.
  */
-api.delete('/pilot/:pilotid', function(req, res){
+api.delete('/pilot/:pilotid/:version', function(req, res){
     var pilotid = req.params.pilotid;
+    var version = req.params.version;
     store.pilots.get(pilotid).then(function(pilot){
         if(req.user.name === pilot.owner){
-            store.pilots.delete(pilotid).then(function(result){
+            store.pilots.delete(pilotid, version).then(function(result){
                 res.json({});  // no result
             }).except(function(err){
                 sendError(res, err);

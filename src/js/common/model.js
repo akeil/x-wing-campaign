@@ -69,6 +69,7 @@ var SLOT_TURRET             = 'turret';
 User = function(props) {
     props = props || {};
     this._id = props._id || null;
+    this.version = props.version || 0;
     this.name = props.name || null;
     this.displayName = props.displayName || null;
 
@@ -79,9 +80,11 @@ User.prototype.validate = function(){
     if(!this.name){
         throw errors.invalid('Username must be set');
     }
-
     if(!this.displayName){
         throw errors.invalid('Display name must be set');
+    }
+    if(!this.version || this.version === null){
+        throw errors.invalid('Version field must be set');
     }
 };
 
@@ -114,6 +117,7 @@ module.exports.NewUser = function(props){
 Campaign = function(props) {
     props = props || {};
     this._id = props._id || null;
+    this.version = props.version || 0;
     this.owner = props.owner || null;
     this.displayName = props.displayName || null;
     this.missionDeck = props.missionDeck || [];
@@ -122,6 +126,7 @@ Campaign = function(props) {
 
 Campaign.prototype.patch = function(props){
     props = props || {};
+    this.version = props.version;
     this.owner = props.owner || this.owner;
     this.displayName = props.displayName || this.displayName;
     this.missionDeck = props.missionDeck || this.missionDeck;
@@ -132,9 +137,11 @@ Campaign.prototype.validate = function(){
     if(!this.owner){
         throw errors.invalid('Owner must be set');
     }
-
     if(!this.displayName){
         throw errors.invalid('Display name must be set');
+    }
+    if(!this.version || this.version === null){
+        throw errors.invalid('Version field must be set');
     }
 };
 
@@ -277,6 +284,7 @@ module.exports.NewCampaign = function(props){
 Mission = function(props){
     props = props || {};
     this.name = props.name || null;
+    this.version = props.version || 0;
     this.displayName = props.displayName || null;
     this.storyArc = props.storyArc || null;
     this.startingMission = props.startingMission ? true : false;
@@ -315,6 +323,7 @@ module.exports.NewMission = function(props){
 Pilot = function(props) {
     props = props || {};
     this._id = props._id || null;
+    this.version = props.version || 0;
     this.campaignid = props.campaignid || null;
     this.owner = props.owner || null;
     this.ship = props.ship || null;
@@ -342,6 +351,7 @@ Pilot = function(props) {
 
 Pilot.prototype.patch = function(props){
     props = props || {};
+    this.version = props.version;
     this.campaignid = props.campaignid || this.campaignid;
     this.owner = props.owner || this.owner;
     this.ship = props.ship || this.ship;
@@ -365,7 +375,9 @@ Pilot.prototype.validate = function(){
     if(!this.ship){
         throw errors.invalid('Ship must be set');
     }
-
+    if(!this.version || this.version === null){
+        throw errors.invalid('Version field must be set');
+    }
 };
 
 /*
@@ -560,6 +572,7 @@ module.exports.NewPilot = function(props){
 Ship = function(props) {
     props = props || {};
     this._id = props._id || null;
+    this.version = props.version || 0;
     this.name = props.name || null;
     this.displayName = props.displayName || null;
     this.requiredSkill = props.requiredSkill || null;
@@ -591,6 +604,7 @@ module.exports.enemyShips = [
 Upgrade = function(props){
     props = props || {};
     this._id = props._id || null;
+    this.version = props.version || 0;
     this.name = props.name || null;
     this.slot = props.slot || null;
     this.displayName = props.displayName || null;

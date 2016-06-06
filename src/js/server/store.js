@@ -206,27 +206,40 @@ Collection.prototype.get = function(docid){
 };
 
 /*
- * Delete a single document by id.
+ * Delete a single document by id and version.
  */
-Collection.prototype.delete = function(docid){
+Collection.prototype.delete = function(docid, version){
     var promise = new prom.Promise();
 
     _db(function(err, db){
         if(err){
             promise.fail(err);
         }else{
-            db.collection(this.name).remove(
-                {_id: new ObjectID(docid)},
-                {},  // no options
-                function(opErr, docsRemoved){
-                    if(opErr){
-                        console.log(opErr);
-                        promise.fail(errors.databaseError('Delete error'));
-                    }else{
+            var predicate = {
+                _id: new ObjectID(docid),
+                version: version
+            };
+            var opts = {w: 1};  // write concern, acknowledge write
+            db.collection(this.name).remove(predicate, opts, function(opErr, result){
+                if(opErr){
+                    console.error(opErr);
+                    promise.fail(errors.databaseError('Delete error'));
+                }else{
+                    var numberOfDocsRemoved = result.result.n;
+                    if(numberOfDocsRemoved === 1){
                         promise.resolve();
+                    }else if(numberOfDocsRemoved === 0) {
+                        this.get(docid).then(function(){
+                            // found by ID, but not by ID + version
+                            promise.fail(errors.lockingError());
+                        }).except(promise.fail);
+                    }else{
+                        // deleted more than one document
+                        // this REALLY should not happen
+                        promis.fail(errors.illegalState());
                     }
                 }
-            );
+            });
         }
     }.bind(this));
 

@@ -53,6 +53,11 @@ module.exports.conflict = function(message){
 };
 
 
+module.exports.lockingError = function(message){
+    return new Exception(409, 'LockingError', message);
+};
+
+
 module.exports.databaseError = function(message){
     return new Exception(500, 'DatabaseError', message);
 };

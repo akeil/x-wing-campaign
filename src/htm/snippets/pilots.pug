@@ -3,7 +3,7 @@ div(id="view-pilots" class="col-md-4")
     ol
         | {{#pilots}}
         li
-            a(href="#" data-id="{{_id}}")
+            a(href="#" data-id="{{_id}}" data-version="{{version}}")
                 strong {{callsign}} &nbsp;
                 small played by &nbsp;
                 em {{owner}}

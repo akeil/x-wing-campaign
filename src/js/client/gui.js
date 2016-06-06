@@ -179,8 +179,8 @@ Session.prototype.createCampaign = function(displayName){
     }.bind(this));
 };
 
-Session.prototype.deleteCampaign = function(campaignid){
-    this.client.deleteCampaign(campaignid).then(function(){
+Session.prototype.deleteCampaign = function(campaignid, version){
+    this.client.deleteCampaign(campaignid, version).then(function(){
         this.refreshCampaigns();
     }.bind(this));
 };
@@ -196,8 +196,8 @@ Session.prototype.createPilot = function(owner, callsign, shipName){
         }.bind(this));
 };
 
-Session.prototype.deletePilot = function(pilotid){
-    this.client.deletePilot(pilotid).then(function(){
+Session.prototype.deletePilot = function(pilotid, version){
+    this.client.deletePilot(pilotid, version).then(function(){
         this.refreshPilots();
     }.bind(this));
 };
@@ -488,7 +488,8 @@ CampaignsView.prototype.bindEvents = function(){
         $(button).off('click');
         $(button).on('click', function(evt){
             var campaignid = $(evt.delegateTarget).data('id');
-            this.session.deleteCampaign(campaignid);
+            var version = $(evt.delegateTarget).data('version');
+            this.session.deleteCampaign(campaignid, version);
         }.bind(this));
     }.bind(this));
 };
@@ -576,8 +577,9 @@ PilotsView.prototype.bindEvents = function(){
     $(this.selector + ' li button').each(function(index, button){
         $(button).off('click');
         $(button).on('click', function(evt){
-            var pilotid = $(evt.delegateTarget).data("id");
-            this.session.deletePilot(pilotid);
+            var pilotid = $(evt.delegateTarget).data('id');
+            var version = $(evt.delegateTarget).data('version');
+            this.session.deletePilot(pilotid, version);
         }.bind(this));
     }.bind(this));
 };

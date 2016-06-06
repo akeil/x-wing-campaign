@@ -115,9 +115,9 @@ Client.prototype.updateCampaign = function(campaign){
     });
 };
 
-Client.prototype.deleteCampaign = function(campaignid){
+Client.prototype.deleteCampaign = function(campaignid, version){
     return this._DELETE({
-        endpoint: '/campaign/' + campaignid
+        endpoint: '/campaign/' + campaignid + '/' + version
     });
 };
 
@@ -151,9 +151,9 @@ Client.prototype.updatePilot = function(pilot){
     });
 };
 
-Client.prototype.deletePilot = function(pilotid){
+Client.prototype.deletePilot = function(pilotid, version){
     return this._DELETE({
-        endpoint: '/pilot/' + pilotid
+        endpoint: '/pilot/' + pilotid + '/' + version
     });
 };
 
