@@ -75,8 +75,10 @@ div(id="view-pilot" class="col-md-6")
                           class="col-sm-4 control-label") Mission
                     div(class="col-sm-8")
                         select(name="pilot-aftermath-mission"
-                              id="pilot-aftermath-mission"
-                              class="form-control")
+                               id="pilot-aftermath-mission"
+                               class="form-control"
+                               required)
+                            option(value="") ---
                             | {{#playedMissions}}
                             option(value="{{name}}" "{{_ui_selected}}") {{displayName}}
                             | {{/playedMissions}}

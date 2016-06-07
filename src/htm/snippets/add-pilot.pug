@@ -3,17 +3,27 @@ div(id="view-add-pilot" class="col-md-4")
     form(id="add-pilot")
         div(class="input-group")
             label(for="pilot-callsign") Callsign:
-            input(id="pilot-callsign" name="pilot-callsign" class="form-control")
+            input(id="pilot-callsign"
+                  name="pilot-callsign"
+                  class="form-control"
+                  type="text"
+                  required)
         div(class="input-group")
             label(for="pilot-owner") Player:
-            select(id="pilot-owner" name="pilot-owner" class="form-control")
+            select(id="pilot-owner"
+                   name="pilot-owner"
+                   class="form-control"
+                   required)
                 option(value="") ---
                 | {{#users}}
                 option(value="{{name}}") {{displayName}}
                 | {{/users}}
         div(class="input-group")
             label(for="pilot-ship") Ship:
-            select(id="pilot-ship" name="pilot-ship" class="form-control")
+            select(id="pilot-ship"
+                   name="pilot-ship"
+                   class="form-control"
+                   required)
                 option(value="") ---
                 | {{#ships}}
                 option(value="{{name}}") {{displayName}}

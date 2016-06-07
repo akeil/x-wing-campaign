@@ -851,6 +851,9 @@ var resetForm = function(formSelector){
     $(formSelector + ' input').each(function(index, input){
         $(input).val('');
     });
+    $(formSelector + ' select').each(function(index, select){
+        $(select).val('');
+    });
 };
 
 
