@@ -291,6 +291,7 @@ Collection.prototype.put = function(doc){
             promise.fail(err);
         }else{
             var docToStore = this._unwrap(doc);
+            docToStore.lastModified = new Date().getTime();  // now, UTC
             var docid = docToStore._id;
             if(docid){
                 console.log('Update ' + this.name + '/' + docid);
@@ -355,7 +356,9 @@ Collection.prototype.insert = function(docs){
             promise.fail(err);
         }else{
             var docsToStore = docs.map(function(doc){
-                return this._unwrap(doc);
+                var docToStore = this._unwrap(doc);
+                docToStore.lastModified = new Date().getTime();  // now, UTC
+                return docToStore;
             }.bind(this));
             db.collection(this.name).insert(docs, function(err){
                 if(err){
