@@ -515,6 +515,7 @@ _BaseView.prototype.bindEvents = function(){
         evt.preventDefault();
         var displayName = $('#campaign-displayName').val();
         this.session.createCampaign(displayName);
+        resetForm('#campaign-start');
     }.bind(this));
 };
 
@@ -615,6 +616,7 @@ AddPilotView.prototype.bindEvents = function(){
         var callsign = $('#pilot-callsign').val();
         var shipName = $('#pilot-ship').val();
         this.session.createPilot(owner, callsign, shipName);
+        resetForm('#add-pilot');
     }.bind(this));
 };
 
@@ -771,6 +773,7 @@ PilotView.prototype.bindEvents = function(){
             }
         }.bind(this));
         this.session.doPilotAftermath(missionName, xp, kills);
+        resetForm('#pilot-aftermath');
     }.bind(this));
 
     // buy upgrades
@@ -843,8 +846,15 @@ var errorMessage = function(err){
     console.error(err);
 };
 
-var snippets = {};
 
+var resetForm = function(formSelector){
+    $(formSelector + ' input').each(function(index, input){
+        $(input).val('');
+    });
+};
+
+
+var snippets = {};
 
 var loadSnippet = function(name){
     var promise = new prom.Promise();
