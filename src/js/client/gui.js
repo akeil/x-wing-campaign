@@ -61,6 +61,7 @@ Session = function(props){
     this.missionDetails = {};
     this.currentMessage = null;
     this.messageLog = [];
+    this.messageTimeoutID = null;
 };
 
 Session.prototype.login = function(password){
@@ -123,23 +124,34 @@ Session.prototype.showCampaign = function(campaignid){
 };
 
 Session.prototype.message = function(level, text){
+    if(this.messageTimeoutID !== null){
+        window.clearTimeout(this.messageTimeoutID);
+    }
     if(this.currentMessage){
         this.messageLog.splice(0, 0, this.currentMessage);
     }
+    this.messageLog.splice(3);  //  keep only n most recent messages
     this.currentMessage = {
         level: level,
         levelText: level.substring(0, 1).toUpperCase() + level.substring(1),
         text: text
     };
     signal(EVT_MESSAGE_UPDATED);
+
+    // make the message disappear later
+    this.messageTimeoutID = window.setTimeout(
+        this.dismissMessage.bind(this),
+        1000 * 7
+    );
 };
 
 Session.prototype.dismissMessage = function(){
     if(this.currentMessage){
         this.messageLog.splice(0, 0, this.currentMessage);
+        this.messageLog.splice(3);  //  keep only n most recent messages
+        this.currentMessage = null;
+        signal(EVT_MESSAGE_UPDATED);
     }
-    this.currentMessage = null;
-    signal(EVT_MESSAGE_UPDATED);
 };
 
 Session.prototype.errorMessage = function(err){
