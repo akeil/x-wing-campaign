@@ -87,7 +87,7 @@ var makeIndex = function(collection, i, finalCallback){
             if(!err){
                 makeIndex(collection, i + 1, finalCallback);
             }else{
-                console.log('failed to create index ' + opts.name);
+                console.err('failed to create index ' + opts.name);
                 finalCallback(err);
             }
         });
@@ -116,7 +116,7 @@ var makeColl = function(db, i, finalCallback){
                 });
 
             }else{
-                console.log('failed to create collection ' + name);
+                console.error('failed to create collection ' + name);
                 finalCallback(err);  // failed
             }
         });
@@ -312,10 +312,10 @@ Collection.prototype.put = function(doc){
                         // conflict
                         promise.fail(errors.databaseError('Update error'));
                     }else{
-                        var numberOfUpdatedDocs = result.result.nModified;
-                        if(numberOfUpdatedDocs === 1){
+                        var numberOfMatchedDocs = result.result.n;
+                        if(numberOfMatchedDocs === 1){
                             promise.resolve();
-                        }else if(numberOfUpdatedDocs === 0){
+                        }else if(numberOfMatchedDocs === 0){
                             this.get(docid).then(function(){
                                 promise.fail(errors.lockingError());
                             }).except(promise.fail);
@@ -362,7 +362,7 @@ Collection.prototype.insert = function(docs){
             }.bind(this));
             db.collection(this.name).insert(docs, function(err){
                 if(err){
-                    //console.error(err);
+                    console.error(err);
                     if(err.code === 11000){
                         promise.fail(errors.conflict('Duplicate key'));
                     }else{

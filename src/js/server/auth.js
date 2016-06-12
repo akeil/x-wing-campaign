@@ -192,7 +192,7 @@ auth.post('/login/:username', function(req, res){
  */
 auth.use('/logout', authenticate);
 auth.post('/logout', function(req, res){
-    store.sessions.delete(req.session._id).then(function(){
+    store.sessions.delete(req.session._id, req.session.version).then(function(){
         console.log('Logout ' + req.user.name + ' from ' + req.session._id);
         res.clearCookie(SESSION_COOKIE);
         res.status(200);
