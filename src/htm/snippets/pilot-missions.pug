@@ -1,0 +1,20 @@
+div(id="view-pilot-missions")
+    h4 Played Missions
+    table(class="table table-striped table-condensed")
+        thead
+            tr
+                th Mission
+                th XP
+        tfoot
+            tr
+                td
+                    strong Total
+                td
+                    strong {{totalEarnedXP}}
+
+        tbody
+            | {{#playedMissions}}
+            tr
+                td {{displayName}}
+                td {{_xp}}
+            | {{/playedMissions}}

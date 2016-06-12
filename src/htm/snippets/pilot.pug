@@ -1,155 +1,27 @@
 div(id="view-pilot" class="col-md-6")
     div(class="row")
         div(class="col-sm-12")
-            h3 Pilot Details ({{pilot.callsign}})
-            |{{^pilot}}
-            p no pilot
-            | {{/pilot}}
-            table(class="table")
-                tbody
-                    tr
-                        th Player
-                        td {{pilot.owner}}
-                    tr
-                        th Callsign
-                        td {{pilot.callsign}}
-                    tr
-                        th Ship
-                        td {{ship.displayName}}
-                    tr
-                        th Pilot Skill
-                        td {{pilotSkill}}
-                    tr
-                        th XP
-                        td {{currentXP}}
+            div(id="child-view-pilot-details")
 
     div(class="row")
         div(class="col-sm-4")
-            h4 Played Missions
-            table(class="table table-striped table-condensed")
-                thead
-                    tr
-                        th Mission
-                        th XP
-                tfoot
-                    tr
-                        td
-                            strong Total
-                        td
-                            strong {{totalEarnedXP}}
-
-                tbody
-                    | {{#playedMissions}}
-                    tr
-                        td {{displayName}}
-                        td {{_xp}}
-                    | {{/playedMissions}}
+            div(id="child-view-pilot-missions")
 
         div(class="col-sm-4")
-            h4 Kills
-            table(class="table table-striped table-condensed")
-                thead
-                    tr
-                        th Ship Type
-                        th Kills
-                tbody
-                    tr
-                        td Tie Fighter
-                        td xxxxxxx
-                    tr
-                        td Tie Interceptor
-                        td xxxxxxx
-
+            div(id="child-view-pilot-kills")
 
         div(class="col-sm-4")
-            h4 Upgrades
+            div(id="child-view-pilot-upgrades")
 
 
     div(class="row")
         div(class="col-sm-6")
-            h4 Mission Aftermath
-            form(id="pilot-aftermath" class="form-horizontal")
-                div(class="form-group")
-
-                    label(for="pilot-aftermath-mission"
-                          class="col-sm-4 control-label") Mission
-                    div(class="col-sm-8")
-                        select(name="pilot-aftermath-mission"
-                               id="pilot-aftermath-mission"
-                               class="form-control"
-                               required)
-                            option(value="") ---
-                            | {{#playedMissions}}
-                            option(value="{{name}}" "{{_ui_selected}}") {{displayName}}
-                            | {{/playedMissions}}
-
-                div(class="form-group")
-                    label(for="pilot-aftermath-xp"
-                          class="col-sm-4 control-label") Total XP earned
-                    div(class="col-sm-8")
-                        input(name="pilot-aftermath-xp"
-                              id="pilot-aftermath-xp"
-                              type="number"
-                              class="form-control")
-
-                | {{#enemyShips}}
-                div(class="form-group")
-                    label(for="pilot-kills-{{name}}"
-                          class="col-sm-4 control-label") {{displayName}}
-                    div(class="col-sm-8")
-                        div(class="input-group")
-                            span(class="input-group-btn")
-                                button(class="btn btn-default" type="button") -
-                            input(name="pilot-kills-{{name}}"
-                                  id="pilot-kills-{{name}}"
-                                  data-kind="{{name}}"
-                                  type="number"
-                                  class="form-control pilot-aftermath-kill")
-                            span(class="input-group-btn")
-                                button(class="btn btn-default" type="button") +
-                | {{/enemyShips}}
-
-                div(class="form-group")
-                    div(class="col-sm-offset-2 col-sm-10")
-                    button(type="submit" class="btn btn-default") Save
+            div(id="child-view-pilot-aftermath")
 
     div(class="row")
-        div(class="col-md-12" id="pilot-upgrades")
-            h4 Upgrades
-            table(class="table table-striped")
-                thead
-                    tr
-                        th Slot
-                        th Name
-                        th Cost
-                tbody
-                    | {{#upgrades}}
-                    tr
-                        td {{slot}}
-                        td {{displayName}}
-                        td {{cost}}
-                            button(class="btn btn-xs btn-primary"
-                                   data-id="{{name}}") Buy
-                    | {{/upgrades}}
+        div(class="col-md-12")
+            div(id="child-view-store")
 
     div(class="row")
         div(class="col-md-6")
-            h4 Ship
-            | {{#ship}}
-            p Current ship is {{ship.displayName}}
-            | {{/ship}}
-
-            | {{^ship}}
-            p Select a ship.
-            | {{/ship}}
-
-            form(id="pilot-change-ship")
-                div(class="form-group")
-                    label(for="pilot-change-ship-name") Change to
-                    div(class="input-group")
-                        select(id="pilot-change-ship-name" name="pilot-change-ship-name" class="form-control")
-                            | {{#ships}}
-                            option(value="{{name}}") {{displayName}}
-                            | {{/ships}}
-                        span(class="input-group-btn")
-                            button(type="submit" class="btn btn-default") Change
+            div(id="child-view-pilot-ship")

@@ -1,0 +1,17 @@
+div(id="view-store")
+    h4 Upgrades
+    table(id="pilot-upgrades" class="table table-striped")
+        thead
+            tr
+                th Slot
+                th Name
+                th Cost
+        tbody
+            | {{#upgrades}}
+            tr
+                td {{slot}}
+                td {{displayName}}
+                td {{cost}}
+                    button(class="btn btn-xs btn-primary"
+                           data-id="{{name}}") Buy
+            | {{/upgrades}}

@@ -1,0 +1,22 @@
+div(id="view-pilot-details")
+    h3 Pilot Details ({{pilot.callsign}})
+    |{{^pilot}}
+    p no pilot
+    | {{/pilot}}
+    table(class="table")
+        tbody
+            tr
+                th Player
+                td {{pilot.owner}}
+            tr
+                th Callsign
+                td {{pilot.callsign}}
+            tr
+                th Ship
+                td {{ship.displayName}}
+            tr
+                th Pilot Skill
+                td {{pilotSkill}}
+            tr
+                th XP
+                td {{currentXP}}

@@ -823,26 +823,125 @@ MissionDeckView.prototype.getRenderContext = function(){
 
 PilotView = function(session){
     _BaseView.call(this, 'pilot', session);
+    this._children.push(new PilotDetailsView(session));
+    this._children.push(new PilotMissionsView(session));
+    this._children.push(new PilotKillsView(session));
+    this._children.push(new PilotUpgradesView(session));
+    this._children.push(new PilotAftermathView(session));
+    this._children.push(new PilotShipView(session));
+    this._children.push(new StoreView(session));
 };
 
 PilotView.prototype = new _BaseView();
 
-PilotView.prototype.bindSignals = function(){
+
+// Pilot Details View ---------------------------------------------------------
+
+
+PilotDetailsView = function(session){
+    _BaseView.call(this, 'pilot-details', session);
+};
+
+PilotDetailsView.prototype = new _BaseView();
+
+PilotDetailsView.prototype.bindSignals = function(){
     onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
-    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
+};
+
+PilotDetailsView.prototype.getRenderContext = function(){
+    var pilot = this.session.pilot;
+    var ctx = {
+        pilot: pilot,
+        currentXP: '-',
+        pilotSkill: '-',
+        ship: null
+    };
+    if(pilot){
+        ctx.currentXP = pilot.currentXP();
+        ctx.pilotSkill = pilot.skill();
+        ctx.ship = this.session.shipByName(pilot.ship);
+    }
+    return ctx;
+};
+
+
+// Pilot Missions -------------------------------------------------------------
+
+
+PilotMissionsView = function(session){
+    _BaseView.call(this, 'pilot-missions', session);
+};
+
+PilotMissionsView.prototype = new _BaseView();
+
+PilotMissionsView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+        onSignal(EVT_MISSION_DETAILS_UPDATED, this.refresh.bind(this));
+};
+
+PilotMissionsView.prototype.getRenderContext = function(){
+    var pilot = this.session.pilot;
+    var campaign = this.session.campaign;
+    var ctx = {
+        playedMissions: [],
+        totalEarnedXP: '-'
+    };
+
+    if(pilot){
+        ctx.totalEarnedXP = pilot.totalEarnedXP();
+    }
+
+    if(campaign){
+        var playedMissions = campaign.playedMissions;
+        for (var i = 0; i < playedMissions.length; i++) {
+            var name = playedMissions[i].name;
+            var m = this.session.missionDetails[name];
+            if(m){
+                ctx.playedMissions.push(m);
+                if(pilot){
+                    // played mission for the pilot
+                    m._xp = pilot.totalEarnedXP(m.name);
+                }
+            }
+        }
+    }
+
+    return ctx;
+};
+
+
+// Pilot Kills ----------------------------------------------------------------
+
+PilotKillsView = function(session){
+    _BaseView.call(this, 'pilot-kills', session);
+};
+
+PilotKillsView.prototype = new _BaseView();
+
+
+// Pilot Upgrades -------------------------------------------------------------
+
+PilotUpgradesView = function(session){
+    _BaseView.call(this, 'pilot-upgrades', session);
+};
+
+PilotUpgradesView.prototype = new _BaseView();
+
+
+// Pilot Aftermath ------------------------------------------------------------
+
+PilotAftermathView = function(session){
+    _BaseView.call(this, 'pilot-aftermath', session);
+};
+
+PilotAftermathView.prototype = new _BaseView();
+
+PilotAftermathView.prototype.bindSignals = function(){
+    onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
     onSignal(EVT_MISSION_DETAILS_UPDATED, this.refresh.bind(this));
 };
 
-PilotView.prototype.bindEvents = function(){
-    // change ship
-    $('#pilot-change-ship').off('submit');
-    $('#pilot-change-ship').on('submit', function(evt){
-        evt.preventDefault();
-        var shipName = $('#pilot-change-ship-name').val();
-        this.session.changeShip(shipName);
-    }.bind(this));
-
-    // mission aftermath
+PilotAftermathView.prototype.bindEvents = function(){
     $('#pilot-aftermath').off('submit');
     $('#pilot-aftermath').on('submit', function(evt){
         evt.preventDefault();
@@ -858,40 +957,15 @@ PilotView.prototype.bindEvents = function(){
         this.session.doPilotAftermath(missionName, xp, kills);
         resetForm('#pilot-aftermath');
     }.bind(this));
-
-    // buy upgrades
-    $('#pilot-upgrades button').each(function(index, button){
-        $(button).off('click');
-        $(button).on('click', function(evt){
-            evt.preventDefault();
-            var upgradename = $(evt.delegateTarget).data("id");
-            this.session.buyUpgrade(upgradename);
-        }.bind(this));
-    }.bind(this));
 };
 
-PilotView.prototype.getRenderContext = function(){
+PilotAftermathView.prototype.getRenderContext = function(){
     var ctx = {
-        pilot: this.session.pilot,
-        currentXP: '-',
-        pilotSkill: '-',
-        totalEarnedXP: '-',
-        ships: this.session.ships,
-        upgrades: this.session.upgrades,
         playedMissions: [],
-        pilotMissions: [],
         enemyShips: model.enemyShips
     };
 
     var campaign = this.session.campaign;
-    var pilot = this.session.pilot;
-
-    if(pilot){
-        ctx.currentXP = pilot.currentXP();
-        ctx.pilotSkill = pilot.skill();
-        ctx.totalEarnedXP = pilot.totalEarnedXP();
-        ctx.ship = this.session.shipByName(pilot.ship);
-    }
 
     if(campaign){
         var playedMissions = campaign.playedMissions;
@@ -902,15 +976,74 @@ PilotView.prototype.getRenderContext = function(){
                 // select control for aftermath form
                 m._ui_selected = i === (playedMissions.length -1) ? 'selected' : '';
                 ctx.playedMissions.push(m);
-
-                if(pilot){
-                    // played mission for the pilot
-                    m._xp = pilot.totalEarnedXP(m.name);
-                }
             }
         }
     }
 
+    return ctx;
+};
+
+
+// Pilot Ship -----------------------------------------------------------------
+
+PilotShipView = function(session){
+    _BaseView.call(this, 'pilot-ship', session);
+};
+
+PilotShipView.prototype = new _BaseView();
+
+PilotShipView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
+};
+
+PilotShipView.prototype.bindEvents = function(){
+    $('#pilot-change-ship').off('submit');
+    $('#pilot-change-ship').on('submit', function(evt){
+        evt.preventDefault();
+        var shipName = $('#pilot-change-ship-name').val();
+        this.session.changeShip(shipName);
+    }.bind(this));
+};
+
+PilotShipView.prototype.getRenderContext = function(){
+    var ctx = {
+        ship: null,
+        ships: this.session.ships,
+    };
+
+    var pilot = this.session.pilot;
+
+    if(pilot){
+        ctx.ship = this.session.shipByName(pilot.ship);
+    }
+    return ctx;
+};
+
+// Store View -----------------------------------------------------------------
+
+
+StoreView = function(session){
+    _BaseView.call(this, 'store', session);
+};
+
+StoreView.prototype = new _BaseView();
+
+StoreView.prototype.bindEvents = function(){
+    $('#pilot-upgrades button').each(function(index, button){
+        $(button).off('click');
+        $(button).on('click', function(evt){
+            evt.preventDefault();
+            var upgradename = $(evt.delegateTarget).data("id");
+            this.session.buyUpgrade(upgradename);
+        }.bind(this));
+    }.bind(this));
+};
+
+StoreView.prototype.getRenderContext = function(){
+    var ctx = {
+        upgrades: this.session.upgrades,
+    };
     return ctx;
 };
 
