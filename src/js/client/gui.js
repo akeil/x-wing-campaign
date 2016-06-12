@@ -13,25 +13,30 @@ var Mustache = require('mustache');
 require('bootstrap-less/js/bootstrap');
 
 
-// Signals --------------------------------------------------------------------
-
-
-var EVT_MESSAGE_UPDATED     = 'xwing:message-updated';
-var EVT_USER_UPDATED        = 'xwing:user-updated';
-var EVT_CAMPAIGNS_UPDATED   = 'xwing:campaigns-updated';
-var EVT_CAMPAIGN_UPDATED    = 'xwing:campaign-updated';
-var EVT_PILOT_UPDATED       = 'xwing:pilot-updated';
-var EVT_PILOTS_UPDATED      = 'xwing:pilots-updated';
-var EVT_USERS_UPDATED       = 'xwing:users-updated';
-var EVT_SHIPS_UPDATED       = 'xwing:ships-updated';
-var EVT_UPGRADES_UPDATED    = 'xwing:upgrades-updated';
-var EVT_MISSIONS_UPDATED    = 'xwing:missions-updated';
+var EVT_MESSAGE_UPDATED         = 'xwing:message-updated';
+var EVT_USER_UPDATED            = 'xwing:user-updated';
+var EVT_CAMPAIGNS_UPDATED       = 'xwing:campaigns-updated';
+var EVT_CAMPAIGN_UPDATED        = 'xwing:campaign-updated';
+var EVT_PILOT_UPDATED           = 'xwing:pilot-updated';
+var EVT_PILOTS_UPDATED          = 'xwing:pilots-updated';
+var EVT_USERS_UPDATED           = 'xwing:users-updated';
+var EVT_SHIPS_UPDATED           = 'xwing:ships-updated';
+var EVT_UPGRADES_UPDATED        = 'xwing:upgrades-updated';
+var EVT_MISSIONS_UPDATED        = 'xwing:missions-updated';
 var EVT_MISSION_DETAILS_UPDATED = 'xwing:mission-details-updated';
 
+// levels for error messages, match bootstrap css classes
 var LVL_SUCCESS = 'success';
-var LVL_INFO = 'info';
+var LVL_INFO    = 'info';
 var LVL_WARNING = 'warning';
-var LVL_DANGER = 'danger';
+var LVL_DANGER  = 'danger';
+
+var ARROW_RIGHT = '&#x25ba;';
+var ARROW_DOWN  = '&#x25be;';
+
+
+// Signals --------------------------------------------------------------------
+
 
 var signal = function(eventName){
     console.log('Signal ' + eventName);
@@ -385,7 +390,7 @@ Session.prototype.buyUpgrade = function(upgradename){
 };
 
 
-// Views ----------------------------------------------------------------------
+// Base View ------------------------------------------------------------------
 
 
 _BaseView = function(name, session){
@@ -448,7 +453,7 @@ _BaseView.prototype.refresh = function(){
 };
 
 
-// Welcome --------------------------------------------------------------------
+// Welcome View ---------------------------------------------------------------
 
 
 WelcomeView = function(){
@@ -468,7 +473,7 @@ WelcomeView.prototype.bindEvents = function(){
 };
 
 
-// Header ---------------------------------------------------------------------
+// Header View ----------------------------------------------------------------
 
 
 HeaderView = function(session){
@@ -518,11 +523,7 @@ HeaderView.prototype.getRenderContext = function(){
 };
 
 
-// Messages -------------------------------------------------------------------
-
-
-var ARROW_RIGHT = '&#x25ba;';
-var ARROW_DOWN = '&#x25be;';
+// Messages View --------------------------------------------------------------
 
 
 MessagesView = function(session){
@@ -569,7 +570,8 @@ MessagesView.prototype.getRenderContext = function(){
     return ctx;
 };
 
-// Start View -----------------------------------------------------------------
+
+// Home View ------------------------------------------------------------------
 
 
 HomeView = function(session){
@@ -628,7 +630,7 @@ NewCampaignView = function(session){
 
 NewCampaignView.prototype = new _BaseView();
 
-_BaseView.prototype.bindEvents = function(){
+NewCampaignView.prototype.bindEvents = function(){
     $('#campaign-start').off('submit');
     $('#campaign-start').on('submit', function(evt){
         evt.preventDefault();
@@ -653,7 +655,7 @@ CampaignView = function(session){
 CampaignView.prototype = new _BaseView();
 
 
-// Pilots ---------------------------------------------------------------------
+// Pilots View ----------------------------------------------------------------
 
 
 PilotsView = function(session){
@@ -696,7 +698,7 @@ PilotsView.prototype.getRenderContext = function(){
 };
 
 
-// Add Pilot ------------------------------------------------------------------
+// Add Pilot View -------------------------------------------------------------
 
 
 AddPilotView = function(session){
@@ -736,7 +738,7 @@ AddPilotView.prototype.getRenderContext = function(){
 };
 
 
-// Missions -------------------------------------------------------------------
+// Missions View --------------------------------------------------------------
 
 
 MissionsView = function(session){
@@ -791,7 +793,7 @@ MissionsView.prototype.getRenderContext = function(){
 };
 
 
-// Mission Deck ---------------------------------------------------------------
+// Mission Deck View ----------------------------------------------------------
 
 
 MissionDeckView = function(session){
@@ -837,7 +839,7 @@ MissionDeckView.prototype.getRenderContext = function(){
 };
 
 
-// Pilot ----------------------------------------------------------------------
+// Pilot View -----------------------------------------------------------------
 
 
 PilotView = function(session){
@@ -884,7 +886,7 @@ PilotDetailsView.prototype.getRenderContext = function(){
 };
 
 
-// Pilot Missions -------------------------------------------------------------
+// Pilot Missions View --------------------------------------------------------
 
 
 PilotMissionsView = function(session){
@@ -929,7 +931,8 @@ PilotMissionsView.prototype.getRenderContext = function(){
 };
 
 
-// Pilot Kills ----------------------------------------------------------------
+// Pilot Kills View -----------------------------------------------------------
+
 
 PilotKillsView = function(session){
     _BaseView.call(this, 'pilot-kills', session);
@@ -938,7 +941,8 @@ PilotKillsView = function(session){
 PilotKillsView.prototype = new _BaseView();
 
 
-// Pilot Upgrades -------------------------------------------------------------
+// Pilot Upgrades View --------------------------------------------------------
+
 
 PilotUpgradesView = function(session){
     _BaseView.call(this, 'pilot-upgrades', session);
@@ -947,7 +951,8 @@ PilotUpgradesView = function(session){
 PilotUpgradesView.prototype = new _BaseView();
 
 
-// Pilot Aftermath ------------------------------------------------------------
+// Pilot Aftermath View -------------------------------------------------------
+
 
 PilotAftermathView = function(session){
     _BaseView.call(this, 'pilot-aftermath', session);
@@ -1003,7 +1008,8 @@ PilotAftermathView.prototype.getRenderContext = function(){
 };
 
 
-// Pilot Ship -----------------------------------------------------------------
+// Pilot Ship View ------------------------------------------------------------
+
 
 PilotShipView = function(session){
     _BaseView.call(this, 'pilot-ship', session);
@@ -1038,6 +1044,7 @@ PilotShipView.prototype.getRenderContext = function(){
     }
     return ctx;
 };
+
 
 // Store View -----------------------------------------------------------------
 

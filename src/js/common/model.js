@@ -41,8 +41,8 @@ var KIND_SHIP_CHANGE    = "shipChange";
 var KIND_TALENT_CHANGE  = "talent";
 var KIND_ABILITY_CHANGE = "ability";
 
-var BASE_SKILL = 2;
-var SHIP_CHANGE_COST = 5;
+var BASE_SKILL          = 2;
+var SHIP_CHANGE_COST    = 5;
 
 var SLOT_ASTROMECH          = 'astromech';
 var SLOT_BOMB               = 'bomb';
@@ -111,6 +111,7 @@ User.prototype.validate = function(){
 module.exports.NewUser = function(props){
     return new User(props);
 };
+
 
 // Campaign -------------------------------------------------------------------
 
@@ -296,6 +297,7 @@ module.exports.NewCampaign = function(props){
     return new Campaign(props);
 };
 
+
 // Mission --------------------------------------------------------------------
 
 
@@ -327,6 +329,7 @@ module.exports.NewMission = function(props){
 
 
 // Pilot ----------------------------------------------------------------------
+
 
 /*
  * A pilot represents a single play (=`User`) in a campaign (although it is
