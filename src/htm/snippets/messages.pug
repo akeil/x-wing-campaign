@@ -1,13 +1,14 @@
 div(id="view-messages" class="row")
     | {{#message}}
     p(class="alert alert-{{level}}" role="alert")
-        strong {{levelText}}:
+        strong {{levelText}}:&nbsp;
         | {{text}}
     | {{/message}}
 
-    div
+    p(id="message-log-toggle") &#x25ba;
+    div(id="message-log" class="hidden")
         | {{#messages}}
         p(class="alert alert-{{level}}" role="alert")
-            strong {{levelText}}:
+            strong {{levelText}}:&nbsp;
             | {{text}}
         | {{/messages}}

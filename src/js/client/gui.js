@@ -482,6 +482,10 @@ HeaderView.prototype.getRenderContext = function(){
 // Messages -------------------------------------------------------------------
 
 
+var ARROW_RIGHT = '&#x25ba;';
+var ARROW_DOWN = '&#x25bc;';
+
+
 MessagesView = function(session){
     _BaseView.call(this, 'messages', session);
 };
@@ -490,6 +494,21 @@ MessagesView.prototype = new _BaseView();
 
 MessagesView.prototype.bindSignals = function(){
     onSignal(EVT_MESSAGE_UPDATED, this.refresh.bind(this));
+};
+
+MessagesView.prototype.bindEvents = function(){
+    $('#message-log-toggle').off('click');
+    $('#message-log-toggle').on('click', function(evt){
+        evt.preventDefault();
+        var content = $('#message-log');
+        if(content.hasClass('hidden')){
+            $('#message-log-toggle').html(ARROW_DOWN);
+            content.removeClass('hidden');
+        }else{
+            content.addClass('hidden');
+            $('#message-log-toggle').html(ARROW_RIGHT);
+        }
+    });
 };
 
 MessagesView.prototype.getRenderContext = function(){
