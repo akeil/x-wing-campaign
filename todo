@@ -2,19 +2,22 @@ GUI
 ---
 Function to select a random mission from the deck
 
-add a list of "my pilots" to the start view
-navigate to pilot view
-
 allow to edit pilot props
 
-mission aftermath for pilots
-by default (only?) work on the last played mission
-- set kills
-- set XP (mission total or by type
-- buy upgrades
+----
 
 Methods to change/reset password
 Handle auth-errors in GUI
 Setup an initial admin user with password
 
+----
+
 split GUI - Controller vs. Session
+
+----
+
+missions can be played multiple times.
+
+assign ID (or index?) to played missions for a campaign
+when recording pilot history (mission aftermath and purchases),
+refer to the mission ID/index
