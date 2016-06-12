@@ -633,23 +633,6 @@ CampaignView = function(session){
 
 CampaignView.prototype = new _BaseView();
 
-CampaignView.prototype.bindSignals = function(){
-    //onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
-    //onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
-};
-
-CampaignView.prototype.bindEvents = function(){
-    //$('#campaign-tabs').tabs('destroy');
-    $('#campaign-tabs').tabs();
-};
-
-CampaignView.prototype.getRenderContext = function(){
-    return {
-        campaign: this.session.campaign,
-        pilots: this.session.pilots
-    };
-};
-
 
 // Pilots ---------------------------------------------------------------------
 
