@@ -16,11 +16,14 @@ div(id="view-store")
                 th(class="col-sm-2") Action
         tbody
             | {{#upgrades}}
-            tr
+            tr(class="{{#owned}}success{{/owned}}")
                 td(data-id="{{name}}" data-toggle="trigger") {{#decanonicalize}}{{slot}}{{/decanonicalize}}
                 td(data-id="{{name}}" data-toggle="trigger")
                     span(data-toggle="icon")
                     | &nbsp;{{displayName}}
+                    | {{#owned}}
+                    span(class="badge") {{.}}&nbsp;owned
+                    | {{/owned}}
                     div(class="hidden" data-toggle="show")
                         small(data-toggle="content")
                 td {{cost}}

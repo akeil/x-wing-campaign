@@ -1049,6 +1049,11 @@ StoreView = function(session){
 
 StoreView.prototype = new _BaseView();
 
+StoreView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_UPGRADES_UPDATED, this.refresh.bind(this));
+};
+
 StoreView.prototype.bindEvents = function(){
     // init show/hide details
     $('#pilot-upgrades [data-toggle="trigger"]').on('click', function(evt){
@@ -1101,6 +1106,7 @@ StoreView.prototype.getRenderContext = function(){
         }).join(' ');
     };
 
+    var pilot = this.session.pilot;
     var ctx = {
         decanonicalize: function(){
             return function(text, render){
@@ -1122,6 +1128,14 @@ StoreView.prototype.getRenderContext = function(){
     if(this.session.upgrades){
         ctx.upgrades = this.session.upgrades.filter(function(item){
             return item.slot === this.selectedSlot;
+        }.bind(this)).map(function(item){
+            item.owned = 0;
+            if(pilot){
+                item.owned = pilot.upgrades.filter(function(name){
+                    return name === item.name;
+                }).length;
+            }
+            return item;
         }.bind(this));
     }
     return ctx;
