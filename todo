@@ -1,24 +1,9 @@
 GUI
 ---
-reset form contents after submit
-use placeholder text for forms
-
-Function to select
-Select a random mission from the deck
-
-From Campaign view, navigate back to start view
-or select another campaign
-
-Introduce a separate pilots main-view
-to edit pilot details
-
-in that view, allow to navigate between other pilots
-from the same campaign
+Function to select a random mission from the deck
 
 add a list of "my pilots" to the start view
 navigate to pilot view
-
-implement change ship
 
 allow to edit pilot props
 

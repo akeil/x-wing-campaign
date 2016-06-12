@@ -176,7 +176,7 @@ Campaign.prototype.removeMission = function(missionName){
  * Get he name of the last played mission.
  */
 Campaign.prototype.currentMission = function(){
-    if(this.playedMissions){
+    if(this.playedMissions && this.playedMissions.length > 0){
         return this.playedMissions[this.playedMissions.length -1].name;
     }else{
         return null;

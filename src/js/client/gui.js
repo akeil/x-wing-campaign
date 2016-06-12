@@ -3,7 +3,8 @@
  */
 var apiclient = require('./apiclient'),
     model = require('../common/model'),
-    prom = require('../common/promise');
+    prom = require('../common/promise'),
+    errors = require('../common/errors');
 
 var $ = require('jquery');
 window.jQuery = $;  // jQueryUI expects this to be set
