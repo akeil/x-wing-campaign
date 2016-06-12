@@ -28,7 +28,7 @@ gulp.task('data', function(){
                         slot: slot,
                         displayName: item.name,
                         cost: item.cost || 0,
-                        description: '',
+                        description: item.description,
                         unique: item.unique ? true : false
                     };
                 });

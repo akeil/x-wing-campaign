@@ -10,6 +10,7 @@ var $ = require('jquery');
 window.jQuery = $;  // jQueryUI expects this to be set
 var jqueryui = require('jqueryui');
 var Mustache = require('mustache');
+require('bootstrap-less/js/bootstrap');
 
 
 // Signals --------------------------------------------------------------------
@@ -57,6 +58,7 @@ Session = function(props){
     this.pilots = null;
     this.ships = null;
     this.upgrades = null;
+    this.upgradeDetails = {};
     this.missions = null;
     this.missionDetails = {};
     this.currentMessage = null;
@@ -194,6 +196,23 @@ Session.prototype.refreshUpgrades = function(){
         signal(EVT_UPGRADES_UPDATED);
 
     }.bind(this));
+};
+
+Session.prototype.getUpgrade = function(upgradeName){
+    var promise = new prom.Promise();
+    if(this.upgradeDetails[upgradeName]){
+        promise.resolve(this.upgradeDetails[upgradeName]);
+    }else{
+        this.client.getUpgrade(upgradeName).then(function(upgrade){
+            this.upgradeDetails[upgradeName] = upgrade;
+            promise.resolve(upgrade);
+        }.bind(this)).except(function(err){
+            this.errorMessage(err);
+            promise.fail(err);
+        }.bind(this));
+    }
+
+    return promise;
 };
 
 Session.prototype.refreshMissions = function(){
@@ -1031,6 +1050,29 @@ StoreView = function(session){
 StoreView.prototype = new _BaseView();
 
 StoreView.prototype.bindEvents = function(){
+    // init show/hide details
+    $('#pilot-upgrades [data-toggle="trigger"]').on('click', function(evt){
+        var upgradeName = $(evt.delegateTarget).data('id');
+        this.session.getUpgrade(upgradeName).then(function(upgrade){
+            var root = $('#pilot-upgrades [data-id="' + upgradeName + '"]');
+            if(root){
+                var content = root.find('[data-toggle="content"]');
+                var show = root.find('[data-toggle="show"]');
+                if(content){
+                    content.text(upgrade.description);
+                }
+
+                if(show){
+                    if(show.hasClass('hidden')){
+                        show.removeClass('hidden');
+                    }else{
+                        show.addClass('hidden');
+                    }
+                }
+            }
+        });
+    }.bind(this));
+
     // nav buttons
     $(this.selector + ' ul.nav li a').off('click');
     $(this.selector + ' ul.nav li a').on('click', function(evt){
@@ -1040,6 +1082,7 @@ StoreView.prototype.bindEvents = function(){
         this.refresh();
     }.bind(this));
 
+    // buy items
     $('#pilot-upgrades button').each(function(index, button){
         $(button).off('click');
         $(button).on('click', function(evt){

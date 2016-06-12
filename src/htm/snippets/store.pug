@@ -7,18 +7,22 @@ div(id="view-store")
             a(href="#" data-id="{{name}}") {{displayName}}
         | {{/slots}}
 
-    table(id="pilot-upgrades" class="table table-striped")
+    table(id="pilot-upgrades" class="table table-hover")
         thead
             tr
-                th Slot
-                th Name
-                th Cost
-                th Action
+                th(class="col-sm-3") Slot
+                th(class="col-sm-5") Name
+                th(class="col-sm-2") Cost
+                th(class="col-sm-2") Action
         tbody
             | {{#upgrades}}
             tr
-                td {{#decanonicalize}}{{slot}}{{/decanonicalize}}
-                td {{displayName}}
+                td(data-id="{{name}}" data-toggle="trigger") {{#decanonicalize}}{{slot}}{{/decanonicalize}}
+                td(data-id="{{name}}" data-toggle="trigger")
+                    span(data-toggle="icon")
+                    | &nbsp;{{displayName}}
+                    div(class="hidden" data-toggle="show")
+                        small(data-toggle="content")
                 td {{cost}}
                 td
                     button(class="btn btn-xs btn-primary"
