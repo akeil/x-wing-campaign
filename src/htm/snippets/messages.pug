@@ -1,0 +1,13 @@
+div(id="view-messages" class="row")
+    | {{#message}}
+    p(class="alert alert-{{level}}" role="alert")
+        strong {{levelText}}:
+        | {{text}}
+    | {{/message}}
+
+    div
+        | {{#messages}}
+        p(class="alert alert-{{level}}" role="alert")
+            strong {{levelText}}:
+            | {{text}}
+        | {{/messages}}

@@ -15,6 +15,7 @@ var Mustache = require('mustache');
 // Signals --------------------------------------------------------------------
 
 
+var EVT_MESSAGE_UPDATED     = 'xwing:message-updated';
 var EVT_USER_UPDATED        = 'xwing:user-updated';
 var EVT_CAMPAIGNS_UPDATED   = 'xwing:campaigns-updated';
 var EVT_CAMPAIGN_UPDATED    = 'xwing:campaign-updated';
@@ -26,6 +27,10 @@ var EVT_UPGRADES_UPDATED    = 'xwing:upgrades-updated';
 var EVT_MISSIONS_UPDATED    = 'xwing:missions-updated';
 var EVT_MISSION_DETAILS_UPDATED = 'xwing:mission-details-updated';
 
+var LVL_SUCCESS = 'success';
+var LVL_INFO = 'info';
+var LVL_WARNING = 'warning';
+var LVL_DANGER = 'danger';
 
 var signal = function(eventName){
     console.log('Signal ' + eventName);
@@ -54,6 +59,8 @@ Session = function(props){
     this.upgrades = null;
     this.missions = null;
     this.missionDetails = {};
+    this.currentMessage = null;
+    this.messageLog = [];
 };
 
 Session.prototype.login = function(password){
@@ -71,6 +78,7 @@ Session.prototype.login = function(password){
         this.refreshCampaigns();
 
         show('#header', new HeaderView(this));
+        show('#messages', new MessagesView(this));
 
         this._views = {
             home: new HomeView(this),
@@ -112,6 +120,22 @@ Session.prototype.showCampaign = function(campaignid){
     console.log('show campaign ' + campaignid);
     show('#main', this._views.campaign);
     this.loadCampaign(campaignid);
+};
+
+Session.prototype.message = function(level, text){
+    if(this.currentMessage){
+        this.messageLog.splice(0, 0, this.currentMessage);
+    }
+    this.currentMessage = {
+        level: level,
+        levelText: level.substring(0, 1).toUpperCase() + level.substring(1),
+        text: text
+    };
+    signal(EVT_MESSAGE_UPDATED);
+};
+
+Session.prototype.errorMessage = function(err){
+    this.message(LVL_DANGER, err.message);
 };
 
 Session.prototype.refreshUsers = function(){
@@ -176,13 +200,15 @@ Session.prototype.createCampaign = function(displayName){
     this.client.createCampaign(campaign).then(function(){
         this.refreshCampaigns();
     }.bind(this)).except(function(err){
-        console.log(err);
+        this.errorMessage(err);
     }.bind(this));
 };
 
 Session.prototype.deleteCampaign = function(campaignid, version){
     this.client.deleteCampaign(campaignid, version).then(function(){
         this.refreshCampaigns();
+    }.bind(this)).except(function(err){
+        this.errorMessage(err);
     }.bind(this));
 };
 
@@ -200,6 +226,8 @@ Session.prototype.createPilot = function(owner, callsign, shipName){
 Session.prototype.deletePilot = function(pilotid, version){
     this.client.deletePilot(pilotid, version).then(function(){
         this.refreshPilots();
+    }.bind(this)).except(function(err){
+        this.errorMessage(err);
     }.bind(this));
 };
 
@@ -258,7 +286,7 @@ Session.prototype.doAftermath = function(missionName, victory){
 
 Session.prototype.doPilotAftermath = function(missionName, xp, kills){
     if(!this.pilot){
-        errorMessage(errors.illegalState('Pilot not loaded'));
+        this.errorMessage(errors.illegalState('Pilot not loaded'));
         return;
     }
 
@@ -268,20 +296,20 @@ Session.prototype.doPilotAftermath = function(missionName, xp, kills){
             this.loadPilot(this.pilot._id);
             this.refreshPilots();
         }.bind(this)).except(function(err){
-            errorMessage(err);
+            this.errorMessage(err);
             //TODO set pilot back to previous state
-        });
+        }.bind(this));
     }catch(err){
-        errorMessage(err);
+        this.errorMessage(err);
     }
 };
 
 Session.prototype.changeShip = function(shipName){
     if(!this.pilot){
-        errorMessage(errors.illegalState('Pilot not loaded'));
+        this.errorMessage(errors.illegalState('Pilot not loaded'));
         return;
     }else if(this.pilot.ship === shipName){
-        errorMessage(errors.illegalState('ship already selected'));
+        this.errorMessage(errors.illegalState('Ship already selected'));
         return;
     }
 
@@ -292,11 +320,11 @@ Session.prototype.changeShip = function(shipName){
             this.loadPilot(this.pilot._id);
             this.refreshPilots();
         }.bind(this)).except(function(err){
-            errorMessage(err);
+            this.errorMessage(err);
             //TODO set pilot back to previous state
-        });
+        }.bind(this));
     }catch(err){
-        errorMessage(err);
+        this.errorMessage(err);
     }
 };
 
@@ -307,14 +335,14 @@ Session.prototype.buyUpgrade = function(upgradename){
             this.client.updatePilot(this.pilot).then(function(){
                 this.loadPilot(this.pilot._id);
             }.bind(this)).except(function(err){
-                errorMessage(err);
-            });
+                this.errorMessage(err);
+            }.bind(this));
         }catch(err){
-            errorMessage(err);
+            this.errorMessage(err);
         }
     }.bind(this)).except(function(err){
-        errorMessage(err);
-    });
+        this.errorMessage(err);
+    }.bind(this));
 };
 
 
@@ -450,6 +478,26 @@ HeaderView.prototype.getRenderContext = function(){
     };
 };
 
+
+// Messages -------------------------------------------------------------------
+
+
+MessagesView = function(session){
+    _BaseView.call(this, 'messages', session);
+};
+
+MessagesView.prototype = new _BaseView();
+
+MessagesView.prototype.bindSignals = function(){
+    onSignal(EVT_MESSAGE_UPDATED, this.refresh.bind(this));
+};
+
+MessagesView.prototype.getRenderContext = function(){
+    ctx = {};
+    ctx.message = this.session.currentMessage;
+    ctx.messages = this.session.messageLog;
+    return ctx;
+};
 
 // Start View -----------------------------------------------------------------
 
@@ -840,11 +888,6 @@ var show = function(where, view){
     //TODO: determine if the requested view is already showing.
     // do not load it then
     view.load(where);
-};
-
-
-var errorMessage = function(err){
-    console.error(err);
 };
 
 
