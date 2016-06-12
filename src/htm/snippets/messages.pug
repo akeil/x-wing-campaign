@@ -5,8 +5,12 @@ div(id="view-messages" class="row")
         | {{text}}
     | {{/message}}
 
-    p(id="message-log-toggle") &#x25ba;
-    div(id="message-log" class="hidden")
+    | {{#messagesCount}}
+    p(id="message-log-toggle")
+        span(id="message-log-toggle-icon") {{{toggleIcon}}}
+        | &nbsp; {{messagesCount}} more messages
+    | {{/messagesCount}}
+    div(id="message-log" class="{{logState}}")
         | {{#messages}}
         p(class="alert alert-{{level}}" role="alert")
             strong {{levelText}}:&nbsp;

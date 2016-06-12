@@ -1,1 +1,9 @@
 @import "bootstrap/bootstrap";
+
+/*
+ * Navbar fixed to top - it's 50px high
+ * see: https://getbootstrap.com/components/#navbar-fixed-top
+ */
+body {
+    padding-top: 70px;
+}

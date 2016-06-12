@@ -488,6 +488,7 @@ var ARROW_DOWN = '&#x25be;';
 
 MessagesView = function(session){
     _BaseView.call(this, 'messages', session);
+    this.showLog = false;
 };
 
 MessagesView.prototype = new _BaseView();
@@ -502,19 +503,24 @@ MessagesView.prototype.bindEvents = function(){
         evt.preventDefault();
         var content = $('#message-log');
         if(content.hasClass('hidden')){
-            $('#message-log-toggle').html(ARROW_DOWN);
+            $('#message-log-toggle-icon').html(ARROW_DOWN);
             content.removeClass('hidden');
+            this.showLog = true;
         }else{
             content.addClass('hidden');
-            $('#message-log-toggle').html(ARROW_RIGHT);
+            $('#message-log-toggle-icon').html(ARROW_RIGHT);
+            this.showLog = false;
         }
-    });
+    }.bind(this));
 };
 
 MessagesView.prototype.getRenderContext = function(){
     ctx = {};
     ctx.message = this.session.currentMessage;
     ctx.messages = this.session.messageLog;
+    ctx.messagesCount = this.session.messageLog.length;
+    ctx.logState = this.showLog ? 'show' : 'hidden';
+    ctx.toggleIcon = this.showLog ? ARROW_DOWN : ARROW_RIGHT;
     return ctx;
 };
 
