@@ -1,6 +1,7 @@
 div(id="view-messages" class="row")
     | {{#message}}
-    p(class="alert alert-{{level}}" role="alert")
+    div(class="alert alert-{{level}}" role="alert")
+        button(type="button" id="message-dismiss" class="close") &times;
         strong {{levelText}}:&nbsp;
         | {{text}}
     | {{/message}}
@@ -12,7 +13,7 @@ div(id="view-messages" class="row")
     | {{/messagesCount}}
     div(id="message-log" class="{{logState}}")
         | {{#messages}}
-        p(class="alert alert-{{level}}" role="alert")
+        div(class="alert alert-{{level}}" role="alert")
             strong {{levelText}}:&nbsp;
             | {{text}}
         | {{/messages}}

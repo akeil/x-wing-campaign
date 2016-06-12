@@ -134,6 +134,14 @@ Session.prototype.message = function(level, text){
     signal(EVT_MESSAGE_UPDATED);
 };
 
+Session.prototype.dismissMessage = function(){
+    if(this.currentMessage){
+        this.messageLog.splice(0, 0, this.currentMessage);
+    }
+    this.currentMessage = null;
+    signal(EVT_MESSAGE_UPDATED);
+};
+
 Session.prototype.errorMessage = function(err){
     this.message(LVL_DANGER, err.message);
 };
@@ -498,6 +506,12 @@ MessagesView.prototype.bindSignals = function(){
 };
 
 MessagesView.prototype.bindEvents = function(){
+    $('#message-dismiss').off('click');
+    $('#message-dismiss').on('click', function(evt){
+        evt.preventDefault();
+        this.session.dismissMessage();
+    }.bind(this));
+
     $('#message-log-toggle').off('click');
     $('#message-log-toggle').on('click', function(evt){
         evt.preventDefault();
