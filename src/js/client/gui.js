@@ -1025,25 +1025,62 @@ PilotShipView.prototype.getRenderContext = function(){
 
 StoreView = function(session){
     _BaseView.call(this, 'store', session);
+    this.selectedSlot = model.SLOTS[0];
 };
 
 StoreView.prototype = new _BaseView();
 
 StoreView.prototype.bindEvents = function(){
+    // nav buttons
+    $(this.selector + ' ul.nav li a').off('click');
+    $(this.selector + ' ul.nav li a').on('click', function(evt){
+        evt.preventDefault();
+        var slot = $(evt.delegateTarget).data('id');
+        this.selectedSlot = slot;
+        this.refresh();
+    }.bind(this));
+
     $('#pilot-upgrades button').each(function(index, button){
         $(button).off('click');
         $(button).on('click', function(evt){
             evt.preventDefault();
-            var upgradename = $(evt.delegateTarget).data("id");
+            var upgradename = $(evt.delegateTarget).data('id');
             this.session.buyUpgrade(upgradename);
         }.bind(this));
     }.bind(this));
 };
 
 StoreView.prototype.getRenderContext = function(){
-    var ctx = {
-        upgrades: this.session.upgrades,
+
+    var decanonicalize = function(s){
+        return s.split('-').map(function(word){
+            return word.substring(0, 1).toUpperCase() + word.substring(1);
+        }).join(' ');
     };
+
+    var ctx = {
+        decanonicalize: function(){
+            return function(text, render){
+                return decanonicalize(render(text));
+            };
+        },
+        upgrades: [],
+        slots: []
+    };
+
+    ctx.slots= model.SLOTS.map(function(slot){
+        return {
+            name: slot,
+            active: slot === this.selectedSlot ? 'active' : '',
+            displayName: decanonicalize(slot)
+        };
+    }.bind(this));
+
+    if(this.session.upgrades){
+        ctx.upgrades = this.session.upgrades.filter(function(item){
+            return item.slot === this.selectedSlot;
+        }.bind(this));
+    }
     return ctx;
 };
 

@@ -62,6 +62,25 @@ var SLOT_TITLE              = 'title';
 var SLOT_TORPEDO            = 'torpedo';
 var SLOT_TURRET             = 'turret';
 
+module.exports.SLOTS = [
+    SLOT_ASTROMECH,
+    SLOT_BOMB,
+    SLOT_CANNON,
+    SLOT_CARGO,
+    SLOT_CREW,
+    SLOT_ELITE,
+    SLOT_HARDPOINT,
+    SLOT_ILLICIT,
+    SLOT_MODIFICATION,
+    SLOT_SALVAGED_ASTROMECH,
+    SLOT_SYSTEM,
+    SLOT_TEAM,
+    SLOT_TECH,
+    SLOT_TITLE,
+    SLOT_TORPEDO,
+    SLOT_TURRET
+];
+
 
 // User -----------------------------------------------------------------------
 

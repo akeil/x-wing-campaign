@@ -1,17 +1,26 @@
 div(id="view-store")
-    h4 Upgrades
+    h4 Buy Upgrades
+
+    ul(class="nav nav-tabs")
+        | {{#slots}}
+        li(class="{{active}}")
+            a(href="#" data-id="{{name}}") {{displayName}}
+        | {{/slots}}
+
     table(id="pilot-upgrades" class="table table-striped")
         thead
             tr
                 th Slot
                 th Name
                 th Cost
+                th Action
         tbody
             | {{#upgrades}}
             tr
-                td {{slot}}
+                td {{#decanonicalize}}{{slot}}{{/decanonicalize}}
                 td {{displayName}}
                 td {{cost}}
+                td
                     button(class="btn btn-xs btn-primary"
                            data-id="{{name}}") Buy
             | {{/upgrades}}
