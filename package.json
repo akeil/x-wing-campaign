@@ -42,6 +42,7 @@
     "gulp-buffer": "0.0.2",
     "gulp-notify": "^2.2.0",
     "gulp-tap": "^0.1.3",
+    "is-my-json-valid": "^2.13.1",
     "jquery": "*",
     "jqueryui": "^1.11.1",
     "jshint": "^2.9.2",

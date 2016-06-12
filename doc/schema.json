@@ -1,0 +1,182 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://akeil.net/code/x-wing-campaign/definitions.json#",
+    "title": "Type definitions for the X-Wing Campaign API",
+    "definitions": {
+        "_id": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "version": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "lastModified": {
+            "type": "integer"
+        },
+        "displayName": {
+            "type": "string"
+        },
+        "slot": {
+            "type": "string",
+            "enum": [
+                "astromech",
+                "bomb",
+                "cannon",
+                "cargo",
+                "crew",
+                "elite",
+                "hardpoint",
+                "illicit",
+                "missile",
+                "modification",
+                "salvaged-astromech",
+                "system",
+                "team",
+                "tech",
+                "title",
+                "torpedo",
+                "turret"
+            ]
+        },
+        "user": {
+            "type": "object",
+            "properties": {
+                "_id": {"$ref": "#/definitions/_id"},
+                "version": {"$ref": "#/definitions/version"},
+                "lastModified": {"$ref": "#/definitions/lastModified"},
+                "name": {"$ref": "#/definitions/name"},
+                "displayName": {"$ref": "#/definitions/displayName"},
+                "pwHash": {
+                    "type": "string"
+                }
+            },
+            "required": ["version", "name", "displayName"],
+            "additionalProperties": false
+        },
+        "campaign": {
+            "type": "object",
+            "properties": {
+                "_id": {"$ref": "#/definitions/_id"},
+                "version": {"$ref": "#/definitions/version"},
+                "lastModified": {"$ref": "#/definitions/lastModified"},
+                "displayName": {"$ref": "#/definitions/displayName"},
+                "owner": {"$ref": "#/definitions/name"},
+                "missionDeck": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "playedMissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"$ref": "#/definitions/name"},
+                            "status": {
+                                "type": "string",
+                                "enum": ["Victory", "Defeat"]
+                            },
+                            "rebelVP": {"type": "integer"},
+                            "imperialVP": {"type": "integer"}
+                        }
+                    }
+                }
+            },
+            "required": ["version", "displayName", "owner"],
+            "additionalProperties": false
+        },
+        "pilot": {
+            "type": "object",
+            "properties": {
+                "_id": {"$ref": "#/definitions/_id"},
+                "version": {"$ref": "#/definitions/version"},
+                "lastModified": {"$ref": "#/definitions/lastModified"},
+                "callsign": {"$ref": "#/definitions/displayName"},
+                "owner": {
+                    "type": "string"
+                }
+            },
+            "required": ["version", "owner", "displayName"],
+            "additionalProperties": false
+        },
+        "mission": {
+            "type": "object",
+            "properties": {
+                "name": {"$ref": "#/definitions/name"},
+                "version": {"$ref": "#/definitions/version"},
+                "lastModified": {"$ref": "#/definitions/lastModified"},
+                "displayName": {"$ref": "#/definitions/displayName"},
+                "storyArc": {"type": "string"},
+                "startingMission": {"type": "boolean"},
+                "territory": {
+                    "type": "string",
+                    "enum": ["friendly", "neutral", "hostile"]
+                },
+                "replayOnDefeat": {"type": "boolean"},
+                "unlockOnVictory": {"type": "string"},
+                "unlockOnDefeat": {"type": "string"},
+                "rebelVP": {"type": "integer"},
+                "imperialVP": {"type": "integer"},
+                "info": {"type": "string"}
+            },
+            "required": [
+                "version",
+                "name",
+                "displayName",
+                "territory"
+            ],
+            "additionalProperties": false
+        },
+        "ship": {
+            "type": "object",
+            "properties": {
+                "_id": {"$ref": "#/definitions/_id"},
+                "name": {"$ref": "#/definitions/name"},
+                "version": {"$ref": "#/definitions/version"},
+                "lastModified": {"$ref": "#/definitions/lastModified"},
+                "displayName": {"$ref": "#/definitions/displayName"},
+                "requiredSkill": {"type": "integer"},
+                "startingShip": {"type": "boolean"},
+                "initialXP": {"type": "integer"},
+                "slots": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/slot"}
+                }
+            },
+            "required": [
+                "name",
+                "displayName",
+                "requiredSkill",
+                "startingShip",
+                "initialXP",
+                "slots"
+            ],
+            "additionalProperties": false
+        },
+        "upgrade": {
+            "type": "object",
+            "properties": {
+                "_id": {"$ref": "#/definitions/_id"},
+                "name": {"$ref": "#/definitions/name"},
+                "version": {"$ref": "#definitions/version"},
+                "lastModified": {"$ref": "#definitions/lastModified"},
+                "displayName": {"$ref": "#/definitions/displayName"},
+                "slot": {"$ref": "#/definitions/slot"},
+                "cost": {"type": "integer"},
+                "description": {"type": "string"},
+                "unique": {"type": "boolean"}
+            },
+            "required": ["name"],
+            "additionalProperties": false
+        }
+    },
+    "oneOf": [
+        {"$ref": "#/definitions/user"},
+        {"$ref": "#/definitions/campaign"}
+    ]
+}
