@@ -236,7 +236,7 @@ Collection.prototype.delete = function(docid, version){
                     }else{
                         // deleted more than one document
                         // this REALLY should not happen
-                        promis.fail(errors.illegalState());
+                        promise.fail(errors.illegalState('More than one document deleted'));
                     }
                 }
             }.bind(this));
@@ -320,7 +320,7 @@ Collection.prototype.put = function(doc){
                                 promise.fail(errors.lockingError());
                             }).except(promise.fail);
                         }else{
-                            promise.fail(errors.illegalState());
+                            promise.fail(errors.illegalState('More than one document updated'));
                         }
 
                     }
