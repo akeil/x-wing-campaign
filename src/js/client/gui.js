@@ -483,7 +483,7 @@ HeaderView.prototype.getRenderContext = function(){
 
 
 var ARROW_RIGHT = '&#x25ba;';
-var ARROW_DOWN = '&#x25bc;';
+var ARROW_DOWN = '&#x25be;';
 
 
 MessagesView = function(session){
