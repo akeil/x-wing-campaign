@@ -862,7 +862,6 @@ PilotView = function(session){
     this._children.push(new PilotKillsView(session));
     this._children.push(new PilotUpgradesView(session));
     this._children.push(new PilotAftermathView(session));
-    this._children.push(new PilotShipView(session));
     this._children.push(new StoreView(session));
 };
 
@@ -880,9 +879,11 @@ PilotDetailsView.prototype = new _BaseView();
 
 PilotDetailsView.prototype.bindSignals = function(){
     onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
 };
 
 PilotDetailsView.prototype.bindEvents = function(){
+    // change callsign
     $('#pilot-details-callsign-toggle').off('click');
     $('#pilot-details-callsign-toggle').on('click', function(){
         $('#pilot-details-callsign-toggle').addClass('hidden');
@@ -899,6 +900,22 @@ PilotDetailsView.prototype.bindEvents = function(){
             $('#pilot-details-callsign-edit').addClass('hidden');
         });
     }.bind(this));
+
+    // change ship
+    $('#pilot-details-ship-toggle').off('click');
+    $('#pilot-details-ship-toggle').on('click', function(){
+        $('#pilot-details-ship-toggle').addClass('hidden');
+        $('#pilot-details-ship-edit').removeClass('hidden');
+    });
+
+    $('#pilot-change-ship').off('submit');
+    $('#pilot-change-ship').on('submit', function(evt){
+        evt.preventDefault();
+        var shipName = $('#pilot-change-ship-name').val();
+        this.session.changeShip(shipName);
+        $('#pilot-details-ship-toggle').removeClass('hidden');
+        $('#pilot-details-ship-edit').addClass('hidden');
+    }.bind(this));
 };
 
 PilotDetailsView.prototype.getRenderContext = function(){
@@ -907,7 +924,8 @@ PilotDetailsView.prototype.getRenderContext = function(){
         pilot: pilot,
         currentXP: '-',
         pilotSkill: '-',
-        ship: null
+        ship: null,
+        ships: this.session.ships
     };
     if(pilot){
         ctx.currentXP = pilot.currentXP();
@@ -1036,44 +1054,6 @@ PilotAftermathView.prototype.getRenderContext = function(){
         }
     }
 
-    return ctx;
-};
-
-
-// Pilot Ship View ------------------------------------------------------------
-
-
-PilotShipView = function(session){
-    _BaseView.call(this, 'pilot-ship', session);
-};
-
-PilotShipView.prototype = new _BaseView();
-
-PilotShipView.prototype.bindSignals = function(){
-    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
-    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
-};
-
-PilotShipView.prototype.bindEvents = function(){
-    $('#pilot-change-ship').off('submit');
-    $('#pilot-change-ship').on('submit', function(evt){
-        evt.preventDefault();
-        var shipName = $('#pilot-change-ship-name').val();
-        this.session.changeShip(shipName);
-    }.bind(this));
-};
-
-PilotShipView.prototype.getRenderContext = function(){
-    var ctx = {
-        ship: null,
-        ships: this.session.ships,
-    };
-
-    var pilot = this.session.pilot;
-
-    if(pilot){
-        ctx.ship = this.session.shipByName(pilot.ship);
-    }
     return ctx;
 };
 

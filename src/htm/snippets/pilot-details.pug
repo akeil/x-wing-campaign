@@ -23,10 +23,23 @@ div(id="view-pilot-details")
                                       value="{{pilot.callsign}}"
                                       required)
                                 span(class="input-group-btn")
-                                    button(type="submit" class="btn btn-sm") Save
+                                    button(type="submit" class="btn btn-sm") Change
             tr
                 th Ship
-                td {{ship.displayName}}
+                td
+                    div(id="pilot-details-ship-toggle") {{ship.displayName}}
+                        small &nbsp;edit
+                    div(id="pilot-details-ship-edit" class="hidden")
+                        form(class="form-inline" id="pilot-change-ship")
+                            div(class="input-group")
+                                select(id="pilot-change-ship-name"
+                                       name="pilot-change-ship-name"
+                                       class="form-control input-sm")
+                                    | {{#ships}}
+                                    option(value="{{name}}") {{displayName}}
+                                    | {{/ships}}
+                                span(class="input-group-btn")
+                                    button(type="submit" class="btn btn-sm") Change
             tr
                 th Pilot Skill
                 td {{pilotSkill}}
