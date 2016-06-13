@@ -6,11 +6,24 @@ div(id="view-pilot-details")
     table(class="table")
         tbody
             tr
-                th Player
-                td {{pilot.owner}}
+                th(class="col-sm-4") Player
+                td(class="col-sm-8") {{pilot.owner}}
             tr
                 th Callsign
-                td {{pilot.callsign}}
+                td
+                    div(id="pilot-details-callsign-toggle") {{pilot.callsign}}
+                        small &nbsp;edit
+                    div(id="pilot-details-callsign-edit" class="hidden")
+                        form(class="form-inline" id="pilot-details-callsign-editor")
+                            div(class="input-group")
+                                input(type="text"
+                                      class="form-control input-sm"
+                                      id="pilot-details-callsign"
+                                      name="pilot-details-callsign"
+                                      value="{{pilot.callsign}}"
+                                      required)
+                                span(class="input-group-btn")
+                                    button(type="submit" class="btn btn-sm") Save
             tr
                 th Ship
                 td {{ship.displayName}}

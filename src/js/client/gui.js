@@ -284,6 +284,19 @@ Session.prototype.loadCampaign = function(campaignid){
     }.bind(this));
 };
 
+Session.prototype.savePilot = function(){
+    var promise = new prom.Promise();
+    this.client.updatePilot(this.pilot).then(function(){
+        this.loadPilot(this.pilot._id);
+        promise.resolve();
+    }.bind(this)).except(function(err){
+        this.errorMessage(err);
+        promise.fail(err);
+    }.bind(this));
+
+    return promise;
+};
+
 Session.prototype.loadPilot = function(pilotid){
     this.client.getPilot(pilotid).then(function(pilot){
         this.pilot = pilot;
@@ -867,6 +880,25 @@ PilotDetailsView.prototype = new _BaseView();
 
 PilotDetailsView.prototype.bindSignals = function(){
     onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+};
+
+PilotDetailsView.prototype.bindEvents = function(){
+    $('#pilot-details-callsign-toggle').off('click');
+    $('#pilot-details-callsign-toggle').on('click', function(){
+        $('#pilot-details-callsign-toggle').addClass('hidden');
+        $('#pilot-details-callsign-edit').removeClass('hidden');
+    });
+
+    $('#pilot-details-callsign-editor').off('submit');
+    $('#pilot-details-callsign-editor').on('submit', function(evt){
+        evt.preventDefault();
+        var callsign = $('#pilot-details-callsign').val();
+        this.session.pilot.callsign = callsign;
+        this.session.savePilot().then(function(){
+            $('#pilot-details-callsign-toggle').removeClass('hidden');
+            $('#pilot-details-callsign-edit').addClass('hidden');
+        });
+    }.bind(this));
 };
 
 PilotDetailsView.prototype.getRenderContext = function(){
