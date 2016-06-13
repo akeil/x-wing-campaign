@@ -373,7 +373,7 @@ Session.prototype.changeShip = function(shipName){
 };
 
 Session.prototype.buyUpgrade = function(upgradename){
-    this.client.getUpgrade(upgradename).then(function(upgrade){
+    this.getUpgrade(upgradename).then(function(upgrade){
         try{
             this.pilot.buyUpgrade(this.campaign.currentMission(), upgrade);
             this.client.updatePilot(this.pilot).then(function(){
