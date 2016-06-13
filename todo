@@ -2,8 +2,6 @@ GUI
 ---
 Function to select a random mission from the deck
 
-allow to edit pilot props
-
 ----
 
 Methods to change/reset password
@@ -21,6 +19,7 @@ missions can be played multiple times.
 assign ID (or index?) to played missions for a campaign
 when recording pilot history (mission aftermath and purchases),
 refer to the mission ID/index
+
 choose campaign size of starting missions when setting up campaign
 
 short. 3 starting missions. 2 VP to win
@@ -28,15 +27,14 @@ long.  5 starting missions. 3 VP to win
 
 choose starting missions randomly,
 allow user to select.
-remove and add missions to deck manually 
-
+remove and add missions to deck manually
 
 display pilot skills in campaign view
 show average of PS for all/selected pilots
 
-record number of turns in mission data 
+record number of turns in mission data
 
-mission effect: immediate victory 
+mission effect: immediate victory
 
 mission aftermath w/ optional VP
 (maybe as question/optionlist in UI )
@@ -44,11 +42,7 @@ mission aftermath w/ optional VP
 Errors
 additional property messageParams and messageKey
 use Mustache to render params into the message
-use the messageKey to look up messages in different languages 
-
-GUI
-add 'upgrade pilot skill' button.
-increase by +1
+use the messageKey to look up messages in different languages
 
 Mission Aftermath
 track the campaign state and determine open/closed missions.
