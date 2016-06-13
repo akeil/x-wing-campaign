@@ -23,14 +23,22 @@ gulp.task('data', function(){
                     slot = 'crew';
                 }
                 var converted = items.map(function(item){
+                    var cost = item.cost || 0;
+                    // special case: elite upgrades have double normal cost
+                    if(slot === 'elite'){
+                        cost = cost * 2;
+                    }
                     return {
                         name: item.canonical,
                         slot: slot,
                         displayName: item.name,
-                        cost: item.cost || 0,
+                        cost: cost,
                         description: item.description,
                         unique: item.unique ? true : false
                     };
+                }).filter(function(item){
+                    // the squadleader skill is not used in the campaign
+                    return item.name !== 'squadleader';
                 });
                 file.contents = new Buffer(JSON.stringify(converted));
             }

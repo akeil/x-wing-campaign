@@ -21,3 +21,37 @@ missions can be played multiple times.
 assign ID (or index?) to played missions for a campaign
 when recording pilot history (mission aftermath and purchases),
 refer to the mission ID/index
+choose campaign size of starting missions when setting up campaign
+
+short. 3 starting missions. 2 VP to win
+long.  5 starting missions. 3 VP to win
+
+choose starting missions randomly,
+allow user to select.
+remove and add missions to deck manually 
+
+
+display pilot skills in campaign view
+show average of PS for all/selected pilots
+
+record number of turns in mission data 
+
+mission effect: immediate victory 
+
+mission aftermath w/ optional VP
+(maybe as question/optionlist in UI )
+
+Errors
+additional property messageParams and messageKey
+use Mustache to render params into the message
+use the messageKey to look up messages in different languages 
+
+GUI
+add 'upgrade pilot skill' button.
+increase by +1
+
+Mission Aftermath
+track the campaign state and determine open/closed missions.
+for each pilot, track whether aftermath was done
+not flying a mission is also an aftermath result
+allow to delete aftermath. then delete all bought upgrades to.
