@@ -15,15 +15,15 @@ div(id="view-pilot-details")
                         small &nbsp;edit
                     div(id="pilot-details-callsign-edit" class="hidden")
                         form(class="form-inline" id="pilot-details-callsign-editor")
-                            div(class="input-group")
+                            div(class="input-group input-group-sm")
                                 input(type="text"
-                                      class="form-control input-sm"
+                                      class="form-control"
                                       id="pilot-details-callsign"
                                       name="pilot-details-callsign"
                                       value="{{pilot.callsign}}"
                                       required)
                                 span(class="input-group-btn")
-                                    button(type="submit" class="btn btn-sm") Change
+                                    button(type="submit" class="btn") Change
             tr
                 th Ship
                 td
@@ -31,18 +31,35 @@ div(id="view-pilot-details")
                         small &nbsp;edit
                     div(id="pilot-details-ship-edit" class="hidden")
                         form(class="form-inline" id="pilot-change-ship")
-                            div(class="input-group")
+                            div(class="input-group input-group-sm")
                                 select(id="pilot-change-ship-name"
                                        name="pilot-change-ship-name"
-                                       class="form-control input-sm")
+                                       class="form-control"
+                                       required)
                                     | {{#ships}}
                                     option(value="{{name}}") {{displayName}}
                                     | {{/ships}}
                                 span(class="input-group-btn")
-                                    button(type="submit" class="btn btn-sm") Change
+                                    button(type="submit" class="btn") Change
             tr
                 th Pilot Skill
-                td {{pilotSkill}}
+                td
+                    div(id="pilot-details-skill-toggle") {{pilotSkill}}
+                        small &nbsp;edit
+                    div(id="pilot-details-skill-edit" class="hidden")
+                        form(class="form-inline" id="pilot-change-skill")
+                            div(class="input-group input-group-sm")
+                                span(class="input-group-addon") {{pilotSkill}} +
+                                input(type="number"
+                                      min="0"
+                                      value="1"
+                                      class="form-control"
+                                      id="pilot-change-skill-value"
+                                      name="pilot-change-skill-value"
+                                      required)
+                                span(class="input-group-btn")
+                                    button(type="submit" class="btn") Change
+
             tr
                 th XP
                 td {{currentXP}}

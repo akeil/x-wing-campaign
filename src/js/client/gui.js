@@ -288,6 +288,7 @@ Session.prototype.savePilot = function(){
     var promise = new prom.Promise();
     this.client.updatePilot(this.pilot).then(function(){
         this.loadPilot(this.pilot._id);
+        this.refreshPilots();
         promise.resolve();
     }.bind(this)).except(function(err){
         this.errorMessage(err);
@@ -349,13 +350,22 @@ Session.prototype.doPilotAftermath = function(missionName, xp, kills){
 
     try{
         this.pilot.missionAftermath(missionName, xp, kills);
-        this.client.updatePilot(this.pilot).then(function(){
-            this.loadPilot(this.pilot._id);
-            this.refreshPilots();
-        }.bind(this)).except(function(err){
-            this.errorMessage(err);
-            //TODO set pilot back to previous state
-        }.bind(this));
+        this.savePilot();
+    }catch(err){
+        this.errorMessage(err);
+    }
+};
+
+Session.prototype.increaseSkill = function(increaseBy){
+    if(!this.pilot){
+        this.errorMessage(errors.illegalState('Pilot not loaded'));
+        return;
+    }
+
+    try{
+        var mission = this.campaign.currentMission();
+        this.pilot.increaseSkill(mission, increaseBy);  // throws
+        this.savePilot();
     }catch(err){
         this.errorMessage(err);
     }
@@ -373,13 +383,7 @@ Session.prototype.changeShip = function(shipName){
     try{
         var ship = this.shipByName(shipName);  // throws
         this.pilot.changeShip(this.campaign.currentMission(), ship);  // throws
-        this.client.updatePilot(this.pilot).then(function(){
-            this.loadPilot(this.pilot._id);
-            this.refreshPilots();
-        }.bind(this)).except(function(err){
-            this.errorMessage(err);
-            //TODO set pilot back to previous state
-        }.bind(this));
+        this.savePilot();
     }catch(err){
         this.errorMessage(err);
     }
@@ -388,12 +392,9 @@ Session.prototype.changeShip = function(shipName){
 Session.prototype.buyUpgrade = function(upgradename){
     this.getUpgrade(upgradename).then(function(upgrade){
         try{
-            this.pilot.buyUpgrade(this.campaign.currentMission(), upgrade);
-            this.client.updatePilot(this.pilot).then(function(){
-                this.loadPilot(this.pilot._id);
-            }.bind(this)).except(function(err){
-                this.errorMessage(err);
-            }.bind(this));
+            var mission = this.campaign.currentMission();
+            this.pilot.buyUpgrade(mission, upgrade);
+            this.savePilot();
         }catch(err){
             this.errorMessage(err);
         }
@@ -915,6 +916,22 @@ PilotDetailsView.prototype.bindEvents = function(){
         this.session.changeShip(shipName);
         $('#pilot-details-ship-toggle').removeClass('hidden');
         $('#pilot-details-ship-edit').addClass('hidden');
+    }.bind(this));
+
+    // increase skill
+    $('#pilot-details-skill-toggle').off('click');
+    $('#pilot-details-skill-toggle').on('click', function(){
+        $('#pilot-details-skill-toggle').addClass('hidden');
+        $('#pilot-details-skill-edit').removeClass('hidden');
+    });
+
+    $('#pilot-change-skill').off('submit');
+    $('#pilot-change-skill').on('submit', function(evt){
+        evt.preventDefault();
+        var increaseBy = $('#pilot-change-skill-value').val();
+        this.session.increaseSkill(increaseBy);
+        $('#pilot-details-skill-toggle').removeClass('hidden');
+        $('#pilot-details-skill-edit').addClass('hidden');
     }.bind(this));
 };
 

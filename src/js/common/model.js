@@ -480,7 +480,7 @@ Pilot.prototype.spendXP = function(missionName, kind, xp, info){
 Pilot.prototype.skill = function(){
     var result = BASE_SKILL;
     for(var i=0; i < this.spentXP.length; i++){
-        if(this.spentXP[i] === KIND_SKILL_INCREASE){
+        if(this.spentXP[i].kind === KIND_SKILL_INCREASE){
           result += 1;
         }
     }
@@ -532,24 +532,31 @@ Pilot.prototype.changeShip = function(mission, ship){
     this.ship = ship.name;
 };
 
-Pilot.prototype.increaseSkill = function(mission){
+Pilot.prototype.increaseSkill = function(mission, increaseBy){
+    if(increaseBy <= 0){
+        throw errors.invalid('Invalid pilot skill');
+    }
     var availableXP = this.currentXP();
     var currentSkill = this.skill();
-    var cost = (currentSkill + 1) * 2;
-
-    if(availableXP < cost){
-        throw "InsufficientXP";
+    // skill increase costs new skill level x2
+    // for each increase
+    // e.g. from 2 => 4 costs 3x2 + 4x2 = 14
+    // we record costs for indivudal steps
+    var costs = [];
+    for(var i=0; i<increaseBy; i++){
+        costs.push((currentSkill + 1) * 2);
+        currentSkill++;
     }
-    this.spendXP(mission, KIND_SKILL_INCREASE, cost);
-};
-
-Pilot.prototype.addUpgrade = function(mission, upgradeCard){
-    var availableXP = this.currentXP();
-    if(availableXP < upgradeCard.value){
-        throw "InsufficientXP";
+    var totalCost = costs.reduce(function(total, i){
+        return total + 1;
+    });
+    if(availableXP < totalCost){
+        throw errors.conflict("Insufficient XP");
     }
-    // TODO: store which card we have added
-    this.spendXP(mission, KIND_UPGRADE, upgradeCard.value);
+    // create one entry per increase
+    for(var j=0; j<costs.length; j++){
+        this.spendXP(mission, KIND_SKILL_INCREASE, costs[j]);
+    }
 };
 
 // Tell whether we would be able to equip the given upgrade
@@ -562,7 +569,7 @@ Pilot.prototype.addTalent = function(mission, TODO){
     var availableXP = this.currentXP();
     cost = 99999;
     if(availableXP < cost){
-        throw "InsufficientXP";
+        throw errors.conflict("Insufficient XP");
     }
     // TODO: store which talent we have added
     this.spendXP(mission, KIND_TALENT, cost);
@@ -572,7 +579,7 @@ Pilot.prototype.addAbility = function(mission, upgradeCard){
     var availableXP = this.currentXP();
     cost = 99999;
     if(availableXP < cost){
-        throw "InsufficientXP";
+        throw errors.conflict("Insufficient XP");
     }
     // TODO: store which ability we have added
     this.spendXP(mission, KIND_ABILITY, cost);
