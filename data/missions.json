@@ -115,6 +115,7 @@
         "name": "capture-officer",
         "displayName": "Capture Officer",
         "storyArc": "capture-officer",
+        "startingMission": true,
         "territory": "friendly",
         "replayOnDefeat": true,
         "unlockOnVictory": "nobody-home",
@@ -145,7 +146,7 @@
     },
     {
         "name": "secure-holonet-receiver",
-        "displayName": "Capture Officer",
+        "displayName": "Secure Holonet Receiver",
         "storyArc": "defection",
         "startingMission": true,
         "territory": "neutral",
