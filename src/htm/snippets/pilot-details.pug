@@ -28,7 +28,9 @@ div(id="view-pilot-details")
             tr
                 th Ship
                 td
-                    div(id="pilot-details-ship-toggle") {{ship.displayName}}
+                    div(id="pilot-details-ship-toggle")
+                        i(class="xwing-miniatures-ship xwing-miniatures-ship-{{ship.name}}")
+                        | &nbsp;{{ship.displayName}}
                         small &nbsp;edit
                     div(id="pilot-details-ship-edit" class="hidden")
                         form(class="form-inline" id="pilot-change-ship")
