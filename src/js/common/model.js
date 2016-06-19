@@ -503,16 +503,20 @@ Pilot.prototype.buyUpgrade = function(missionName, upgrade){
         throw errors.conflict('Insufficient XP');
     }
     // TODO: check available slots on ship?
-    this.spendXP(missionName, KIND_UPGRADE, upgrade.cost, upgrade.displayName);
-    this.upgrades.push(upgrade.name);
+    this.spendXP(missionName,
+                 KIND_UPGRADE,
+                 upgrade.name,
+                 upgrade.cost,
+                 upgrade.displayName);
 };
 
-Pilot.prototype.spendXP = function(missionName, kind, xp, info){
+Pilot.prototype.spendXP = function(missionName, kind, value, xp, displayName){
     this.spentXP.push({
         mission: missionName,
         kind: kind,
+        value: value,
         xp: xp,
-        info: info
+        displayName: displayName
     });
     this.spentXP.sort(function(one, other){
         // TODO: sort by order of missions played, then kind, then cost
@@ -520,25 +524,26 @@ Pilot.prototype.spendXP = function(missionName, kind, xp, info){
     });
 };
 
+/*
+ * Get the current pilot skill for this pilot.
+ */
 Pilot.prototype.skill = function(){
-    var result = BASE_SKILL;
-    for(var i=0; i < this.spentXP.length; i++){
-        if(this.spentXP[i].kind === KIND_SKILL_INCREASE){
-          result += 1;
-        }
-    }
-    return result;
+    return this.spentXP.filter(function(item){
+        return item.kind === KIND_SKILL_INCREASE;
+    }).map(function(item){
+        return 1;
+    }).reduce(function(total, value){
+        return total + value;
+    }, BASE_SKILL);
 };
 
+/*
+ * Get a list of bought upgrades for this pilot.
+ */
 Pilot.prototype.upgrades = function(){
-    result = [];
-    for(var i=0; i < this.spentXP.length; i++){
-        if(this.spentXP[i].kind === KIND_UPGRADE){
-            // TODO: check if not lost
-            upgrades.push(this.spentXP[i]);
-        }
-    }
-    return result;
+    return this.spentXP.filter(function(item){
+        return item.kind == KIND_UPGRADE;
+    });
 };
 
 Pilot.prototype.talents = function(){
@@ -575,7 +580,11 @@ Pilot.prototype.changeShip = function(mission, ship){
         throw errors.conflict('Required skill level not met');
     }
 
-    this.spendXP(mission, KIND_SHIP_CHANGE, SHIP_CHANGE_COST);
+    this.spendXP(mission,
+                 KIND_SHIP_CHANGE,
+                 ship.name,
+                 SHIP_CHANGE_COST,
+                 ship.displayName);
     this.ship = ship.name;
 };
 
@@ -602,7 +611,11 @@ Pilot.prototype.increaseSkill = function(mission, increaseBy){
     }
     // create one entry per increase
     for(var j=0; j<costs.length; j++){
-        this.spendXP(mission, KIND_SKILL_INCREASE, costs[j]);
+        this.spendXP(mission,
+                     KIND_SKILL_INCREASE,
+                     increaseBy,
+                     costs[j],
+                     'Pilot Skill +1');
     }
 };
 
@@ -619,7 +632,7 @@ Pilot.prototype.addTalent = function(mission, TODO){
         throw errors.conflict("Insufficient XP");
     }
     // TODO: store which talent we have added
-    this.spendXP(mission, KIND_TALENT, cost);
+    //this.spendXP(mission, KIND_TALENT, cost);
 };
 
 Pilot.prototype.addAbility = function(mission, upgradeCard){
@@ -629,7 +642,7 @@ Pilot.prototype.addAbility = function(mission, upgradeCard){
         throw errors.conflict("Insufficient XP");
     }
     // TODO: store which ability we have added
-    this.spendXP(mission, KIND_ABILITY, cost);
+    //this.spendXP(mission, KIND_ABILITY, cost);
 };
 
 module.exports.NewPilot = function(props){
