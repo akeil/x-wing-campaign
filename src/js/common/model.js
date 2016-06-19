@@ -45,6 +45,9 @@ var BASE_SKILL          = 2;
 var SHIP_CHANGE_COST    = 5;
 var SHIP_CHANGE_MIN_SKILL = 4;
 
+var STATUS_VICTORY = 'Victory';
+var STATUS_DEFEAT  = 'Defeat';
+
 var SLOT_ASTROMECH          = 'astromech';
 var SLOT_BOMB               = 'bomb';
 var SLOT_CANNON             = 'cannon';
@@ -171,10 +174,12 @@ Campaign.prototype.validate = function(){
 
 /*
  * Add the given `missionName` to the `missionDeck`.
+ * Does nothing if the mission is already in the deck.
  */
 Campaign.prototype.unlockMission = function(missionName){
-    // TODO: check if not already in deck
-    this.missionDeck.push(missionName);
+    if(this.missionDeck.indexOf(missionName) < 0){
+        this.missionDeck.push(missionName);
+    }
 };
 
 /*
@@ -219,7 +224,7 @@ Campaign.prototype.currentMission = function(){
  */
 Campaign.prototype.missionAftermath = function(mission, victory){
     // TODO: check if actually in missionDeck
-    var status = victory ? 'Victory' : 'Defeat';
+    var status = victory ? STATUS_VICTORY : STATUS_DEFEAT;
     var rebelVP, imperialVP;
     if(victory){
         rebelVP = mission.rebelVP;
@@ -250,6 +255,43 @@ Campaign.prototype.missionAftermath = function(mission, victory){
     });
 
 };
+
+/*
+ * Undo the mission aftermath for the given `Mission`.
+ * Remove this mission from list of played missions and place it back
+ * in the mission deck.
+ */
+Campaign.prototype.undoMissionAftermath = function(mission){
+    var indexToRemove = -1;
+    for (var i = 0; i < this.playedMissions.length; i++) {
+        if(this.playedMissions[i].name === mission.name){
+            indexToRemove = i;
+            break;
+        }
+    }
+    if(indexToRemove < 0){
+        throw errors.conflict('Mission was not played.');
+    }
+
+    // remove missions unlocked by this mission
+    var status = this.playedMissions[indexToRemove].status;
+    if(status === STATUS_VICTORY){
+        if(mission.unlockOnVictory){
+            this.removeMission(mission.unlockOnVictory);
+        }
+    }else if(status === STATUS_DEFEAT){
+        if(mission.unlockOnDefeat){
+            this.removeMission(mission.unlockOnDefeat);
+        }
+    }
+
+    // remove from playedMissions
+    this.playedMissions.splice(indexToRemove, 1);
+    // add back to mission deck unless it's already in there
+    // is mission was lost and is `replayOnDefeat` it is still in the deck
+    this.unlockMission(mission.name);
+};
+
 
 /*
  * Calculate the toal victory points for the rebel side
@@ -286,9 +328,9 @@ Campaign.prototype.totalImperialVP = function(){
 Campaign.prototype.victoryStatus = function(){
     var score = this.totalRebelVP() - this.totalImperialVP();
     if(score < 0){
-        return 'Defeat';
+        return STATUS_DEFEAT;
     }else if(score > 0){
-        return 'Victory';
+        return STATUS_VICTORY;
     }else{
         return 'Draw';
     }

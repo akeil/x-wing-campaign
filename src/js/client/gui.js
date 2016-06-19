@@ -316,6 +316,25 @@ Session.prototype.loadMission = function(missionName){
     }
 };
 
+Session.prototype.getMission = function(missionName){
+    var promise = new prom.Promise();
+
+    if(this.missionDetails[missionName]){
+        promise.resolve(this.missionDetails[missionName]);
+    }else{
+        this.client.getMission(missionName).then(function(mission){
+            this.missionDetails[mission.name] = mission;
+            promise.resolve(mission);
+            signal(EVT_MISSION_DETAILS_UPDATED);
+        }.bind(this)).except(function(err){
+            this.errorMessage(err);
+            promise.fail(err);
+        }.bind(this));
+    }
+
+    return promise;
+};
+
 Session.prototype.doAftermath = function(missionName, victory){
     var m = this.missionDetails[missionName];
     if(m){
@@ -340,6 +359,24 @@ Session.prototype.doAftermath = function(missionName, victory){
             // TODO rollback client state if server update failed ...
         }.bind(this));
     }
+};
+
+Session.prototype.undoMissionAftermath = function(missionName){
+    this.getMission(missionName).then(function(mission){
+        try{
+            this.campaign.undoMissionAftermath(mission);
+            this.client.updateCampaign(this.campaign).then(function(){
+                this.loadCampaign(this.campaign._id);
+                this.refreshCampaigns();
+            }.bind(this)).except(function(err){
+                this.errorMessage(err);
+            }.bind(this));
+        }catch(err){
+            this.errorMessage(err);
+        }
+    }.bind(this)).except(function(err){
+        this.errorMessage(err);
+    }.bind(this));
 };
 
 Session.prototype.doPilotAftermath = function(missionName, xp, kills){
@@ -752,9 +789,10 @@ AddPilotView.prototype.getRenderContext = function(){
 };
 
 
-// Missions View --------------------------------------------------------------
-
-
+/*
+ * Missions View
+ * Display of played missions for a campaign.
+ */
 MissionsView = function(session){
     _BaseView.call(this, 'missions', session);
 };
@@ -767,7 +805,14 @@ MissionsView.prototype.bindSignals = function(){
 };
 
 MissionsView.prototype.bindEvents = function(){
-
+    $(this.selector + ' table button').each(function(index, button){
+        $(button).off('click');
+        $(button).on('click', function(evt){
+            evt.preventDefault();
+            var missionName = $(evt.delegateTarget).data('id');
+            this.session.undoMissionAftermath(missionName);
+        }.bind(this));
+    }.bind(this));
 };
 
 MissionsView.prototype.getRenderContext = function(){

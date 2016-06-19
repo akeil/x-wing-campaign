@@ -7,6 +7,7 @@ div(id="view-missions" class="col-md-4")
                 th Status
                 th Rebel VP
                 th Imperial VP
+                th Action
         tfoot
             tr
                 td
@@ -17,6 +18,7 @@ div(id="view-missions" class="col-md-4")
                     strong {{totalRebelVP}}
                 td
                     strong {{totalImperialVP}}
+                td
         tbody
             | {{#playedMissions}}
             tr
@@ -24,4 +26,7 @@ div(id="view-missions" class="col-md-4")
                 td {{status}}
                 td {{rebelVP}}
                 td {{imperialVP}}
+                td
+                    button(data-id="{{name}}"
+                           class="btn btn-xs btn-danger") delete
             | {{/playedMissions}}
