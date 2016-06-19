@@ -86,6 +86,24 @@ module.exports.SLOTS = [
 ];
 
 
+// Helpers --------------------------------------------------------------------
+
+
+var getXP = function(item){
+    return item.xp || 0;
+};
+
+
+var add = function(total, value){
+    return total + value;
+};
+
+
+var count = function(total, value){
+    return total + 1;
+};
+
+
 // User -----------------------------------------------------------------------
 
 
@@ -457,24 +475,18 @@ Pilot.prototype.validate = function(){
  */
 Pilot.prototype.totalEarnedXP = function(missionName){
     var allMissions = !missionName;
-    var total = 0;
-    for(var i=0; i < this.playedMissions.length; i++){
-        if(allMissions || missionName === this.playedMissions[i].mission){
-            total += this.playedMissions[i].xp || 0;
-            if(!allMissions){
-                return total;
-            }
-        }
-    }
-    return total;
+    return this.playedMissions
+        .filter(function(item){
+            return allMissions || missionName === item.mission;
+        })
+        .map(getXP)
+        .reduce(add, 0);
 };
 
 Pilot.prototype.totalSpentXP = function(){
-    var total = 0;
-    for(var i=0; i < this.spentXP.length; i++){
-        total += this.spentXP[i].xp || 0;
-    }
-    return total;
+    return this.spentXP
+        .map(getXP)
+        .reduce(add, 0);
 };
 
 Pilot.prototype.currentXP = function(){
@@ -530,11 +542,7 @@ Pilot.prototype.spendXP = function(missionName, kind, value, xp, displayName){
 Pilot.prototype.skill = function(){
     return this.spentXP.filter(function(item){
         return item.kind === KIND_SKILL_INCREASE;
-    }).map(function(item){
-        return 1;
-    }).reduce(function(total, value){
-        return total + value;
-    }, BASE_SKILL);
+    }).reduce(count, BASE_SKILL);
 };
 
 /*
@@ -603,9 +611,7 @@ Pilot.prototype.increaseSkill = function(mission, increaseBy){
         costs.push((currentSkill + 1) * 2);
         currentSkill++;
     }
-    var totalCost = costs.reduce(function(total, i){
-        return total + 1;
-    });
+    var totalCost = costs.reduce(add);
     if(availableXP < totalCost){
         throw errors.conflict("Insufficient XP");
     }
