@@ -1,8 +1,15 @@
-div(id="view-header" class="container")
+div(id="view-header" class="container container-fluid")
     div(class="navbar-header")
+        button(class="navbar-toggle collapsed"
+               type="button"
+               data-toggle="collapse"
+               data-target="#nav-collapse")
+            span(class="icon-bar")
+            span(class="icon-bar")
+            span(class="icon-bar")
         a(class="navbar-brand" href="#" id="header-home") Home
 
-    div
+    div(class="collapse navbar-collapse" id="nav-collapse")
         ul(id="campaign-nav" class="nav navbar-nav")
             | {{#campaign}}
             li(class="{{navActive}}")
