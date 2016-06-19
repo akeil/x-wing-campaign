@@ -728,7 +728,6 @@ NewCampaignView.prototype.bindEvents = function(){
 CampaignView = function(session){
     _BaseView.call(this, 'campaign', session);
     this._children.push(new PilotsView(session));
-    this._children.push(new AddPilotView(session));
     this._children.push(new MissionsView(session));
     this._children.push(new MissionDeckView(session));
 };
@@ -747,11 +746,13 @@ PilotsView.prototype = new _BaseView();
 
 PilotsView.prototype.bindSignals = function(){
     onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_USERS_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
 };
 
 PilotsView.prototype.bindEvents = function(){
     // navigation links to show pilot details
-    $(this.selector + ' li a').each(function(index, a){
+    $(this.selector + ' a').each(function(index, a){
         $(a).off('click');
         $(a).on('click', function(evt){
             evt.preventDefault();
@@ -770,30 +771,8 @@ PilotsView.prototype.bindEvents = function(){
             this.session.deletePilot(pilotid, version);
         }.bind(this));
     }.bind(this));
-};
 
-PilotsView.prototype.getRenderContext = function(){
-    return {
-        pilots: this.session.pilots
-    };
-};
-
-
-// Add Pilot View -------------------------------------------------------------
-
-
-AddPilotView = function(session){
-    _BaseView.call(this, 'add-pilot', session);
-};
-
-AddPilotView.prototype = new _BaseView();
-
-AddPilotView.prototype.bindSignals = function(){
-    onSignal(EVT_USERS_UPDATED, this.refresh.bind(this));
-    onSignal(EVT_SHIPS_UPDATED, this.refresh.bind(this));
-};
-
-AddPilotView.prototype.bindEvents = function(){
+    // add pilot form
     $('#add-pilot').off('submit');
     $('#add-pilot').on('submit', function(evt){
         evt.preventDefault();
@@ -805,17 +784,20 @@ AddPilotView.prototype.bindEvents = function(){
     }.bind(this));
 };
 
-AddPilotView.prototype.getRenderContext = function(){
-    var ships = [];
+PilotsView.prototype.getRenderContext = function(){
+    var ctx = {
+        pilots: this.session.pilots,
+        users: this.session.users,
+        ships: []
+    };
+
     for (var i = 0; i < this.session.ships.length; i++) {
         if(this.session.ships[i].startingShip){
-            ships.push(this.session.ships[i]);
+            ctx.ships.push(this.session.ships[i]);
         }
     }
-    return {
-        users: this.session.users,
-        ships: ships
-    };
+
+    return ctx;
 };
 
 
