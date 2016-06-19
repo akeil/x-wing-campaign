@@ -309,7 +309,7 @@ api.delete('/campaign/:campaignid/:version', function(req, res){
  */
 api.get('/campaign/:campaignid/pilots', function(req, res){
     var campaignid = req.params.campaignid;
-    var fields = ['version', 'owner', 'callsign'];
+    var fields = ['version', 'owner', 'callsign', 'ship'];
     store.pilots.select({campaignid: campaignid}, fields).then(function(pilots){
         // if the user is one of the pilots owners, he is a campaign member
         var usernames = pilots.map(function(pilot){

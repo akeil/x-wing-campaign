@@ -6,11 +6,15 @@ div(id="view-header" class="container")
         ul(id="campaign-nav" class="nav navbar-nav")
             | {{#campaign}}
             li
-                a(data-id="{{_id}}" data-kind="campaign" href="#") {{displayName}}
+                a(data-id="{{_id}}" data-kind="campaign" href="#")
+                    i(class="xwing-miniatures-font xwing-miniatures-font-rebel")
+                    | &nbsp;{{displayName}}
             | {{/campaign}}
             | {{#pilots}}
             li
-                a(data-id="{{_id}}" data-kind="pilot" href="#") {{callsign}}
+                a(data-id="{{_id}}" data-kind="pilot" href="#")
+                    i(class="xwing-miniatures-ship xwing-miniatures-ship-{{ship}}")
+                    | &nbsp;{{callsign}}
             | {{/pilots}}
 
         ul(class="nav navbar-nav navbar-right")

@@ -4,7 +4,8 @@ div(id="view-pilots" class="col-md-4")
         | {{#pilots}}
         li
             a(href="#" data-id="{{_id}}")
-                strong {{callsign}} &nbsp;
+                i(class="xwing-miniatures-ship xwing-miniatures-ship-{{ship}}")
+                strong &nbsp; {{callsign}} &nbsp;
                 small played by &nbsp;
                 em {{owner}}
             button(class="btn btn-danger btn-xs"
