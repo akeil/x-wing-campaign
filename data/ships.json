@@ -1,6 +1,6 @@
 [
     {
-        "name": "x-wing",
+        "name": "xwing",
         "displayName": "X-Wing",
         "requiredSkill": 1,
         "startingShip": true,
@@ -17,7 +17,7 @@
         }
     },
     {
-        "name": "y-wing",
+        "name": "ywing",
         "displayName": "Y-Wing",
         "requiredSkill": 1,
         "startingShip": true,
@@ -34,7 +34,7 @@
         }
     },
     {
-        "name": "a-wing",
+        "name": "awing",
         "displayName": "A-Wing",
         "requiredSkill": 4,
         "slots": {
@@ -49,7 +49,7 @@
         }
     },
     {
-        "name": "b-wing",
+        "name": "bwing",
         "displayName": "B-Wing",
         "requiredSkill": 4,
         "slots": {
@@ -64,7 +64,7 @@
         }
     },
     {
-        "name": "hwk-290",
+        "name": "hwk290",
         "displayName": "HWK-290",
         "requiredSkill": 4,
         "slots": {
