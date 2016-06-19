@@ -43,6 +43,7 @@ var KIND_ABILITY_CHANGE = "ability";
 
 var BASE_SKILL          = 2;
 var SHIP_CHANGE_COST    = 5;
+var SHIP_CHANGE_MIN_SKILL = 4;
 
 var SLOT_ASTROMECH          = 'astromech';
 var SLOT_BOMB               = 'bomb';
@@ -524,7 +525,11 @@ Pilot.prototype.changeShip = function(mission, ship){
         throw errors.conflict('Insufficient XP');
     }
 
-    if(ship.requiredSkill > this.skill()){
+    var currentSkill = this.skill();
+    if(currentSkill < SHIP_CHANGE_MIN_SKILL){
+        throw errors.conflict('Required skill level for ship change not met');
+    }
+    if(ship.requiredSkill > currentSkill){
         throw errors.conflict('Required skill level not met');
     }
 
