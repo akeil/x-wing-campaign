@@ -24,6 +24,7 @@ var EVT_SHIPS_UPDATED           = 'xwing:ships-updated';
 var EVT_UPGRADES_UPDATED        = 'xwing:upgrades-updated';
 var EVT_MISSIONS_UPDATED        = 'xwing:missions-updated';
 var EVT_MISSION_DETAILS_UPDATED = 'xwing:mission-details-updated';
+var EVT_MAIN_VIEW_CHANGED       = 'xwing:main-view-changed';
 
 // levels for error messages, match bootstrap css classes
 var LVL_SUCCESS = 'success';
@@ -469,6 +470,9 @@ _BaseView.prototype.load = function(selector){
     this._loadTemplate().then(function(template){
         console.log('add ' + this.name + ' to ' + selector);
         $(selector).html(this._render(template));
+        if(selector === '#main'){
+            signal(EVT_MAIN_VIEW_CHANGED);
+        }
         this.bindEvents();
         this._loadChildren();
     }.bind(this));
@@ -503,6 +507,10 @@ _BaseView.prototype.refresh = function(){
     }.bind(this));
 };
 
+_BaseView.prototype.isShowing = function(){
+    return $(this.selector).length !== 0;
+};
+
 
 // Welcome View ---------------------------------------------------------------
 
@@ -535,7 +543,9 @@ HeaderView.prototype = new _BaseView();
 
 HeaderView.prototype.bindSignals = function(){
     onSignal(EVT_PILOTS_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
     onSignal(EVT_CAMPAIGN_UPDATED, this.refresh.bind(this));
+    onSignal(EVT_MAIN_VIEW_CHANGED, this.refresh.bind(this));
 };
 
 HeaderView.prototype.bindEvents = function(){
@@ -567,10 +577,30 @@ HeaderView.prototype.bindEvents = function(){
 };
 
 HeaderView.prototype.getRenderContext = function(){
-    return {
+    var ctx = {
         campaign: this.session.campaign,
         pilots: this.session.pilots
     };
+
+    if(ctx.campaign){
+        if(this.session._views.campaign.isShowing()){
+            ctx.campaign.navActive = 'active';
+        }else{
+            ctx.campaign.navActive = '';
+        }
+    }
+
+    if(this.session._views.pilot.isShowing()){
+        for (var i = 0; i < ctx.pilots.length; i++) {
+            var isActive = false;
+            if(this.session.pilot){
+                isActive = ctx.pilots[i]._id === this.session.pilot._id;
+            }
+            ctx.pilots[i].navActive = isActive ? 'active' : '';
+        }
+    }
+
+    return ctx;
 };
 
 

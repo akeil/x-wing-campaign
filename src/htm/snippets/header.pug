@@ -5,13 +5,13 @@ div(id="view-header" class="container")
     div
         ul(id="campaign-nav" class="nav navbar-nav")
             | {{#campaign}}
-            li
+            li(class="{{navActive}}")
                 a(data-id="{{_id}}" data-kind="campaign" href="#")
                     i(class="xwing-miniatures-font xwing-miniatures-font-rebel")
                     | &nbsp;{{displayName}}
             | {{/campaign}}
             | {{#pilots}}
-            li
+            li(class="{{navActive}}")
                 a(data-id="{{_id}}" data-kind="pilot" href="#")
                     i(class="xwing-miniatures-ship xwing-miniatures-ship-{{ship}}")
                     | &nbsp;{{callsign}}
