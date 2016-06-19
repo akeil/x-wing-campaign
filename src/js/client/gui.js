@@ -579,7 +579,7 @@ HeaderView.prototype.bindEvents = function(){
 HeaderView.prototype.getRenderContext = function(){
     var ctx = {
         campaign: this.session.campaign,
-        pilots: this.session.pilots
+        pilots: this.session.pilots || []
     };
 
     if(ctx.campaign){
