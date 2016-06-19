@@ -1052,15 +1052,35 @@ PilotKillsView = function(session){
 
 PilotKillsView.prototype = new _BaseView();
 
-
-// Pilot Upgrades View --------------------------------------------------------
-
-
+/*
+ * Pilot Upgrades
+ * Display a pilot's bought upgrades
+ */
 PilotUpgradesView = function(session){
     _BaseView.call(this, 'pilot-upgrades', session);
 };
 
 PilotUpgradesView.prototype = new _BaseView();
+
+PilotUpgradesView.prototype.bindSignals = function(){
+    onSignal(EVT_PILOT_UPDATED, this.refresh.bind(this));
+};
+
+PilotUpgradesView.prototype.bindEvents = function(){
+
+};
+
+PilotUpgradesView.prototype.getRenderContext = function(){
+    var ctx = {
+        upgrades: []
+    };
+    var pilot = this.session.pilot;
+    if(pilot){
+        ctx.upgrades = pilot.upgrades();
+    }
+
+    return ctx;
+};
 
 
 // Pilot Aftermath View -------------------------------------------------------
@@ -1212,8 +1232,8 @@ StoreView.prototype.getRenderContext = function(){
         }.bind(this)).map(function(item){
             item.owned = 0;
             if(pilot){
-                item.owned = pilot.upgrades.filter(function(name){
-                    return name === item.name;
+                item.owned = pilot.upgrades().filter(function(upgrade){
+                    return upgrade.value === item.name;
                 }).length;
             }
             return item;
