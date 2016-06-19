@@ -1,14 +1,13 @@
 div(id="view-pilots" class="col-md-4")
     h3 Pilots
-    ol
+    div(class="list-group")
         | {{#pilots}}
-        li
-            a(href="#" data-id="{{_id}}")
-                i(class="xwing-miniatures-ship xwing-miniatures-ship-{{ship}}")
-                strong &nbsp; {{callsign}} &nbsp;
-                small played by &nbsp;
-                em {{owner}}
-            button(class="btn btn-danger btn-xs"
-                   data-id="{{_id}}"
-                   data-version="{{version}}") Delete
+        a(href="#" data-id="{{_id}}" class="list-group-item")
+            i(class="xwing-miniatures-ship xwing-miniatures-ship-{{ship}}")
+            strong &nbsp; {{callsign}} &nbsp;
+            small played by &nbsp;
+            em {{owner}}
+        //- button(class="btn btn-danger btn-xs pull-right"
+        //-        data-id="{{_id}}"
+        //-        data-version="{{version}}") Delete
         | {{/pilots}}

@@ -1,9 +1,7 @@
 div(id="view-pilot-details")
-    h3 Pilot Details ({{pilot.callsign}})
-    |{{^pilot}}
-    p no pilot
-    | {{/pilot}}
+    h3 {{pilot.callsign}}
     table(class="table")
+        caption Pilot Details
         tbody
             tr
                 th(class="col-sm-4") Player
