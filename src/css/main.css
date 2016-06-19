@@ -1,5 +1,5 @@
 @import "bootstrap/bootstrap";
-
+@import "./xwing-miniatures";
 /*
  * Navbar fixed to top - it's 50px high
  * see: https://getbootstrap.com/components/#navbar-fixed-top

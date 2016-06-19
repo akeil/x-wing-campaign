@@ -12,6 +12,10 @@ module.exports = {
         src: src + '/img/**',
         dst: www + '/img/'
     },
+    fonts: {
+        src: src + '/fonts/**',
+        dst: www + '/fonts/'
+    },
     htm: {
         src: src + '/htm/**/*.pug',
         dst: www,

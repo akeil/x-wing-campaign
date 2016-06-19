@@ -24,3 +24,8 @@ A maintains individual pilots with:
 - XP earned and spent
 - current XP and pilot skill
 - upgrade cards
+
+## Credits
+Uses the
+[X-Wing Miniatures Font](https://github.com/armoredgear7/xwing-miniatures-font)
+for icons.

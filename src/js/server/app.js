@@ -73,6 +73,7 @@ app.use(serveStatic(staticdir, {
 app.use('/js', serveStatic(staticdir + '/js'));
 app.use('/css', serveStatic(staticdir + '/css'));
 app.use('/img', serveStatic(staticdir + '/img'));
+app.use('/fonts', serveStatic(staticdir + '/fonts'));
 
 app.use(cookieParser());  // for auth
 

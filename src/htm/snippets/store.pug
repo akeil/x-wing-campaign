@@ -4,7 +4,10 @@ div(id="view-store")
     ul(class="nav nav-tabs")
         | {{#slots}}
         li(class="{{active}}")
-            a(href="#" data-id="{{name}}") {{displayName}}
+            a(href="#" data-id="{{name}}")
+                i(class="xwing-miniatures-font xwing-miniatures-font-{{name}}")
+                | &nbsp; {{displayName}}
+
         | {{/slots}}
 
     table(id="pilot-upgrades" class="table table-hover")
@@ -17,7 +20,9 @@ div(id="view-store")
         tbody
             | {{#upgrades}}
             tr(class="{{#owned}}success{{/owned}}")
-                td(data-id="{{name}}" data-toggle="trigger") {{#decanonicalize}}{{slot}}{{/decanonicalize}}
+                td(data-id="{{name}}" data-toggle="trigger")
+                    i(class="xwing-miniatures-font xwing-miniatures-font-{{slot}}"
+                      title="{{#decanonicalize}}{{slot}}{{/decanonicalize}}")
                 td(data-id="{{name}}" data-toggle="trigger")
                     span(data-toggle="icon")
                     | &nbsp;{{displayName}}
