@@ -432,9 +432,20 @@ Pilot = function(props) {
      * ]
      */
     this.playedMissions = props.playedMissions || [];
-
+    /*
+     * Expected:
+     * [
+     *   {
+     *     mission: <mission-name>,
+     *     kind: <enum>,
+     *     value: <name>,
+     *     xp: <n>,
+     *     displayName: <text-to-display>
+     *   },
+     *   {...}
+     * ]
+     */
     this.spentXP = props.spentXP || [];
-    this.upgrades = props.upgrades || [];
 };
 
 Pilot.prototype.patch = function(props){
@@ -448,7 +459,6 @@ Pilot.prototype.patch = function(props){
     this.initialXP = props.initialXP || this.initialXP;
     this.playedMissions = props.playedMissions || this.playedMissions;
     this.spentXP = props.spentXP || this.spentXP;
-    this.upgrades = props.upgrades || this.upgrades;
 };
 
 Pilot.prototype.validate = function(){
@@ -483,16 +493,30 @@ Pilot.prototype.totalEarnedXP = function(missionName){
         .reduce(add, 0);
 };
 
+/*
+ * Get the total amount of spent XP
+ */
 Pilot.prototype.totalSpentXP = function(){
     return this.spentXP
         .map(getXP)
         .reduce(add, 0);
 };
 
+/*
+ * Get the current amount of unspent XP for this pilot.
+ */
 Pilot.prototype.currentXP = function(){
     return this.initialXP + this.totalEarnedXP() - this.totalSpentXP();
 };
 
+/*
+ * Do mission aftermath for this pilot on the given mission name.
+ *
+ * Params:
+ * `missionName`
+ * `xp`: the number of XP earned in this mission
+ * `kills`: number of killy ba enemy ship type
+ */
 Pilot.prototype.missionAftermath = function(missionName, xp, kills){
     for (var i = 0; i < this.playedMissions.length; i++) {
         if(this.playedMissions[i].mission === missionName){
@@ -510,6 +534,9 @@ Pilot.prototype.missionAftermath = function(missionName, xp, kills){
     });
 };
 
+/*
+ * Buy the given `Upgrade` for this pilot.
+ */
 Pilot.prototype.buyUpgrade = function(missionName, upgrade){
     if(this.currentXP() < upgrade.cost){
         throw errors.conflict('Insufficient XP');
@@ -574,7 +601,15 @@ Pilot.prototype.abilities = function(){
     return result;
 };
 
-Pilot.prototype.changeShip = function(mission, ship){
+/*
+ * Change this pilot's ship to the given `Ship`.
+ *
+ * Params
+ * missionName: the name of the currrent mission
+ * ship: a `Ship` object
+ *
+ */
+Pilot.prototype.changeShip = function(missionName, ship){
     var availableXP = this.currentXP();
     if(availableXP < SHIP_CHANGE_COST){
         throw errors.conflict('Insufficient XP');
@@ -588,7 +623,7 @@ Pilot.prototype.changeShip = function(mission, ship){
         throw errors.conflict('Required skill level not met');
     }
 
-    this.spendXP(mission,
+    this.spendXP(missionName,
                  KIND_SHIP_CHANGE,
                  ship.name,
                  SHIP_CHANGE_COST,
@@ -596,7 +631,10 @@ Pilot.prototype.changeShip = function(mission, ship){
     this.ship = ship.name;
 };
 
-Pilot.prototype.increaseSkill = function(mission, increaseBy){
+/*
+ * Increase the pilot skill by the given value.
+ */
+Pilot.prototype.increaseSkill = function(missionName, increaseBy){
     if(increaseBy <= 0){
         throw errors.invalid('Invalid pilot skill');
     }
@@ -605,7 +643,7 @@ Pilot.prototype.increaseSkill = function(mission, increaseBy){
     // skill increase costs new skill level x2
     // for each increase
     // e.g. from 2 => 4 costs 3x2 + 4x2 = 14
-    // we record costs for indivudal steps
+    // we record costs for individual steps
     var costs = [];
     for(var i=0; i<increaseBy; i++){
         costs.push((currentSkill + 1) * 2);
@@ -617,7 +655,7 @@ Pilot.prototype.increaseSkill = function(mission, increaseBy){
     }
     // create one entry per increase
     for(var j=0; j<costs.length; j++){
-        this.spendXP(mission,
+        this.spendXP(missionName,
                      KIND_SKILL_INCREASE,
                      increaseBy,
                      costs[j],
